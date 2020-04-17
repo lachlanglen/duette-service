@@ -4,7 +4,8 @@
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Alert, Image, View, Modal, Button, StyleSheet, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { Slider, Alert, Image, View, Modal, Button, StyleSheet, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { Icon } from 'react-native-elements'
 import { Video } from 'expo-av';
 import { ScreenOrientation } from 'expo';
 import * as FileSystem from 'expo-file-system';
@@ -25,16 +26,20 @@ const PreviewModal = (props) => {
   const [mergedLocalUri, setMergedLocalUri] = useState('');
   const [success, setSuccess] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('')
-  // const [previewSelected, setPreviewSelected] = useState(false);
-  const [shouldPlay, setShouldPlay] = useState(false);
+  const [previewSelected, setPreviewSelected] = useState(false);
   const [previewComplete, setPreviewComplete] = useState(false);
   const [rewatch, setRewatch] = useState(false);
   const [saving, setSaving] = useState(false);
-  // const [vidARef, setVidARef] = useState(null);
-  // const [vidBRef, setVidBRef] = useState(null);
+  const [vidARef, setVidARef] = useState(null);
+  const [vidBRef, setVidBRef] = useState(null);
   const [vid1Ready, setVid1Ready] = useState(false);
   const [vid2Ready, setVid2Ready] = useState(false);
   const [bothVidsReady, setBothVidsReady] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [delay, setDelay] = useState(0);
+  const [customOffset, setCustomOffset] = useState(0);
+  const minVal = -250;
+  const maxVal = 250;
 
   // if (vidARef) {
   //   vidARef.loadAsync({ uri: props.selectedVideo.videoUri })
@@ -65,7 +70,6 @@ const PreviewModal = (props) => {
 
   const handleSave = () => {
     console.log('in handleSave')
-    // FIXME: change this back below
     setSaving(true);
     handlePost();
   }
@@ -86,8 +90,20 @@ const PreviewModal = (props) => {
       });
     });
     console.log('formData line 55: ', formData)
-    const key = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette${bluetooth ? '/0.2' : ''}`, formData)).data
+    const infoArr = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/getinfo`, formData)).data;
+    console.log('info retrieved: ', infoArr);
+    const croppedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/crop/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, infoArr)).data;
+    infoArr.push(croppedPath);
+    console.log('cropped! infoArr: ', infoArr);
+    const scaledPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/scale`, infoArr)).data;
+    infoArr.push(scaledPath);
+    console.log('scaled! infoArr: ', infoArr);
+    const combinedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/combine`, infoArr)).data;
+    infoArr.push(combinedPath);
+    console.log('combined! infoArr: ', infoArr);
+    const key = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/aws`, infoArr)).data
     // add to local DB:
+    console.log('uploaded to AWS and files deleted!');
     const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: key });
     console.log('duette: ', newDuetteInDB.data)
     // retrieve from s3
@@ -131,15 +147,18 @@ const PreviewModal = (props) => {
     setDisplayMergedVideo(true);
   }
 
-  const handleShowPreview = () => {
+  const handleShowPreview = async () => {
     setPreviewComplete(false);
-    setShouldPlay(true);
+    setPreviewSelected(true);
+    console.log('delay in handleShowPreview: ', delay)
+    await vidARef.playFromPositionAsync(0);
+    await vidBRef.playFromPositionAsync(bluetooth ? bluetooth + delay : delay);
+    setIsPlaying(true);
   }
 
   const handleRewatch = () => {
     setRewatch(true);
     setPreviewComplete(false);
-    setShouldPlay(true);
   }
 
   const handleRedo = () => {
@@ -184,33 +203,17 @@ const PreviewModal = (props) => {
   console.log('bothVidsReady: ', bothVidsReady)
 
   const handlePlaybackStatusUpdateVid1 = (updateObj) => {
-    // console.log('updateObjVid1.isLoaded: ', updateObj.isLoaded)
     if (!vid1Ready && !vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
       setVid1Ready(true)
     } else if (!vid1Ready && vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
       setBothVidsReady(true);
     } if (updateObj.didJustFinish) {
       setPreviewComplete(true);
-      setShouldPlay(false);
+      setIsPlaying(false);
     }
-    // if (updateObj.didJustFinish) {
-    //   console.log('in didJustFinish')
-    //   if (!rewatch) {
-    //     // if this is not a rewatch
-    //     setPreviewComplete(true);
-    //     setShouldPlay(false);
-    //   } else {
-    //     // if this is a rewatch
-    //     console.log('this is a rewatch');
-    //     // vidARef.setStatusAsync({ positionMillis: 0, shouldPlay: true })
-    //     //   .then(() => console.log('yay!'))
-    //     //   .catch(e => console.log('bummer: ', e))
-    //   }
-    // }
   }
 
   const handlePlaybackStatusUpdateVid2 = (updateObj) => {
-    // console.log('updateObjVid2.isLoaded: ', updateObj.isLoaded)
     if (!vid1Ready && !vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
       setVid2Ready(true)
     } else if (vid1Ready && !vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
@@ -218,10 +221,48 @@ const PreviewModal = (props) => {
     }
   }
 
+  const handleSyncBack = async () => {
+    await vidARef.stopAsync();
+    await vidBRef.stopAsync();
+    setDelay(delay - 50);
+  }
+
+  const syncBack = async () => {
+    await handleSyncBack();
+    handleShowPreview();
+  }
+
+  const handleSyncForward = async () => {
+    // stop videos
+    await vidARef.stopAsync();
+    await vidBRef.stopAsync();
+    // update delay (minus 5ms)
+    setDelay(delay + 50);
+    // start playing videos again, with vidB set to delay + bluetooth
+    // handleShowPreview();
+  }
+
+  const syncForward = async () => {
+    await handleSyncForward();
+    handleShowPreview();
+  }
+
+  // const handleSyncForward = async () => {
+  //   await vidARef.pauseAsync();
+  //   await vidBRef.pauseAsync();
+  //   const vidAObj = await vidARef.getStatusAsync();
+  //   const vidACurPos = vidAObj.positionMillis;
+  //   console.log('vidA currentPos in syncForward: ', vidACurPos)
+  //   const vidBObj = await vidBRef.getStatusAsync();
+  //   const vidBCurPos = vidBObj.positionMillis;
+  //   console.log('vidB currentPos in syncForward: ', vidBCurPos)
+  //   await vidBRef.playFromPositionAsync(vidBCurPos + 5);
+  //   await vidARef.playFromPositionAsync(vidACurPos);
+  // }
+
   console.log('screenOrientation in PreviewModal: ', screenOrientation)
   // console.log('previewSelected: ', previewSelected)
   console.log('previewComplete: ', previewComplete);
-  console.log('shouldPlay: ', shouldPlay)
 
   return (
     <View style={styles.container}>
@@ -311,73 +352,115 @@ const PreviewModal = (props) => {
                         // video hasn't been merged yet
                         // <View>
                         <View style={{
-                          flexDirection: 'row',
+                          flexDirection: 'column',
                           justifyContent: 'center',
                           alignItems: 'center',
                           paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
                           backgroundColor: 'black',
                           height: '100%'
                         }}>
-                          <Video
-                            // ref={ref => setVidARef(ref)}
-                            source={{ uri: props.selectedVideo.videoUri }}
-                            rate={1.0}
-                            volume={1.0}
-                            isMuted={false}
-                            resizeMode="cover"
-                            shouldPlay={shouldPlay}
-                            positionMillis={0}
-                            isLooping={false}
-                            style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
-                            onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid1(update)}
-                          />
-                          <Video
-                            // ref={ref => setVidBRef(ref)}
-                            source={{ uri: duetteUri }}
-                            rate={1.0}
-                            volume={1.0}
-                            isMuted={false}
-                            resizeMode="cover"
-                            shouldPlay={shouldPlay}
-                            positionMillis={bluetooth ? 200 : 0}
-                            isLooping={false}
-                            style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
-                            onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid2(update)}
-                          />
-                          {
-                            // if preview hasn't played yet (!previewSelected)
-                            !previewComplete && !shouldPlay ? (
-                              <TouchableOpacity
-                                onPress={handleShowPreview}
-                                style={{ ...styles.overlay, width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
-                                <Text style={{
-                                  fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 20,
-                                  fontWeight: 'bold'
-                                }}>{bothVidsReady ? 'Touch to preview!' : 'Loading...'}</Text>
-                              </TouchableOpacity>
-                            ) : (
-                                // if preview has played (previewComplete)
-                                previewComplete &&
+                          <View style={{ flexDirection: 'row' }}>
+                            <Video
+                              ref={ref => setVidARef(ref)}
+                              source={{ uri: props.selectedVideo.videoUri }}
+                              rate={1.0}
+                              volume={1.0}
+                              isMuted={false}
+                              resizeMode="cover"
+                              // positionMillis={0}
+                              isLooping={false}
+                              style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                              onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid1(update)}
+                            />
+                            <Video
+                              ref={ref => setVidBRef(ref)}
+                              source={{ uri: duetteUri }}
+                              rate={1.0}
+                              volume={1.0}
+                              isMuted={false}
+                              resizeMode="cover"
+                              // positionMillis={bluetooth ? 200 : 0}
+                              isLooping={false}
+                              style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                              onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid2(update)}
+                            />
+                            {
+                              // if preview hasn't played yet (!previewSelected)
+                              // previewSelected &&
+                              !previewComplete && !isPlaying ? (
                                 <TouchableOpacity
-                                  style={{ ...styles.overlay, opacity: 0.8, flexDirection: 'row', width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
-                                  <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={handleSave}>
-                                    <Text
-                                      style={styles.overlayText}>
-                                      Save
-                                      </Text>
-                                  </TouchableOpacity>
-                                  <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={handleRedo}>
-                                    <Text
-                                      style={styles.overlayText}>
-                                      Redo
-                                      </Text>
-                                  </TouchableOpacity>
+                                  onPress={handleShowPreview}
+                                  style={{ ...styles.overlay, width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
+                                  <Text style={{
+                                    fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 20,
+                                    fontWeight: 'bold'
+                                  }}>{bothVidsReady ? 'Touch to preview!' : 'Loading...'}</Text>
                                 </TouchableOpacity>
-                              )
+                              ) : (
+                                  // if preview has played (previewComplete)
+                                  previewComplete &&
+                                  <TouchableOpacity
+                                    style={{ ...styles.overlay, opacity: 0.8, flexDirection: 'row', width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
+                                    <TouchableOpacity
+                                      style={styles.button}
+                                      onPress={handleSave}>
+                                      <Text
+                                        style={styles.overlayText}>
+                                        Save
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                      style={styles.button}
+                                      onPress={handleRedo}>
+                                      <Text
+                                        style={styles.overlayText}>
+                                        Redo
+                                        </Text>
+                                    </TouchableOpacity>
+                                  </TouchableOpacity>
+                                )
+                            }
+                          </View>
+                          {
+                            screenOrientation === 'PORTRAIT' &&
+                            <TouchableOpacity
+                            // style={{ backgroundColor: 'white' }}
+                            // onPress={handleCancel}
+                            >
+                              <Text style={{ color: 'white', marginTop: 20, marginVertical: 20, textAlign: 'center' }}>Not perfectly in sync? Use the arrows below to adjust to your taste!</Text>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <Icon
+                                  onPress={syncBack}
+                                  name="fast-rewind"
+                                  type="material"
+                                  color="white"
+                                  size={60} />
+                                <Text
+                                  style={{
+                                    fontSize: 30,
+                                    color: 'white',
+                                    alignSelf: 'center'
+                                  }}>{delay >= 0 && '+'} {delay} ms
+                                </Text>
+                                <Icon
+                                  onPress={syncForward}
+                                  name="fast-forward"
+                                  type="material"
+                                  color="white"
+                                  size={60} />
+                              </View>
+                              <Text style={{ fontStyle: 'italic', marginTop: 30, color: 'white', textAlign: 'center' }}>Hint:</Text>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the accompaniment, press </Text><Icon name="fast-forward"
+                                  type="material"
+                                  color="yellow" />
+                              </View>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the accompaniment, press </Text><Icon name="fast-rewind"
+                                  type="material"
+                                  color="yellow" />
+                              </View>
+                            </TouchableOpacity>
                           }
                         </View>
                         // {
@@ -466,7 +549,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 5,
     borderWidth: 1
-  }
+  },
 });
 
 const mapState = ({ selectedVideo }) => {

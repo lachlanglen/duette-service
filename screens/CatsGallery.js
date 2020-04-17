@@ -5,6 +5,8 @@ import Gallery from 'react-native-image-gallery';
 
 const CatsGallery = (props) => {
 
+  console.log('in CatsGallery')
+
   // FIXME: doesn't load on landscape view
   return (
     <View style={{ flex: 1 }}>
