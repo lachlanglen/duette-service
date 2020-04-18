@@ -21,7 +21,9 @@ function start() {
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    console.log('job.data: ', job.data)
+    console.log('job.data: ', job.data);
+
+    return { value: 'something to be stored' };
 
     // A job can return values that will be stored in Redis as JSON
     // This return value is unused in this demo application.
