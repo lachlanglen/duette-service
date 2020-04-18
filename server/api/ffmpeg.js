@@ -48,14 +48,24 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     duration: null,
   };
 
-  let job = await videoQueue.add({
-    file1Info,
-    file2Info,
-    file1Buffer: req.files[0].buffer,
-    file2Buffer: req.files[1].buffer
-  })
+  console.log('in job route')
 
-  res.status(200).send(job);
+  try {
+
+    let job = await videoQueue.add({
+      file1Info,
+      file2Info,
+      file1Buffer: req.files[0].buffer,
+      file2Buffer: req.files[1].buffer
+    })
+
+    console.log('job: ', job)
+
+    res.status(200).send(job);
+  } catch (e) {
+    console.log('error in job route: ', e)
+    res.status(400).send(e)
+  }
 });
 
 router.get('/job/:id', async (req, res) => {
