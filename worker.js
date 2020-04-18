@@ -33,60 +33,10 @@ function start() {
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    const { file1Info, file2Info, file1Buffer, file2Buffer } = job.data;
+    const { file1Info, file2Info } = job.data;
     console.log('job.data: ', job.data);
 
     try {
-      // create a file on server for each vid
-      await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, file1Buffer);
-      await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, file2Buffer);
-
-      // get metadata on vid 1
-      const metadata = await ffprobeAsync(`server/api/${file1Info.originalName}.mov`)
-
-      console.log('metadata1: ', metadata)
-
-      if (!metadata.streams[0].rotation) {
-        console.log('undefined rotation in file 1')
-        // res.status(400).send(`unsupported orientation in file ${file1Info.originalName}`)
-      }
-
-      console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
-
-      file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-      file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
-      file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
-
-      // get metadata on vid 2
-      const metadata2 = await ffprobeAsync(`server/api/${file2Info.originalName}.mov`)
-
-      console.log('metadata2: ', metadata2)
-
-      if (!metadata2.streams[0].rotation) {
-        console.log('undefined rotation in file 2')
-        // res.status(400).send(`unsupported orientation in file ${file2Info.originalName}`)
-      }
-
-      console.log('metadata2.streams[0].rotation: ', metadata2.streams[0].rotation);
-
-      file2Info.orientation = metadata2.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-      file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
-      file2Info.trueHeight = file2Info.orientation === 'portrait' ? metadata2.streams[0].width : metadata2.streams[0].height;
-      file2Info.croppedHeight = file2Info.orientation === 'portrait' ? (file2Info.trueWidth / 8) * 9 : file2Info.trueHeight;
-      file2Info.croppedWidth = file2Info.croppedHeight / 9 * 8;
-      file2Info.offset = file2Info.orientation === 'portrait' ? (file2Info.trueHeight - file2Info.croppedHeight) / 2 : (file2Info.trueWidth - file2Info.croppedWidth) / 2;
-      file2Info.duration = metadata2.streams[0].duration;
-
-      // note which file will be tallest (largest height res) after cropping
-      if (file1Info.height > file2Info.croppedHeight) file1Info.isTallest = true;
-      if (file2Info.croppedHeight > file1Info.height) file2Info.isTallest = true;
-
-      // if vid croppedHeight is not divisible by 2, reduce by 1px
-      if (file1Info.height % 2 === 1) file1Info.height--;
-      if (file2Info.croppedHeight % 2 === 1) file2Info.croppedHeight--;
-
-      console.log('file1Info: ', file1Info);
-      console.log('file2Info: ', file2Info);
 
       // crop & trim vid 2
       if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i server/api/${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy server/api/${file2Info.originalName}cropped.mov`)
