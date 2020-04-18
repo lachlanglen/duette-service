@@ -19,10 +19,24 @@ let videoQueue = new Queue('video processing', REDIS_URL);
 // TODO: PICK UP HERE
 // add job to queue
 
-router.post('/queue', async (req, res, next) => {
+router.post('/job', async (req, res, next) => {
   let job = await videoQueue.add({ name: 'Lachlan' })
   res.status(200).send(job)
-})
+});
+
+router.get('/job/:id', async (req, res) => {
+  let id = req.params.id;
+  let job = await videoQueue.getJob(id);
+
+  if (job === null) {
+    res.status(404).end();
+  } else {
+    let state = await job.getState();
+    let progress = job._progress;
+    let reason = job.failedReason;
+    res.status(200).send({ state, progress, reason });
+  }
+});
 
 const s3 = new AWS.S3({
   apiVersion: "2006-03-01",
