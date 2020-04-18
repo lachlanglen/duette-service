@@ -16,18 +16,21 @@ let maxJobsPerWorker = 10;
 
 function start() {
   // Connect to the named work queue
-  let workQueue = new Queue('video processing', REDIS_URL);
+  let videoQueue = new Queue('video processing', REDIS_URL);
 
-  workQueue.process(maxJobsPerWorker, async (job) => {
+  videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    console.log('job: ', job)
     console.log('job.data: ', job.data)
 
     // A job can return values that will be stored in Redis as JSON
     // This return value is unused in this demo application.
     // return { value: "This will be stored" };
   });
+
+  videoQueue.on('completed', (job, result) => {
+    console.log(`Job #${job.id} completed with the following result: ,`, result)
+  })
 }
 
 // Initialize the clustered worker process
