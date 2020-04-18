@@ -90,22 +90,25 @@ const PreviewModal = (props) => {
       });
     });
     console.log('formData line 55: ', formData)
-    const infoArr = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/getinfo`, formData)).data;
-    console.log('info retrieved: ', infoArr);
-    const croppedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/crop/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, infoArr)).data;
-    infoArr.push(croppedPath);
-    console.log('cropped! infoArr: ', infoArr);
-    const scaledPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/scale`, infoArr)).data;
-    infoArr.push(scaledPath);
-    console.log('scaled! infoArr: ', infoArr);
-    const combinedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/combine`, infoArr)).data;
-    infoArr.push(combinedPath);
-    console.log('combined! infoArr: ', infoArr);
-    const key = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/aws`, infoArr)).data
-    // add to local DB:
-    console.log('uploaded to AWS and files deleted!');
-    const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: key });
-    console.log('duette: ', newDuetteInDB.data)
+    const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, formData)).data;
+    console.log('job id in PreviewModal: ', job.id)
+    // const infoArr = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/getinfo`, formData)).data;
+    // console.log('info retrieved: ', infoArr);
+    // const croppedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/crop/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, infoArr)).data;
+    // infoArr.push(croppedPath);
+    // console.log('cropped! infoArr: ', infoArr);
+    // const scaledPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/scale`, infoArr)).data;
+    // infoArr.push(scaledPath);
+    // console.log('scaled! infoArr: ', infoArr);
+    // const combinedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/combine`, infoArr)).data;
+    // infoArr.push(combinedPath);
+    // console.log('combined! infoArr: ', infoArr);
+    // const key = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/aws`, infoArr)).data
+    // // add to local DB:
+    // console.log('uploaded to AWS and files deleted!');
+    // const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: key });
+    // console.log('duette: ', newDuetteInDB.data)
+
     // retrieve from s3
     const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${key}`;
     FileSystem.downloadAsync(

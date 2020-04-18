@@ -11,17 +11,51 @@ const { v4: uuidv4 } = require('uuid');
 // const s3 = require('../../awsconfig');
 const { promisify } = require('util');
 let Queue = require('bull');
+const { s3 } = require('../../awsconfig');
+
+const exec = promisify(require('child_process').exec)
+const writeFileAsync = promisify(fs.writeFile)
+const ffprobeAsync = promisify(ffmpeg.ffprobe)
+const unlinkAsync = promisify(fs.unlink)
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage });
 
 let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 let videoQueue = new Queue('video processing', REDIS_URL);
 
-// TODO: PICK UP HERE
-// add job to queue
+router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) => {
+  const { delay } = req.params;
+  console.log('delay: ', delay)
 
-router.post('/job', async (req, res, next) => {
-  let job = await videoQueue.add({ name: 'Lachlan' })
-  res.status(200).send(job)
+  const file1Info = {
+    originalName: req.files[0].originalname,
+    orientation: '',
+    height: null,
+    width: null,
+    isTallest: false,
+  };
+  const file2Info = {
+    originalName: req.files[1].originalname,
+    orientation: '',
+    trueHeight: null,
+    trueWidth: null,
+    croppedHeight: null,
+    croppedWidth: null,
+    offset: null,
+    isTallest: false,
+    duration: null,
+  };
+
+  let job = await videoQueue.add({
+    file1Info,
+    file2Info,
+    file1Buffer: req.files[0].buffer,
+    file2Buffer: req.files[1].buffer
+  })
+
+  res.status(200).send(job);
 });
 
 router.get('/job/:id', async (req, res) => {
@@ -37,19 +71,6 @@ router.get('/job/:id', async (req, res) => {
     res.status(200).send({ state, progress, reason });
   }
 });
-
-const s3 = new AWS.S3({
-  apiVersion: "2006-03-01",
-  params: { Bucket: 'duette' }
-});
-
-const exec = promisify(require('child_process').exec)
-const writeFileAsync = promisify(fs.writeFile)
-const ffprobeAsync = promisify(ffmpeg.ffprobe)
-const unlinkAsync = promisify(fs.unlink)
-
-const storage = multer.memoryStorage()
-const upload = multer({ storage });
 
 router.post('/accompaniment', upload.single('video'), async (req, res, next) => {
 
@@ -318,9 +339,9 @@ router.post('/duette/aws', async (req, res, next) => {
   });
 });
 
-/* 
 
-OLD ROUTE:
+
+// OLD ROUTE:
 
 router.post('/duette/:delay?', upload.array('videos', 2), async (req, res, next) => {
   req.connection.setTimeout(1000 * 60 * 30); // thirty minutes
@@ -469,7 +490,5 @@ router.post('/duette/:delay?', upload.array('videos', 2), async (req, res, next)
     res.status(400).send(e)
   }
 })
-
-*/
 
 module.exports = router;
