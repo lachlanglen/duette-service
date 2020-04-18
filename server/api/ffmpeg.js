@@ -100,6 +100,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     let job = await videoQueue.add({
       file1Info,
       file2Info,
+      delay,
     })
 
     console.log('job: ', job)

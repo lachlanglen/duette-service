@@ -33,7 +33,7 @@ function start() {
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    const { file1Info, file2Info } = job.data;
+    const { file1Info, file2Info, delay } = job.data;
     console.log('job.data: ', job.data);
 
     try {
