@@ -9,8 +9,20 @@ const multer = require('multer')
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 // const s3 = require('../../awsconfig');
-const { promisify } = require('util')
-const dataUriToBuffer = require('data-uri-to-buffer');
+const { promisify } = require('util');
+let Queue = require('bull');
+
+let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+
+let videoQueue = new Queue('video processing', REDIS_URL);
+
+// TODO: PICK UP HERE
+// add job to queue
+
+router.post('/queue', async (req, res, next) => {
+  let job = await videoQueue.add({ name: 'Lachlan' })
+  res.status(200).send(job)
+})
 
 const s3 = new AWS.S3({
   apiVersion: "2006-03-01",
