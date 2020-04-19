@@ -48,6 +48,8 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     duration: null,
   };
 
+  console.log('dirname: ', __dirname)
+
   try {
     // create a file on server for each vid
     await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);

@@ -92,6 +92,9 @@ const PreviewModal = (props) => {
     console.log('formData line 55: ', formData)
     const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, formData)).data;
     console.log('job id in PreviewModal: ', job.id)
+
+    // TODO: listen for job completion
+
     // const infoArr = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/getinfo`, formData)).data;
     // console.log('info retrieved: ', infoArr);
     // const croppedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/crop/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, infoArr)).data;

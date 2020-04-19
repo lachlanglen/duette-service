@@ -39,6 +39,7 @@ function start() {
     try {
 
       // crop & trim vid 2
+      // FIXME: below command is failing (no such file or directory)
       if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i server/api/${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy server/api/${file2Info.originalName}cropped.mov`)
       if (file2Info.orientation === 'landscape') await exec(`ffmpeg -i server/api/${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=${file2Info.croppedWidth}:ih:${file2Info.offset}:0" -preset ultrafast -c:a copy server/api/${file2Info.originalName}cropped.mov`)
       console.log('cropped and trimmed video 2!')
