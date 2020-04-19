@@ -70,7 +70,7 @@ const PreviewModal = (props) => {
 
   const handleSave = () => {
     console.log('in handleSave')
-    setSaving(true);
+    // setSaving(true);
     handlePost();
   }
 

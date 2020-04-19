@@ -58,7 +58,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     // get metadata on vid 1
     const metadata = await ffprobeAsync(`server/api/${file1Info.originalName}.mov`)
 
-    console.log('metadata1: ', metadata)
+    // console.log('metadata1: ', metadata)
 
     if (!metadata.streams[0].rotation) {
       console.log('undefined rotation in file 1')
@@ -74,7 +74,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     // get metadata on vid 2
     const metadata2 = await ffprobeAsync(`server/api/${file2Info.originalName}.mov`)
 
-    console.log('metadata2: ', metadata2)
+    // console.log('metadata2: ', metadata2)
 
     if (!metadata2.streams[0].rotation) {
       console.log('undefined rotation in file 2')
