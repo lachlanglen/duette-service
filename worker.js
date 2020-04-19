@@ -38,6 +38,7 @@ function start() {
 
     try {
 
+      console.log('dirname in worker: ', __dirname)
       // crop & trim vid 2
       // FIXME: below command is failing (no such file or directory)
       if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i /app/server/api/${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy /app/server/api/${file2Info.originalName}cropped.mov`)
