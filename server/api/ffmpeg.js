@@ -58,7 +58,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
 
     // get metadata on vid 1
-    const metadata = await ffprobeAsync(`server/api/${file1Info.originalName}.mov`)
+    const metadata = await ffprobeAsync(`/app/${file1Info.originalName}.mov`)
 
     // console.log('metadata1: ', metadata)
 
@@ -74,7 +74,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
 
     // get metadata on vid 2
-    const metadata2 = await ffprobeAsync(`server/api/${file2Info.originalName}.mov`)
+    const metadata2 = await ffprobeAsync(`/app/${file2Info.originalName}.mov`)
 
     // console.log('metadata2: ', metadata2)
 
