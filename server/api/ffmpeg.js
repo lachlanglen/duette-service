@@ -53,7 +53,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
   try {
     // create a file on server for each vid
     await writeFileAsync(`/app/${file1Info.originalName}.mov`, req.files[0].buffer);
-    await writeFileAsync(`/apps/${file2Info.originalName}.mov`, req.files[1].buffer);
+    await writeFileAsync(`/app/${file2Info.originalName}.mov`, req.files[1].buffer);
     // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);
     // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
 
