@@ -33,118 +33,124 @@ function start() {
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    const { file1Info, file2Info, delay } = job.data;
-    console.log('job.data: ', job.data);
+    const { file1Info, file2Info, delay, file1Base64, file2Base64 } = job.data;
+    // console.log('job.data: ', job.data);
 
-    // try {
+    try {
 
-    //   // create a file on server for each vid
-    //   await writeFileAsync(`/app/${file1Info.originalName}.mov`, req.files[0].buffer);
-    //   await writeFileAsync(`/app/${file2Info.originalName}.mov`, req.files[1].buffer);
-    //   // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);
-    //   // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
+      const buffer1 = Buffer.from(file1Base64, 'base64');
+      const buffer2 = Buffer.from(file2Base64, 'base64');
 
-    //   // get metadata on vid 1
-    //   const metadata = await ffprobeAsync(`/app/${file1Info.originalName}.mov`)
+      // create a file on server for each vid
+      await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, buffer1);
+      await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, buffer2);
+      // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);
+      // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
 
-    //   // console.log('metadata1: ', metadata)
+      console.log('2 x files written!')
 
-    //   if (!metadata.streams[0].rotation) {
-    //     console.log('undefined rotation in file 1')
-    //     // res.status(400).send(`unsupported orientation in file ${file1Info.originalName}`)
-    //   }
+      return { success: 'yay!' }
+      // // get metadata on vid 1
+      // const metadata = await ffprobeAsync(`/app/${file1Info.originalName}.mov`)
 
-    //   console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
+      // // console.log('metadata1: ', metadata)
 
-    //   file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-    //   file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
-    //   file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
+      // if (!metadata.streams[0].rotation) {
+      //   console.log('undefined rotation in file 1')
+      //   // res.status(400).send(`unsupported orientation in file ${file1Info.originalName}`)
+      // }
 
-    //   // get metadata on vid 2
-    //   const metadata2 = await ffprobeAsync(`/app/${file2Info.originalName}.mov`)
+      // console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
 
-    //   // console.log('metadata2: ', metadata2)
+      // file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
+      // file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
+      // file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
 
-    //   if (!metadata2.streams[0].rotation) {
-    //     console.log('undefined rotation in file 2')
-    //     // res.status(400).send(`unsupported orientation in file ${file2Info.originalName}`)
-    //   }
+      // // get metadata on vid 2
+      // const metadata2 = await ffprobeAsync(`/app/${file2Info.originalName}.mov`)
 
-    //   console.log('metadata2.streams[0].rotation: ', metadata2.streams[0].rotation);
+      // // console.log('metadata2: ', metadata2)
 
-    //   file2Info.orientation = metadata2.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-    //   file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
-    //   file2Info.trueHeight = file2Info.orientation === 'portrait' ? metadata2.streams[0].width : metadata2.streams[0].height;
-    //   file2Info.croppedHeight = file2Info.orientation === 'portrait' ? (file2Info.trueWidth / 8) * 9 : file2Info.trueHeight;
-    //   file2Info.croppedWidth = file2Info.croppedHeight / 9 * 8;
-    //   file2Info.offset = file2Info.orientation === 'portrait' ? (file2Info.trueHeight - file2Info.croppedHeight) / 2 : (file2Info.trueWidth - file2Info.croppedWidth) / 2;
-    //   file2Info.duration = metadata2.streams[0].duration;
+      // if (!metadata2.streams[0].rotation) {
+      //   console.log('undefined rotation in file 2')
+      //   // res.status(400).send(`unsupported orientation in file ${file2Info.originalName}`)
+      // }
 
-    //   // note which file will be tallest (largest height res) after cropping
-    //   if (file1Info.height > file2Info.croppedHeight) file1Info.isTallest = true;
-    //   if (file2Info.croppedHeight > file1Info.height) file2Info.isTallest = true;
+      // console.log('metadata2.streams[0].rotation: ', metadata2.streams[0].rotation);
 
-    //   // if vid croppedHeight is not divisible by 2, reduce by 1px
-    //   if (file1Info.height % 2 === 1) file1Info.height--;
-    //   if (file2Info.croppedHeight % 2 === 1) file2Info.croppedHeight--;
+      // file2Info.orientation = metadata2.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
+      // file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
+      // file2Info.trueHeight = file2Info.orientation === 'portrait' ? metadata2.streams[0].width : metadata2.streams[0].height;
+      // file2Info.croppedHeight = file2Info.orientation === 'portrait' ? (file2Info.trueWidth / 8) * 9 : file2Info.trueHeight;
+      // file2Info.croppedWidth = file2Info.croppedHeight / 9 * 8;
+      // file2Info.offset = file2Info.orientation === 'portrait' ? (file2Info.trueHeight - file2Info.croppedHeight) / 2 : (file2Info.trueWidth - file2Info.croppedWidth) / 2;
+      // file2Info.duration = metadata2.streams[0].duration;
 
-    //   console.log('dirname in worker: ', __dirname)
-    //   // crop & trim vid 2
-    //   // FIXME: below command is failing (no such file or directory)
-    //   if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i ${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
-    //   if (file2Info.orientation === 'landscape') await exec(`ffmpeg -i /app/server/api/${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=${file2Info.croppedWidth}:ih:${file2Info.offset}:0" -preset ultrafast -c:a copy /app/server/api/${file2Info.originalName}cropped.mov`)
-    //   console.log('cropped and trimmed video 2!')
+      // // note which file will be tallest (largest height res) after cropping
+      // if (file1Info.height > file2Info.croppedHeight) file1Info.isTallest = true;
+      // if (file2Info.croppedHeight > file1Info.height) file2Info.isTallest = true;
 
-    //   // if file1 is shorter than file2, scale it up
-    //   if (file1Info.height < file2Info.croppedHeight) await exec(`ffmpeg -i server/api/${file1Info.originalName}.mov -vf scale=-2:${file2Info.croppedHeight} server/api/${file1Info.originalName}scaled.mov`)
-    //   // if file2 is shorter than file1, scale it up
-    //   if (file2Info.croppedHeight < file1Info.height) await exec(`ffmpeg -i server/api/${file2Info.originalName}cropped.mov -vf scale=-2:${file1Info.height} server/api/${file2Info.originalName}scaled.mov`)
-    //   console.log('scaled smaller vid!')
+      // // if vid croppedHeight is not divisible by 2, reduce by 1px
+      // if (file1Info.height % 2 === 1) file1Info.height--;
+      // if (file2Info.croppedHeight % 2 === 1) file2Info.croppedHeight--;
 
-    //   // if they are already the same height, no need to scale, just merge!
-    //   if (!file1Info.isTallest && !file2Info.isTallest) await exec(`ffmpeg -i server/api/${file1Info.originalName}.mov -i server/api/${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 server/api/${file1Info.originalName}${file2Info.originalName}combined.mov`)
-    //   // if the smaller vid has been scaled:
-    //   if (file1Info.isTallest || file2Info.isTallest) await exec(`ffmpeg -i server/api/${file1Info.isTallest ? `${file1Info.originalName}` : `${file1Info.originalName}scaled`}.mov -i server/api/${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 server/api/${file1Info.originalName}${file2Info.originalName}combined.mov`)
-    //   console.log('combined vids!')
+      // console.log('dirname in worker: ', __dirname)
+      // // crop & trim vid 2
+      // // FIXME: below command is failing (no such file or directory)
+      // if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i ${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
+      // if (file2Info.orientation === 'landscape') await exec(`ffmpeg -i /app/server/api/${file2Info.originalName}.mov ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=${file2Info.croppedWidth}:ih:${file2Info.offset}:0" -preset ultrafast -c:a copy /app/server/api/${file2Info.originalName}cropped.mov`)
+      // console.log('cropped and trimmed video 2!')
 
-    //   // post video to AWS
-    //   const key = uuidv4();
-    //   console.log('key: ', key)
-    //   const params = {
-    //     Bucket: process.env.AWS_BUCKET_NAME,
-    //     Key: key,
-    //     Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`),
-    //   }
-    //   s3.upload(params, async (err, data) => {
-    //     if (err) {
-    //       console.log('error uploading to s3: ', err)
-    //       throw new Error(err);
-    //     } else {
-    //       console.log('success uploading to s3! data: ', data);
-    //       // delete all vids
-    //       await unlinkAsync(`${__dirname}/${file1Info.originalName}.mov`)
-    //       console.log('deleted video 1')
-    //       await unlinkAsync(`${__dirname}/${file2Info.originalName}.mov`)
-    //       console.log('deleted video 2')
-    //       await unlinkAsync(`${__dirname}/${file2Info.originalName}cropped.mov`)
-    //       console.log('deleted cropped video 2')
-    //       if (file1Info.height < file2Info.croppedHeight) {
-    //         await unlinkAsync(`${__dirname}/${file1Info.originalName}scaled.mov`)
-    //         console.log('deleted video 1 scaled')
-    //       }
-    //       if (file2Info.croppedHeight < file1Info.height) {
-    //         await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`)
-    //         console.log('deleted video 2 scaled')
-    //       }
-    //       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`)
-    //       console.log('deleted combined video')
-    //       return { key };
-    //     }
-    //   })
-    // } catch (e) {
-    //   console.log('error: ', e)
-    //   throw new Error(e);
-    // }
+      // // if file1 is shorter than file2, scale it up
+      // if (file1Info.height < file2Info.croppedHeight) await exec(`ffmpeg -i server/api/${file1Info.originalName}.mov -vf scale=-2:${file2Info.croppedHeight} server/api/${file1Info.originalName}scaled.mov`)
+      // // if file2 is shorter than file1, scale it up
+      // if (file2Info.croppedHeight < file1Info.height) await exec(`ffmpeg -i server/api/${file2Info.originalName}cropped.mov -vf scale=-2:${file1Info.height} server/api/${file2Info.originalName}scaled.mov`)
+      // console.log('scaled smaller vid!')
+
+      // // if they are already the same height, no need to scale, just merge!
+      // if (!file1Info.isTallest && !file2Info.isTallest) await exec(`ffmpeg -i server/api/${file1Info.originalName}.mov -i server/api/${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 server/api/${file1Info.originalName}${file2Info.originalName}combined.mov`)
+      // // if the smaller vid has been scaled:
+      // if (file1Info.isTallest || file2Info.isTallest) await exec(`ffmpeg -i server/api/${file1Info.isTallest ? `${file1Info.originalName}` : `${file1Info.originalName}scaled`}.mov -i server/api/${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 server/api/${file1Info.originalName}${file2Info.originalName}combined.mov`)
+      // console.log('combined vids!')
+
+      // // post video to AWS
+      // const key = uuidv4();
+      // console.log('key: ', key)
+      // const params = {
+      //   Bucket: process.env.AWS_BUCKET_NAME,
+      //   Key: key,
+      //   Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`),
+      // }
+      // s3.upload(params, async (err, data) => {
+      //   if (err) {
+      //     console.log('error uploading to s3: ', err)
+      //     throw new Error(err);
+      //   } else {
+      //     console.log('success uploading to s3! data: ', data);
+      //     // delete all vids
+      //     await unlinkAsync(`${__dirname}/${file1Info.originalName}.mov`)
+      //     console.log('deleted video 1')
+      //     await unlinkAsync(`${__dirname}/${file2Info.originalName}.mov`)
+      //     console.log('deleted video 2')
+      //     await unlinkAsync(`${__dirname}/${file2Info.originalName}cropped.mov`)
+      //     console.log('deleted cropped video 2')
+      //     if (file1Info.height < file2Info.croppedHeight) {
+      //       await unlinkAsync(`${__dirname}/${file1Info.originalName}scaled.mov`)
+      //       console.log('deleted video 1 scaled')
+      //     }
+      //     if (file2Info.croppedHeight < file1Info.height) {
+      //       await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`)
+      //       console.log('deleted video 2 scaled')
+      //     }
+      //     await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`)
+      //     console.log('deleted combined video')
+      //     return { key };
+      //   }
+      // })
+    } catch (e) {
+      console.log('error: ', e)
+      throw new Error(e);
+    }
   });
 
   videoQueue.on('completed', (job, result) => {
