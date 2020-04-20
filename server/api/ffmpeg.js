@@ -63,7 +63,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
 
     // console.log('job: ', job)
 
-    res.status(200).send(job);
+    res.status(200).send(job.id);
   } catch (e) {
     console.log('error in job route: ', e)
     res.status(400).send(e)

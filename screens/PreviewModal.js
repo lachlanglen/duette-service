@@ -90,8 +90,8 @@ const PreviewModal = (props) => {
       });
     });
     console.log('formData line 55: ', formData)
-    const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, formData)).data;
-    console.log('job id in PreviewModal: ', job.id)
+    const jobId = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, formData)).data;
+    console.log('job id in PreviewModal: ', jobId)
 
     // TODO: listen for job completion
 
