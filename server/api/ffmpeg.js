@@ -57,8 +57,8 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
       file1Info,
       file2Info,
       delay,
-      file1Buffer: req.files[0].buffer,
-      file2Buffer: req.files[1].buffer
+      file1Buffer: JSON.stringify(req.files[0].buffer),
+      file2Buffer: JSON.stringify(req.files[1].buffer)
     })
 
     console.log('job: ', job)
