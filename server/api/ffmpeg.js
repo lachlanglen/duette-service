@@ -44,7 +44,7 @@ router.delete('/removeJobs', async (req, res, next) => {
         await job.releaseLock(job.lockKey());
         job.remove();
       } catch (e) {
-        res.status(400).send(e)
+        console.log('error removing job: ', e)
       }
     })
     res.status(200).send('removed all jobs');
