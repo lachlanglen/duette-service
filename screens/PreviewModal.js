@@ -76,22 +76,53 @@ const PreviewModal = (props) => {
 
   const handlePost = async () => {
     console.log('in handlePost')
-    const fileUris = [props.selectedVideo.videoUri, duetteUri]
+    const id = uuid.v4();
+    let uriParts = duetteUri.split('.');
+    let fileType = uriParts[uriParts.length - 1];
     let formData = new FormData();
-    // call posting function with each file individually
-    fileUris.forEach(uri => {
-      const UUID = uuid.v4();
-      let uriParts = uri.split('.');
-      let fileType = uriParts[uriParts.length - 1];
-      formData.append('videos', {
-        uri,
-        name: UUID,
-        type: `video/${fileType}`,
-      });
+    formData.append('video', {
+      uri: duetteUri,
+      name: id,
+      type: `video/${fileType}`
     });
+    // // call posting function with each file individually
+    // fileUris.forEach(uri => {
+    // const UUID = uuid.v4();
+    // let uriParts = uri.split('.');
+    // let fileType = uriParts[uriParts.length - 1];
+    //   formData.append('videos', {
+    //     uri,
+    //     name: UUID,
+    //     type: `video/${fileType}`,
+    //   });
+    // });
     console.log('formData line 55: ', formData)
-    const jobId = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, formData)).data;
-    console.log('job id in PreviewModal: ', jobId)
+
+    const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${uuid.v4()}`)).data;
+
+    console.log('signedUrl: ', signedUrl)
+
+    const options = {
+      method: 'PUT',
+      body: formData,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+
+    try {
+      await fetch(signedUrl, options);
+      console.log('posted to s3!')
+      // send both video keys to back end for processing
+      const duetteKey = id;
+      const accompanimentKey = props.selectedVideo.id;
+      const jobId = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
+      console.log('job id in PreviewModal: ', jobId)
+    }
+    catch (e) {
+      console.log('error posting to s3: ', e)
+    }
 
     // TODO: listen for job completion
 
@@ -112,20 +143,20 @@ const PreviewModal = (props) => {
     // const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: key });
     // console.log('duette: ', newDuetteInDB.data)
 
-    // retrieve from s3
-    const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${key}`;
-    FileSystem.downloadAsync(
-      s3Url,
-      FileSystem.documentDirectory + `${key}.mp4`
-    )
-      .then(({ uri }) => {
-        console.log('Finished downloading to ', uri);
-        setMergedLocalUri(uri);
-        setSuccess(true);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    // // retrieve from s3
+    // const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${key}`;
+    // FileSystem.downloadAsync(
+    //   s3Url,
+    //   FileSystem.documentDirectory + `${key}.mp4`
+    // )
+    //   .then(({ uri }) => {
+    //     console.log('Finished downloading to ', uri);
+    //     setMergedLocalUri(uri);
+    //     setSuccess(true);
+    //   })
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
   }
 
   const handleModalOrientationChange = (ev) => {

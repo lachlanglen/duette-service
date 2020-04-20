@@ -78,7 +78,7 @@ const DetailsModal = (props) => {
       // create thumbnail
       const thumbnail = await VideoThumbnails.getThumbnailAsync(dataUri, { time: 3000 });
       const thumbnailUri = thumbnail.uri;
-      const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { title, composer, key, performer, thumbnailUri, videoUri: file.uri })).data
+      const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: vidKey, title, composer, key, performer, thumbnailUri, videoUri: file.uri })).data
       console.log('videoRecord: ', videoRecord);
       props.fetchVideos();
       setSaving(false);

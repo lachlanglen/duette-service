@@ -33,27 +33,28 @@ function start() {
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    const { file1Info, file2Info, delay, file1Base64, file2Base64 } = job.data;
+    const { duetteKey, accompanimentKey, delay } = job.data;
     // console.log('job.data: ', job.data);
 
     try {
 
-      const buffer1 = Buffer.from(file1Base64, 'base64');
+      // const buffer1 = Buffer.from(file1Base64, 'base64');
       // const buffer2 = Buffer.from(file2Base64, 'base64');
 
       // create a file on server for each vid
-      await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, buffer1);
+      // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, buffer1);
       // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, buffer2);
       // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);
       // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
 
-      console.log('2 x files written!')
+      // console.log('2 x files written!')
 
       // // return { success: 'yay!' }
-      // // get metadata on vid 1
-      // const metadata = await ffprobeAsync(`${__dirname}/${file1Info.originalName}.mov`)
+      // get metadata on vid 1
+      console.log('in process!')
+      const metadata = await ffprobeAsync(`https://duette.s3.us-east-2.amazonaws.com/${duetteKey}`)
 
-      // // console.log('metadata1: ', metadata)
+      console.log('metadata1: ', metadata)
 
       // if (!metadata.streams[0].rotation) {
       //   console.log('undefined rotation in file 1')

@@ -53,40 +53,40 @@ router.delete('/removeJobs', async (req, res, next) => {
   }
 })
 
-router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) => {
-  const { delay } = req.params;
+router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) => {
+  const { duetteKey, accompanimentKey, delay } = req.params;
   console.log('delay: ', delay)
 
-  const file1Info = {
-    originalName: req.files[0].originalname,
-    orientation: '',
-    height: null,
-    width: null,
-    isTallest: false,
-  };
-  const file2Info = {
-    originalName: req.files[1].originalname,
-    orientation: '',
-    trueHeight: null,
-    trueWidth: null,
-    croppedHeight: null,
-    croppedWidth: null,
-    offset: null,
-    isTallest: false,
-    duration: null,
-  };
+  // const file1Info = {
+  //   originalName: req.files[0].originalname,
+  //   orientation: '',
+  //   height: null,
+  //   width: null,
+  //   isTallest: false,
+  // };
+  // const file2Info = {
+  //   originalName: req.files[1].originalname,
+  //   orientation: '',
+  //   trueHeight: null,
+  //   trueWidth: null,
+  //   croppedHeight: null,
+  //   croppedWidth: null,
+  //   offset: null,
+  //   isTallest: false,
+  //   duration: null,
+  // };
 
   console.log('in job route!')
 
   try {
 
     let job = await videoQueue.add({
-      file1Info,
-      file2Info,
+      duetteKey,
+      accompanimentKey,
       delay,
-      file1Base64: req.files[0].buffer.toString('base64'),
-      // file2Base64: req.files[1].buffer.toString('base64')
     })
+
+    console.log('job in job route: ', job)
 
     res.status(200).send(job.id);
   } catch (e) {

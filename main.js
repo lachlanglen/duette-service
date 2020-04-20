@@ -4,7 +4,7 @@ const server = require('./server');
 
 const PORT = process.env.PORT || 5000;
 
-console.log('process.env: ', process.env)
+// console.log('process.env: ', process.env)
 
 console.log(chalk.white('*** FILE: main.js'));
 console.log(chalk.white('Opening database connection'));

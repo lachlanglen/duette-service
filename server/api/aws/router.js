@@ -2,6 +2,9 @@ const router = require('express').Router();
 const { s3 } = require('../../../awsconfig')
 const bucketName = process.env.AWS_BUCKET_NAME;
 
+// TODO: REMOVE THE BELOW AFTER TESTING
+const AWS_BUCKET_NAME = 'duette'
+
 router.post('/', (req, res, next) => {
   console.log('in POST!')
   // console.log('req.body: ', req.body)
@@ -15,6 +18,19 @@ router.post('/', (req, res, next) => {
       res.status(200).send(data)
     }
   })
+})
+
+router.get('/getSignedUrl/:key', (req, res, next) => {
+  const signedUrlExpireSeconds = 60 * 60;
+  const params = { Bucket: AWS_BUCKET_NAME, Key: req.params.key, ContentType: 'multipart/form-data', Expires: signedUrlExpireSeconds };
+  s3.getSignedUrl('putObject', params, (err, url) => {
+    if (err) {
+      console.log('error getting signed url: ', err);
+      res.status(400).send(err);
+    }
+    console.log('Your generated pre-signed URL is', url);
+    res.status(200).send(url)
+  });
 })
 
 router.get('/:Key', (req, res, next) => {
