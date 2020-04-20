@@ -28,8 +28,22 @@ let videoQueue = new Queue('video processing', REDIS_URL);
 router.get('/getJobs', async (req, res, next) => {
   // const { jobId } = req.params;
   try {
-    const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed'])
+    const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed']);
     res.status(200).send(jobs);
+  } catch (e) {
+    res.status(400).send(e)
+  }
+})
+
+router.delete('/removeJobs', async (req, res, next) => {
+  // const { jobId } = req.params;
+  try {
+    const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed']);
+    jobs.forEach(async job => {
+      await job.releaseLock(job.lockKey());
+      job.remove();
+    })
+    res.status(200).send('removed all jobs');
   } catch (e) {
     res.status(400).send(e)
   }
