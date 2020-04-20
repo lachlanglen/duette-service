@@ -40,8 +40,12 @@ router.delete('/removeJobs', async (req, res, next) => {
   try {
     const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed']);
     jobs.forEach(async job => {
-      await job.releaseLock(job.lockKey());
-      job.remove();
+      try {
+        await job.releaseLock(job.lockKey());
+        job.remove();
+      } catch (e) {
+        res.status(400).send(e)
+      }
     })
     res.status(200).send('removed all jobs');
   } catch (e) {
