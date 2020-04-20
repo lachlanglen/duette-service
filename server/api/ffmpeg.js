@@ -48,7 +48,7 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     duration: null,
   };
 
-  // console.log('dirname: ', __dirname)
+  console.log('in job route!')
 
   try {
 
@@ -60,8 +60,6 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
       file1Base64: req.files[0].buffer.toString('base64'),
       file2Base64: req.files[1].buffer.toString('base64')
     })
-
-    // console.log('job: ', job)
 
     res.status(200).send(job.id);
   } catch (e) {
