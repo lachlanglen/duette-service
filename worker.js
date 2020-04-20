@@ -38,11 +38,11 @@ function start() {
 
     try {
 
-      // const buffer1 = Buffer.from(file1Base64, 'base64');
+      const buffer1 = Buffer.from(file1Base64, 'base64');
       const buffer2 = Buffer.from(file2Base64, 'base64');
 
       // create a file on server for each vid
-      // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, buffer1);
+      await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, buffer1);
       await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, buffer2);
       // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);
       // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
