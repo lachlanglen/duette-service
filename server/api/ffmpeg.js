@@ -25,6 +25,16 @@ let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 let videoQueue = new Queue('video processing', REDIS_URL);
 
+router.post('/getJobs', async (req, res, next) => {
+  // const { jobId } = req.params;
+  try {
+    const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed'])
+    res.status(200).send(jobs);
+  } catch (e) {
+    res.status(400).send(e)
+  }
+})
+
 router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) => {
   const { delay } = req.params;
   console.log('delay: ', delay)
