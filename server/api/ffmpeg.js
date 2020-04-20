@@ -48,63 +48,17 @@ router.post('/job/:delay?', upload.array('videos', 2), async (req, res, next) =>
     duration: null,
   };
 
-  console.log('dirname: ', __dirname)
+  // console.log('dirname: ', __dirname)
 
   try {
-    // create a file on server for each vid
-    await writeFileAsync(`/app/${file1Info.originalName}.mov`, req.files[0].buffer);
-    await writeFileAsync(`/app/${file2Info.originalName}.mov`, req.files[1].buffer);
-    // await writeFileAsync(`${__dirname}/${file1Info.originalName}.mov`, req.files[0].buffer);
-    // await writeFileAsync(`${__dirname}/${file2Info.originalName}.mov`, req.files[1].buffer);
 
-    // get metadata on vid 1
-    const metadata = await ffprobeAsync(`/app/${file1Info.originalName}.mov`)
-
-    // console.log('metadata1: ', metadata)
-
-    if (!metadata.streams[0].rotation) {
-      console.log('undefined rotation in file 1')
-      // res.status(400).send(`unsupported orientation in file ${file1Info.originalName}`)
-    }
-
-    console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
-
-    file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-    file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
-    file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
-
-    // get metadata on vid 2
-    const metadata2 = await ffprobeAsync(`/app/${file2Info.originalName}.mov`)
-
-    // console.log('metadata2: ', metadata2)
-
-    if (!metadata2.streams[0].rotation) {
-      console.log('undefined rotation in file 2')
-      // res.status(400).send(`unsupported orientation in file ${file2Info.originalName}`)
-    }
-
-    console.log('metadata2.streams[0].rotation: ', metadata2.streams[0].rotation);
-
-    file2Info.orientation = metadata2.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-    file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
-    file2Info.trueHeight = file2Info.orientation === 'portrait' ? metadata2.streams[0].width : metadata2.streams[0].height;
-    file2Info.croppedHeight = file2Info.orientation === 'portrait' ? (file2Info.trueWidth / 8) * 9 : file2Info.trueHeight;
-    file2Info.croppedWidth = file2Info.croppedHeight / 9 * 8;
-    file2Info.offset = file2Info.orientation === 'portrait' ? (file2Info.trueHeight - file2Info.croppedHeight) / 2 : (file2Info.trueWidth - file2Info.croppedWidth) / 2;
-    file2Info.duration = metadata2.streams[0].duration;
-
-    // note which file will be tallest (largest height res) after cropping
-    if (file1Info.height > file2Info.croppedHeight) file1Info.isTallest = true;
-    if (file2Info.croppedHeight > file1Info.height) file2Info.isTallest = true;
-
-    // if vid croppedHeight is not divisible by 2, reduce by 1px
-    if (file1Info.height % 2 === 1) file1Info.height--;
-    if (file2Info.croppedHeight % 2 === 1) file2Info.croppedHeight--;
 
     let job = await videoQueue.add({
       file1Info,
       file2Info,
       delay,
+      file1Buffer: req.files[0].buffer,
+      file2Buffer: req.files[1].buffer
     })
 
     console.log('job: ', job)
