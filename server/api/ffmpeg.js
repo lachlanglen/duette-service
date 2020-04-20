@@ -80,15 +80,32 @@ router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) 
 
   try {
 
-    let job = await videoQueue.add({
-      duetteKey,
-      accompanimentKey,
-      delay,
-    })
+    const signedUrlExpireSeconds = 60 * 60;
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: duetteKey,
+      ContentType: 'video/mov',
+      Expires: signedUrlExpireSeconds
+    };
+    s3.getSignedUrl('getObject', params, async (err, duetteUrl) => {
+      if (err) {
+        console.log('error getting signed url: ', err);
+        res.status(400).send(err);
+      } else {
+        console.log('Your pre-signed getObject URL is', duetteUrl);
 
-    console.log('job in job route: ', job)
+        let job = await videoQueue.add({
+          duetteKey,
+          duetteUrl,
+          accompanimentKey,
+          delay,
+        })
 
-    res.status(200).send(job.id);
+        console.log('job in job route: ', job)
+
+        res.status(200).send(job.id);
+      }
+    });
   } catch (e) {
     console.log('error in job route: ', e)
     res.status(400).send(e)

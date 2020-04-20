@@ -33,7 +33,7 @@ function start() {
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
-    const { duetteKey, accompanimentKey, delay } = job.data;
+    const { duetteKey, accompanimentKey, delay, duetteUrl } = job.data;
     // console.log('job.data: ', job.data);
 
     try {
@@ -52,7 +52,7 @@ function start() {
       // // return { success: 'yay!' }
       // get metadata on vid 1
       console.log('in process!')
-      const metadata = await ffprobeAsync(`https://duette.s3.us-east-2.amazonaws.com/${duetteKey}`)
+      const metadata = await ffprobeAsync(duetteUrl)
 
       console.log('metadata1: ', metadata)
 

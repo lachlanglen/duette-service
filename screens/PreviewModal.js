@@ -98,7 +98,7 @@ const PreviewModal = (props) => {
     // });
     console.log('formData line 55: ', formData)
 
-    const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${uuid.v4()}`)).data;
+    const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${id}.mov`)).data;
 
     console.log('signedUrl: ', signedUrl)
 
@@ -117,7 +117,7 @@ const PreviewModal = (props) => {
       // send both video keys to back end for processing
       const duetteKey = id;
       const accompanimentKey = props.selectedVideo.id;
-      const jobId = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
+      const jobId = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}.mov/${accompanimentKey}.mov/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
       console.log('job id in PreviewModal: ', jobId)
     }
     catch (e) {
