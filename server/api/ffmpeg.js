@@ -57,55 +57,16 @@ router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) 
   const { duetteKey, accompanimentKey, delay } = req.params;
   console.log('delay: ', delay)
 
-  // const file1Info = {
-  //   originalName: req.files[0].originalname,
-  //   orientation: '',
-  //   height: null,
-  //   width: null,
-  //   isTallest: false,
-  // };
-  // const file2Info = {
-  //   originalName: req.files[1].originalname,
-  //   orientation: '',
-  //   trueHeight: null,
-  //   trueWidth: null,
-  //   croppedHeight: null,
-  //   croppedWidth: null,
-  //   offset: null,
-  //   isTallest: false,
-  //   duration: null,
-  // };
-
   console.log('in job route!')
 
   try {
-
-    const signedUrlExpireSeconds = 60 * 60;
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: duetteKey,
-      ContentType: 'video/mov',
-      Expires: signedUrlExpireSeconds
-    };
-    s3.getSignedUrl('getObject', params, async (err, duetteUrl) => {
-      if (err) {
-        console.log('error getting signed url: ', err);
-        res.status(400).send(err);
-      } else {
-        console.log('Your pre-signed getObject URL is', duetteUrl);
-
-        let job = await videoQueue.add({
-          duetteKey,
-          duetteUrl,
-          accompanimentKey,
-          delay,
-        })
-
-        console.log('job in job route: ', job)
-
-        res.status(200).send(job.id);
-      }
-    });
+    let job = await videoQueue.add({
+      duetteKey,
+      accompanimentKey,
+      delay,
+    })
+    console.log('job in job route: ', job)
+    res.status(200).send(job);
   } catch (e) {
     console.log('error in job route: ', e)
     res.status(400).send(e)

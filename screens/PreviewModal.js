@@ -10,10 +10,14 @@ import { Video } from 'expo-av';
 import { ScreenOrientation } from 'expo';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import Constants from 'expo-constants';
+import { RNS3 } from 'react-native-s3-upload';
 import axios from 'axios';
 import uuid from 'react-native-uuid';
 import DisplayMergedVideo from './DisplayMergedVideo';
 import CatsGallery from './CatsGallery';
+
+const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_BUCKET_REGION } = Constants.manifest.extra;
 
 const PreviewModal = (props) => {
 
@@ -79,12 +83,11 @@ const PreviewModal = (props) => {
     const id = uuid.v4();
     let uriParts = duetteUri.split('.');
     let fileType = uriParts[uriParts.length - 1];
-    let formData = new FormData();
-    formData.append('video', {
+    const file = {
       uri: duetteUri,
-      name: id,
+      name: `${id}.mov`,
       type: `video/${fileType}`
-    });
+    }
     // // call posting function with each file individually
     // fileUris.forEach(uri => {
     // const UUID = uuid.v4();
@@ -96,18 +99,18 @@ const PreviewModal = (props) => {
     //     type: `video/${fileType}`,
     //   });
     // });
-    console.log('formData line 55: ', formData)
+    // console.log('formData line 55: ', formData)
 
-    const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${id}.mov`)).data;
+    const signedUrl = (await axios.get(`http://192.168.0.12:5000/api/aws/getSignedUrl/${id}`)).data;
 
     console.log('signedUrl: ', signedUrl)
 
     const options = {
       method: 'PUT',
-      body: formData,
+      body: file,
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'video/mov',
       },
     };
 
@@ -117,8 +120,8 @@ const PreviewModal = (props) => {
       // send both video keys to back end for processing
       const duetteKey = id;
       const accompanimentKey = props.selectedVideo.id;
-      const jobId = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}.mov/${accompanimentKey}.mov/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
-      console.log('job id in PreviewModal: ', jobId)
+      const job = (await axios.post(`http://192.168.0.12:5000/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
+      console.log('job id in PreviewModal: ', job.id)
     }
     catch (e) {
       console.log('error posting to s3: ', e)
