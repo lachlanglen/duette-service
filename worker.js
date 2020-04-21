@@ -78,7 +78,7 @@ function start() {
       file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
 
       // get metadata on vid 2
-      const metadata2 = await ffprobeAsync(`${__dirname}/${file2Info.originalName}.mov`)
+      const metadata2 = await ffprobeAsync(duetteUrl)
 
       // console.log('metadata2: ', metadata2)
 
