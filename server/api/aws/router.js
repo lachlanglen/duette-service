@@ -33,6 +33,10 @@ router.get('/getSignedUrl/:key', (req, res, next) => {
   });
 })
 
+router.get('/getSignedPostUrl/:key', (req, res, next) => {
+
+})
+
 router.get('/:Key', (req, res, next) => {
   console.log('in AWS GET')
   const { Key } = req.params;

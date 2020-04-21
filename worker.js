@@ -151,9 +151,9 @@ function start() {
           }
           await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`)
           console.log('deleted combined video')
-          return { key };
         }
       })
+      return { key };
     } catch (e) {
       console.log('error: ', e)
       throw new Error(e);
