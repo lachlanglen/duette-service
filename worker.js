@@ -105,6 +105,8 @@ function start() {
       if (file1Info.height % 2 === 1) file1Info.height--;
       if (file2Info.croppedHeight % 2 === 1) file2Info.croppedHeight--;
 
+      console.log('file1Info: ', file1Info);
+      console.log('file2Info: ', file2Info);
       // crop & trim vid 2
       if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
       if (file2Info.orientation === 'landscape') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=${file2Info.croppedWidth}:ih:${file2Info.offset}:0" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
