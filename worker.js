@@ -97,13 +97,13 @@ function start() {
       file2Info.offset = file2Info.orientation === 'portrait' ? (file2Info.trueHeight - file2Info.croppedHeight) / 2 : (file2Info.trueWidth - file2Info.croppedWidth) / 2;
       file2Info.duration = metadata2.streams[0].duration;
 
-      // note which file will be tallest (largest height res) after cropping
-      if (file1Info.height > file2Info.croppedHeight) file1Info.isTallest = true;
-      if (file2Info.croppedHeight > file1Info.height) file2Info.isTallest = true;
-
       // if vid croppedHeight is not divisible by 2, reduce by 1px
       if (file1Info.height % 2 === 1) file1Info.height--;
       if (file2Info.croppedHeight % 2 === 1) file2Info.croppedHeight--;
+
+      // note which file will be tallest (largest height res) after cropping
+      if (file1Info.height > file2Info.croppedHeight) file1Info.isTallest = true;
+      if (file2Info.croppedHeight > file1Info.height) file2Info.isTallest = true;
 
       console.log('file1Info: ', file1Info);
       console.log('file2Info: ', file2Info);
