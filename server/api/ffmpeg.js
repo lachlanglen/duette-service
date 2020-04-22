@@ -57,12 +57,11 @@ router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) 
   const { duetteKey, accompanimentKey, delay } = req.params;
   console.log('delay: ', delay)
 
-  console.log('in job route!')
-
   try {
     let job = await videoQueue.add({
       duetteKey,
       accompanimentKey,
+      combinedKey,
       delay,
     })
     console.log('job in job route: ', job)
@@ -76,7 +75,6 @@ router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) 
 router.get('/job/:id', async (req, res) => {
   let id = req.params.id;
   let job = await videoQueue.getJob(id);
-
   if (job === null) {
     res.status(404).end();
   } else {

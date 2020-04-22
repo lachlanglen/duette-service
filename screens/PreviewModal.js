@@ -42,8 +42,14 @@ const PreviewModal = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [delay, setDelay] = useState(0);
   const [customOffset, setCustomOffset] = useState(0);
+  const [jobStatus, setJobStatus] = useState('');
+  const [intervalId, setIntervalId] = useState(null);
+  const [combinedKey, setCombinedKey] = useState('');
+
   const minVal = -250;
   const maxVal = 250;
+
+  const jobs = [];
 
   // if (vidARef) {
   //   vidARef.loadAsync({ uri: props.selectedVideo.videoUri })
@@ -78,6 +84,21 @@ const PreviewModal = (props) => {
     handlePost();
   }
 
+  const getJobStatus = async () => {
+    const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
+    console.log('status in getJobStatus: ', status)
+    if (status.state === 'completed') {
+      console.log('job completed!')
+      clearInterval(intervalId)
+      console.log('interval cleared');
+      setJobStatus('completed');
+    }
+  }
+
+  const poll = () => {
+    setIntervalId(setInterval(getJobStatus, 2000));
+  }
+
   const handlePost = async () => {
     console.log('in handlePost')
     const id = uuid.v4();
@@ -88,22 +109,8 @@ const PreviewModal = (props) => {
       name: `${id}.mov`,
       type: `video/${fileType}`
     }
-    // // call posting function with each file individually
-    // fileUris.forEach(uri => {
-    // const UUID = uuid.v4();
-    // let uriParts = uri.split('.');
-    // let fileType = uriParts[uriParts.length - 1];
-    //   formData.append('videos', {
-    //     uri,
-    //     name: UUID,
-    //     type: `video/${fileType}`,
-    //   });
-    // });
-    // console.log('formData line 55: ', formData)
 
     const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${id}`)).data;
-
-    console.log('signedUrl: ', signedUrl)
 
     const options = {
       method: 'PUT',
@@ -116,12 +123,17 @@ const PreviewModal = (props) => {
 
     try {
       await fetch(signedUrl, options);
+      // TODO: delete video from s3
       console.log('posted to s3!')
       // send both video keys to back end for processing
       const duetteKey = id;
       const accompanimentKey = props.selectedVideo.id;
+      const combinedVidKey = `${accompanimentKey}/${duetteKey}`
       const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
-      console.log('job id in PreviewModal: ', job.id)
+      jobs.push(job);
+      // save combinedKey on state
+      setCombinedKey(combinedVidKey)
+      poll();
     }
     catch (e) {
       console.log('error posting to s3: ', e)

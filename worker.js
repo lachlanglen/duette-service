@@ -36,7 +36,6 @@ function start() {
     const { duetteKey, accompanimentKey, delay } = job.data;
     // console.log('job.data: ', job.data);
 
-    const awsBaseUrl = 'https://duette.s3.us-east-2.amazonaws.com/'
     const accompanimentUrl = `https://duette.s3.us-east-2.amazonaws.com/${accompanimentKey}`;
     const duetteUrl = `https://duette.s3.us-east-2.amazonaws.com/${duetteKey}`;
 
@@ -125,8 +124,7 @@ function start() {
       console.log('combined vids!')
 
       // post video to AWS
-      const key = uuidv4();
-      console.log('key: ', key)
+      const key = `${accompanimentKey}/${duetteKey}`
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
