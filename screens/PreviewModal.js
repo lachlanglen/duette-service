@@ -43,8 +43,9 @@ const PreviewModal = (props) => {
   const [delay, setDelay] = useState(0);
   const [customOffset, setCustomOffset] = useState(0);
   const [jobStatus, setJobStatus] = useState('');
-  const [intervalId, setIntervalId] = useState(null);
   const [combinedKey, setCombinedKey] = useState('');
+
+  let intervalId;
 
   const minVal = -250;
   const maxVal = 250;
@@ -93,11 +94,24 @@ const PreviewModal = (props) => {
       clearInterval(intervalId)
       console.log('interval cleared');
       setJobStatus('completed');
+      // retrieve from s3
+      const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${combinedKey}`;
+      try {
+        const { uri } = await FileSystem.downloadAsync(
+          s3Url,
+          FileSystem.documentDirectory + `${combinedKey}.mov`
+        )
+        console.log('Finished downloading to ', uri);
+        setMergedLocalUri(uri);
+        setSuccess(true);
+      } catch (e) {
+        console.log('error downloading from s3: ', e)
+      }
     }
   }
 
   const poll = () => {
-    setIntervalId(setInterval(getJobStatus, 2000));
+    intervalId = setInterval(getJobStatus, 2000);
   }
 
   const handlePost = async () => {
@@ -129,7 +143,7 @@ const PreviewModal = (props) => {
       // send both video keys to back end for processing
       const duetteKey = id;
       const accompanimentKey = props.selectedVideo.id;
-      const combinedVidKey = `${accompanimentKey}/${duetteKey}`
+      const combinedVidKey = `${accompanimentKey}${duetteKey}`
       const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
       jobs.push(job);
       // save combinedKey on state
@@ -158,21 +172,6 @@ const PreviewModal = (props) => {
     // console.log('uploaded to AWS and files deleted!');
     // const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: key });
     // console.log('duette: ', newDuetteInDB.data)
-
-    // // retrieve from s3
-    // const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${key}`;
-    // FileSystem.downloadAsync(
-    //   s3Url,
-    //   FileSystem.documentDirectory + `${key}.mp4`
-    // )
-    //   .then(({ uri }) => {
-    //     console.log('Finished downloading to ', uri);
-    //     setMergedLocalUri(uri);
-    //     setSuccess(true);
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
   }
 
   const handleModalOrientationChange = (ev) => {

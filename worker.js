@@ -124,7 +124,7 @@ function start() {
       console.log('combined vids!')
 
       // post video to AWS
-      const key = `${accompanimentKey}/${duetteKey}`
+      const key = `${accompanimentKey}${duetteKey}`
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
