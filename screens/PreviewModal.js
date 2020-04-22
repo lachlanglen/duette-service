@@ -85,6 +85,7 @@ const PreviewModal = (props) => {
   }
 
   const getJobStatus = async () => {
+    console.log('intervalId in getJobStatus: ', intervalId)
     const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
     console.log('status in getJobStatus: ', status)
     if (status.state === 'completed') {

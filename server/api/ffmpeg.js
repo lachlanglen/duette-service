@@ -61,7 +61,6 @@ router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) 
     let job = await videoQueue.add({
       duetteKey,
       accompanimentKey,
-      combinedKey,
       delay,
     })
     console.log('job in job route: ', job)
