@@ -62,4 +62,17 @@ router.get('/:Key', (req, res, next) => {
   })
 })
 
+router.delete('/:Key', (req, res, next) => {
+  const { Key } = req.params;
+  s3.deleteObject({ Bucket: bucketName, Key }, (err, data) => {
+    if (err) {
+      console.log('error deleting object: ', err);
+      res.status(400).send(e);
+    } else {
+      console.log('object successfully deleted!');
+      res.status(200).send(`Object deleted: Key ${Key}`)
+    }
+  })
+})
+
 module.exports = router;

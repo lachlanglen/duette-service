@@ -34,9 +34,9 @@ const ViewVids = (props) => {
     detectOrientation();
   }, [])
 
-  if (props.cats && props.cats.length === 0) props.setCats();
+  // if (props.cats && props.cats.length === 0) props.setCats();
 
-  if (props.videos && props.videos.length === 0) props.fetchVideos();
+  // if (props.videos && props.videos.length === 0) props.fetchVideos();
 
   const handleBluetooth = (id) => {
     console.log('in handleBluetooth');
@@ -98,7 +98,7 @@ const ViewVids = (props) => {
     setFilteredVideos(text);
   }
 
-  console.log('props.videos: ', props.videos)
+  // console.log('props.videos: ', props.videos)
 
   // console.log('screen orientation: ', screenOrientation)
   // console.log('screenHeight: ', screenHeight, 'screenWidth: ', screenWidth)
@@ -147,7 +147,7 @@ const ViewVids = (props) => {
               )
           }
         </View>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={{ ...styles.title, width: screenWidth * 0.8 }}>"{title}"</Text>
         <Text style={styles.details}>Composer: {composer}</Text>
         <Text style={styles.details}>Key: {theKey}</Text>
         <Text style={{ ...styles.details, fontWeight: '400' }}>Performed by {performer}</Text>
@@ -165,9 +165,9 @@ const ViewVids = (props) => {
       <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
     ) : (
         // VIEW VIDEOS
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#187795' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD12B' }}>
           <Searchbar
-            placeholder="Search tracks"
+            placeholder="Title, composer or performer"
             onChangeText={handleSearch}
             style={{ borderRadius: 0, borderBottomColor: 'grey', borderBottomWidth: 2 }}
           // value={}
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   item: {
     padding: 10,
     borderWidth: 2,
-    borderColor: '#FFD12B',
+    borderColor: '#187795',
     marginVertical: 16,
     marginHorizontal: 16,
     backgroundColor: 'white',
@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     alignSelf: 'center',
+    textAlign: 'center',
     fontFamily: 'Gill Sans',
     fontWeight: '600',
     margin: 2,
@@ -233,8 +234,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     opacity: 0.5,
     alignSelf: 'center',
-    // borderColor: 'black',
     borderRadius: 5,
+    marginTop: 15
   },
   overlayText: {
     fontSize: 20,
@@ -246,12 +247,13 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 12,
     marginBottom: 7,
-    paddingHorizontal: 2,
-    paddingVertical: 9,
+    paddingHorizontal: 3,
+    paddingVertical: 11,
     width: '70%',
     alignSelf: 'center',
-    backgroundColor: '#FFD12B',
-    borderColor: '#2589BD',
+    backgroundColor: '#187795',
+    // borderColor: '#2589BD',
+    borderColor: 'darkgrey',
     borderWidth: 1.5,
     borderRadius: 5,
   },
@@ -260,13 +262,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '400',
     alignSelf: 'center',
-    color: '#0047B9',
+    color: 'white',
   },
   media: {
     borderWidth: 1.5,
     borderColor: '#2589BD',
     borderRadius: 5,
     alignSelf: 'center',
+    marginTop: 15,
   }
 });
 

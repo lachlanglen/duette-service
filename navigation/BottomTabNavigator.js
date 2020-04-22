@@ -12,7 +12,7 @@ export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
-  navigation.setOptions({ headerTitle: getHeaderTitle(route), headerStyle: { backgroundColor: '#0047B9' }, headerTitleStyle: { color: 'white' } });
+  navigation.setOptions({ headerTitle: getHeaderTitle(route), headerStyle: { backgroundColor: '#0047B9', height: 70 }, headerTitleStyle: { color: 'white' } });
 
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
@@ -20,7 +20,8 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Home"
         component={HomeScreen}
         options={{
-          title: 'Accompany',
+          title: 'Record a base track!',
+          style: { backgroundColor: 'pink' },
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-musical-note" />,
           // tabBarVisible: false,
         }}
@@ -29,7 +30,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         name="Links"
         component={LinksScreen}
         options={{
-          title: 'Duette!',
+          title: 'Record a Duette!',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-musical-notes" />,
         }}
       />
@@ -42,8 +43,8 @@ function getHeaderTitle(route) {
 
   switch (routeName) {
     case 'Home':
-      return 'Record an accompaniment';
+      return 'Welcome to Duette!';
     case 'Links':
-      return 'Record a Duette';
+      return 'Choose a base track';
   }
 }

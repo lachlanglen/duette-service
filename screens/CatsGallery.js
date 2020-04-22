@@ -26,11 +26,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleTextBlue: {
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: 'bold',
     alignSelf: 'center',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 50,
     marginBottom: 10,
     marginHorizontal: 10,
     color: '#0047B9'

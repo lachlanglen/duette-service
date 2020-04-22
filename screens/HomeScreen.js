@@ -53,10 +53,10 @@ const HomeScreen = (props) => {
     // FIXME: doesn't reload when a vid is added
   }, []);
 
-  useEffect(() => {
-    props.setCats();
-    props.fetchVideos();
-  }, [])
+  // useEffect(() => {
+  //   // props.setCats();
+  //   // props.fetchVideos();
+  // }, [])
 
   if (hasPermission === null) {
     return <View />;
@@ -117,8 +117,8 @@ const HomeScreen = (props) => {
 
   // console.log('dataUri: ', dataUri)
 
-  console.log('preview: ', preview)
-  console.log('showDetailsModal: ', showDetailsModal)
+  // console.log('preview: ', preview)
+  // console.log('showDetailsModal: ', showDetailsModal)
 
   return (
     // !props.user ? (
@@ -191,10 +191,11 @@ const HomeScreen = (props) => {
             </Modal>
           ) : (
               // landing page ('Record' button not clicked)
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFD12B' }}>
                 <Image
                   source={require('../assets/images/duette-logo-HD.png')} style={{ width: 300, height: 300 }} />
-                <Button title="Record!" onPress={() => setRecord(true)} />
+                <Button title="Record a new base track" onPress={() => setRecord(true)} />
+                <Button title="Record a Duette" onPress={() => props.navigation.navigate("Links")} />
               </View>
             )
         }

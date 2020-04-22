@@ -3,7 +3,7 @@ import axios from 'axios';
 const SET_VIDEOS = 'SET_VIDEOS';
 
 //action creators
-const setVideos = videos => {
+export const setVideos = videos => {
   return {
     type: SET_VIDEOS,
     videos

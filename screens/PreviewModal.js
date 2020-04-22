@@ -43,9 +43,11 @@ const PreviewModal = (props) => {
   const [delay, setDelay] = useState(0);
   const [customOffset, setCustomOffset] = useState(0);
   const [jobStatus, setJobStatus] = useState('');
-  const [combinedKey, setCombinedKey] = useState('');
+  // const [combinedKey, setCombinedKey] = useState('');
 
   let intervalId;
+  let combinedKey;
+  let tempVidId;
 
   const minVal = -250;
   const maxVal = 250;
@@ -81,7 +83,7 @@ const PreviewModal = (props) => {
 
   const handleSave = () => {
     console.log('in handleSave')
-    // setSaving(true);
+    setSaving(true);
     handlePost();
   }
 
@@ -94,6 +96,7 @@ const PreviewModal = (props) => {
       clearInterval(intervalId)
       console.log('interval cleared');
       setJobStatus('completed');
+      console.log('combinedKey in getJobStatus: ', combinedKey)
       // retrieve from s3
       const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${combinedKey}`;
       try {
@@ -102,8 +105,13 @@ const PreviewModal = (props) => {
           FileSystem.documentDirectory + `${combinedKey}.mov`
         )
         console.log('Finished downloading to ', uri);
+        const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { videoUri: uri, id: combinedKey });
+        console.log('duette: ', newDuetteInDB.data)
+        await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
+        console.log('temp video deleted!');
         setMergedLocalUri(uri);
         setSuccess(true);
+        setSaving(false);
       } catch (e) {
         console.log('error downloading from s3: ', e)
       }
@@ -117,6 +125,7 @@ const PreviewModal = (props) => {
   const handlePost = async () => {
     console.log('in handlePost')
     const id = uuid.v4();
+    tempVidId = id;
     let uriParts = duetteUri.split('.');
     let fileType = uriParts[uriParts.length - 1];
     const file = {
@@ -138,7 +147,6 @@ const PreviewModal = (props) => {
 
     try {
       await fetch(signedUrl, options);
-      // TODO: delete video from s3
       console.log('posted to s3!')
       // send both video keys to back end for processing
       const duetteKey = id;
@@ -147,7 +155,7 @@ const PreviewModal = (props) => {
       const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
       jobs.push(job);
       // save combinedKey on state
-      setCombinedKey(combinedVidKey)
+      combinedKey = combinedVidKey;
       poll();
     }
     catch (e) {
@@ -229,7 +237,7 @@ const PreviewModal = (props) => {
       'Saved',
       'Your video has been saved to your Camera Roll!',
       [
-        { text: 'OK!', onPress: () => handleGoHome() },
+        { text: 'Home', onPress: () => handleGoHome() },
       ],
       { cancelable: false }
     )
@@ -312,9 +320,11 @@ const PreviewModal = (props) => {
   //   await vidARef.playFromPositionAsync(vidACurPos);
   // }
 
-  console.log('screenOrientation in PreviewModal: ', screenOrientation)
+  // console.log('screenOrientation in PreviewModal: ', screenOrientation)
   // console.log('previewSelected: ', previewSelected)
-  console.log('previewComplete: ', previewComplete);
+  // console.log('previewComplete: ', previewComplete);
+
+  // console.log('mergedLocalUri: ', mergedLocalUri)
 
   return (
     <View style={styles.container}>
@@ -339,7 +349,13 @@ const PreviewModal = (props) => {
                 shouldPlay
                 isLooping={false}
                 useNativeControls={true}
-                style={{ width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                // style={{ width: 100, height: 100 }}
+                style={{
+                  width: screenWidth,
+                  height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                  marginBottom: 15,
+                  // marginTop: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                }}
               >
                 {/* <View
                   style={{
@@ -366,6 +382,7 @@ const PreviewModal = (props) => {
                 </View> */}
               </Video>
               <Button
+                style={{ marginTop: 30 }}
                 title="Save to Camera Roll"
                 onPress={handleSaveToCameraRoll} />
               <Button
@@ -380,9 +397,9 @@ const PreviewModal = (props) => {
               onOrientationChange={e => handleModalOrientationChange(e)}
             >{
                 saving ? (
-                  <View style={{ padding: 20 }}>
-                    <CatsGallery />
-                  </View>
+                  // <View style={{ padding: 20 }}>
+                  <CatsGallery />
+                  // </View>
                 ) : (
                     success ? (
                       // video has been merged
