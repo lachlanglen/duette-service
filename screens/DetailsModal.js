@@ -70,9 +70,11 @@ const DetailsModal = (props) => {
         console.log('Finished downloading to ', uri);
         // create thumbnail
         const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
+        console.log('thumbnail: ', thumbnail)
         const thumbnailUri = thumbnail.uri;
         // get info from form
         const { title, composer, key, performer } = formRef.getValue();
+        console.log('title: ', title)
         // post to localDB
         const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key, performer, thumbnailUri, videoUri: uri })).data
         console.log('videoRecord: ', videoRecord);
@@ -115,7 +117,7 @@ const DetailsModal = (props) => {
       croppedVidId = uuid.v4();
       const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/accompaniment/${tempVidId}/${croppedVidId}`)).data
       jobs.push(job);
-      poll();
+      poll(2000);
     } catch (e) {
       console.log('error in handleSave: ', e)
     }

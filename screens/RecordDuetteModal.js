@@ -26,6 +26,7 @@ const RecordDuetteModal = (props) => {
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
   // const [vidIsPlaying, setVidIsPlaying] = useState(false);
 
+
   useEffect(() => {
     detectOrientation();
   }, [])
@@ -68,13 +69,13 @@ const RecordDuetteModal = (props) => {
     vidRef.unloadAsync()
       .then(() => {
         console.log('successfully unloaded video')
-        // props.selectedVideo.videoUri = '';
         setShowRecordDuetteModal(false);
+        // props.selectedVideo.videoUri = '';
       })
       .catch((e) => {
         console.log('error unloading video: ', e)
-        // props.selectedVideo.videoUri = '';
         setShowRecordDuetteModal(false);
+        // props.selectedVideo.videoUri = '';
       })
   }
 

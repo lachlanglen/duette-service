@@ -217,8 +217,6 @@ function start() {
           } else {
             console.log('success uploading to s3! data: ', data);
             // delete all vids
-            await unlinkAsync(`${__dirname}/${fileInfo.originalName}.mov`)
-            console.log('deleted original video')
             await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`)
             console.log('deleted cropped video')
           }

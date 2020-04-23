@@ -13,6 +13,7 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import { setVideo } from '../redux/singleVideo'
 import RecordDuetteModal from './RecordDuetteModal';
+// import RecordDuetteModal from './RecordDuetteClass';
 import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import { loadCats } from '../redux/cats';
