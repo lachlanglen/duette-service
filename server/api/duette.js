@@ -4,8 +4,8 @@ const { Duette } = require('../../db/models/index');
 
 router.post('/', (req, res, next) => {
   // TODO: destructure req.body for security purposes
-  const { id } = req.body;
-  Duette.create({ id })
+  const { id, videoUri } = req.body;
+  Duette.create({ id, videoUri })
     .then(duette => res.status(201).send(duette))
     .catch(e => {
       console.log('error creating new duette record: ', e)

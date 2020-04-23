@@ -191,7 +191,7 @@ const HomeScreen = (props) => {
             </Modal>
           ) : (
               // landing page ('Record' button not clicked)
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFD12B' }}>
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
                 <Image
                   source={require('../assets/images/duette-logo-HD.png')} style={{ width: 300, height: 300 }} />
                 <Button title="Record a new base track" onPress={() => setRecord(true)} />

@@ -1,7 +1,7 @@
 /* eslint-disable max-statements */
 import React, { useState } from 'react';
 // import { withRouter } from 'react-router-dom'
-import { Image, Text, View, Modal, Button, StyleSheet, ScrollView } from 'react-native';
+import { Image, Text, View, Modal, Button, StyleSheet, ScrollView, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import * as ImageManipulator from "expo-image-manipulator";
@@ -73,8 +73,9 @@ const DetailsModal = (props) => {
         console.log('thumbnail: ', thumbnail)
         const thumbnailUri = thumbnail.uri;
         // get info from form
-        const { title, composer, key, performer } = formRef.getValue();
-        console.log('title: ', title)
+        const value = formRef.getValue();
+        const { title, composer, key, performer } = value;
+        console.log('value: ', value)
         // post to localDB
         const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key, performer, thumbnailUri, videoUri: uri })).data
         console.log('videoRecord: ', videoRecord);
@@ -117,6 +118,9 @@ const DetailsModal = (props) => {
       croppedVidId = uuid.v4();
       const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/accompaniment/${tempVidId}/${croppedVidId}`)).data
       jobs.push(job);
+      const value = formRef.getValue();
+      // const { title, composer, key, performer } = formRef.getValue();
+      console.log('value: ', value)
       poll(2000);
     } catch (e) {
       console.log('error in handleSave: ', e)
@@ -124,6 +128,7 @@ const DetailsModal = (props) => {
   }
 
   const handleSave = () => {
+    // FIXME: shouldn't be savable if form hasn't been completed
     setSaving(true);
     handlePost();
   }
@@ -187,6 +192,7 @@ const DetailsModal = (props) => {
                         <Button
                           title="Save Video!"
                           onPress={handleSave}
+                          disabled={!formRef}
                         />
                         <Button
                           title="Back"
