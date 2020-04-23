@@ -25,7 +25,7 @@ let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 let videoQueue = new Queue('video processing', REDIS_URL);
 
-router.get('/getJobs', async (req, res, next) => {
+router.get('/jobs/getJobs', async (req, res, next) => {
   // const { jobId } = req.params;
   try {
     const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed']);
@@ -35,7 +35,7 @@ router.get('/getJobs', async (req, res, next) => {
   }
 })
 
-router.delete('/removeJobs', async (req, res, next) => {
+router.delete('/jobs/removeJobs', async (req, res, next) => {
   // const { jobId } = req.params;
   try {
     const jobs = await videoQueue.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed']);
@@ -53,7 +53,7 @@ router.delete('/removeJobs', async (req, res, next) => {
   }
 })
 
-router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) => {
+router.post('/job/duette/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) => {
   const { duetteKey, accompanimentKey, delay } = req.params;
   console.log('delay: ', delay)
 
@@ -62,6 +62,7 @@ router.post('/job/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) 
       duetteKey,
       accompanimentKey,
       delay,
+      type: 'duette'
     })
     console.log('job in job route: ', job)
     res.status(200).send(job);
@@ -84,85 +85,20 @@ router.get('/job/:id', async (req, res) => {
   }
 });
 
-router.post('/accompaniment', upload.single('video'), async (req, res, next) => {
+router.post('/job/accompaniment/:tempVidId/:croppedVidId', async (req, res, next) => {
 
-  req.connection.setTimeout(1000 * 60 * 30); // thirty minutes
-
-  const fileInfo = {
-    originalName: req.file.originalname,
-    orientation: '',
-    trueHeight: null,
-    trueWidth: null,
-    croppedHeight: null,
-    croppedWidth: null,
-    offset: null,
-    duration: null,
-  };
+  const { tempVidId, croppedVidId } = req.params;
 
   try {
-    // create a file on server
-    await writeFileAsync(`${__dirname}/${fileInfo.originalName}.mov`, req.file.buffer);
-
-    // get metadata on vid file
-    const metadata = await ffprobeAsync(`server/api/${fileInfo.originalName}.mov`)
-
-    console.log('metadata: ', metadata.streams[0].duration)
-
-    if (!metadata.streams[0].rotation) {
-      console.log('undefined rotation in file 1')
-      // res.status(400).send(`unsupported orientation in file ${fileInfo.originalName}`)
-    }
-
-    console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
-
-    fileInfo.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
-    fileInfo.trueWidth = fileInfo.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
-    fileInfo.trueHeight = fileInfo.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
-    fileInfo.croppedHeight = fileInfo.orientation === 'portrait' ? (fileInfo.trueWidth / 8) * 9 : fileInfo.trueHeight;
-    fileInfo.croppedWidth = fileInfo.croppedHeight / 9 * 8;
-    fileInfo.offset = fileInfo.orientation === 'portrait' ? (fileInfo.trueHeight - fileInfo.croppedHeight) / 2 : (fileInfo.trueWidth - fileInfo.croppedWidth) / 2;
-    fileInfo.duration = metadata.streams[0].duration;
-
-    // if vid croppedHeight is not divisible by 2, reduce by 1px
-    if (fileInfo.croppedHeight % 2 === 1) fileInfo.croppedHeight--;
-
-    console.log('fileInfo: ', fileInfo);
-
-    // crop & trim vid
-    if (fileInfo.orientation === 'portrait') await exec(`ffmpeg -i server/api/${fileInfo.originalName}.mov -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=iw:${fileInfo.croppedHeight}:0:${fileInfo.offset}" -preset ultrafast -c:a copy server/api/${fileInfo.originalName}cropped.mov`)
-    if (fileInfo.orientation === 'landscape') await exec(`ffmpeg -i server/api/${fileInfo.originalName}.mov -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=${fileInfo.croppedWidth}:ih:${fileInfo.offset}:0" -preset ultrafast -c:a copy server/api/${fileInfo.originalName}cropped.mov`)
-    console.log('cropped and trimmed accompaniment video!')
-
-    // // add logo
-
-    // await exec(`ffmpeg -i server/api/${fileInfo.originalName}cropped.mov -i duette-logo.png -filter_complex 'overlay=10:main_h-overlay_h-10' server/api/withlogo.mov`)
-    // console.log('logo added!')
-
-    // post video to AWS
-    const key = uuidv4();
-    console.log('key: ', key)
-    const params = {
-      Bucket: 'duette',
-      Key: key,
-      Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}cropped.mov`),
-    }
-
-    s3.upload(params, async (err, data) => {
-      if (err) {
-        console.log('error uploading to S3: ', err);
-        res.status(400).send('error uploading to s3: ', err);
-      } else {
-        console.log('success uploading to s3! data: ', data);
-        // delete all vids
-        await unlinkAsync(`${__dirname}/${fileInfo.originalName}.mov`)
-        console.log('deleted original video')
-        await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`)
-        console.log('deleted cropped video')
-        res.status(200).send(key)
-      }
+    let job = await videoQueue.add({
+      tempVidId,
+      croppedVidId,
+      type: 'accompaniment'
     })
+    console.log('job in job route: ', job)
+    res.status(200).send(job);
   } catch (e) {
-    console.log('error writing files: ', e)
+    console.log('error in job route: ', e)
     res.status(400).send(e)
   }
 })

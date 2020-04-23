@@ -42,7 +42,7 @@ const PreviewModal = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [delay, setDelay] = useState(0);
   const [customOffset, setCustomOffset] = useState(0);
-  const [jobStatus, setJobStatus] = useState('');
+  // const [jobStatus, setJobStatus] = useState('');
   // const [combinedKey, setCombinedKey] = useState('');
 
   let intervalId;
@@ -95,7 +95,7 @@ const PreviewModal = (props) => {
       console.log('job completed!')
       clearInterval(intervalId)
       console.log('interval cleared');
-      setJobStatus('completed');
+      // setJobStatus('completed');
       console.log('combinedKey in getJobStatus: ', combinedKey)
       // retrieve from s3
       const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${combinedKey}`;
@@ -118,12 +118,12 @@ const PreviewModal = (props) => {
     }
   }
 
-  const poll = () => {
-    intervalId = setInterval(getJobStatus, 2000);
+  const poll = interval => {
+    intervalId = setInterval(getJobStatus, interval);
   }
 
   const handlePost = async () => {
-    console.log('in handlePost')
+    // console.log('in handlePost')
     const id = uuid.v4();
     tempVidId = id;
     let uriParts = duetteUri.split('.');
@@ -152,11 +152,11 @@ const PreviewModal = (props) => {
       const duetteKey = id;
       const accompanimentKey = props.selectedVideo.id;
       const combinedVidKey = `${accompanimentKey}${duetteKey}`
-      const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
+      const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
       jobs.push(job);
-      // save combinedKey on state
+      // save combinedKey
       combinedKey = combinedVidKey;
-      poll();
+      poll(2000);
     }
     catch (e) {
       console.log('error posting to s3: ', e)

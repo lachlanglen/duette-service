@@ -11,6 +11,7 @@ import uuid from 'react-native-uuid';
 import axios from 'axios';
 import CatsGallery from './CatsGallery';
 import { fetchVideos } from '../redux/videos';
+import { Polly } from 'aws-sdk';
 
 const DetailsModal = (props) => {
   const { setRecord, setPreview, setShowDetailsModal, handleDetailsExit, dataUri } = props;
@@ -18,8 +19,12 @@ const DetailsModal = (props) => {
   const [formRef, setFormRef] = useState(null);
   const [postSuccess, setPostSuccess] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [localUri, setLocalUri] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const jobs = [];
+
+  let croppedVidId;
+  let intervalId;
 
   const VideoForm = t.struct({
     title: t.String,
@@ -47,43 +52,70 @@ const DetailsModal = (props) => {
     },
   };
 
+  const getJobStatus = async () => {
+    console.log('intervalId in getJobStatus: ', intervalId)
+    const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
+    console.log('status in getJobStatus: ', status)
+    if (status.state === 'completed') {
+      console.log('job completed!')
+      clearInterval(intervalId)
+      console.log('interval cleared');
+      // retrieve from s3
+      const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}`;
+      try {
+        const { uri } = await FileSystem.downloadAsync(
+          s3Url,
+          FileSystem.documentDirectory + `${croppedVidId}.mov`
+        )
+        console.log('Finished downloading to ', uri);
+        // create thumbnail
+        const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
+        const thumbnailUri = thumbnail.uri;
+        // get info from form
+        const { title, composer, key, performer } = formRef.getValue();
+        // post to localDB
+        const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key, performer, thumbnailUri, videoUri: uri })).data
+        console.log('videoRecord: ', videoRecord);
+        props.fetchVideos();
+        setSuccess(true);
+        setSaving(false);
+        // setShowDetailsModal(false);
+      } catch (e) {
+        console.log('error downloading from s3: ', e)
+      }
+    }
+  }
+
+  const poll = interval => {
+    intervalId = setInterval(getJobStatus, interval);
+  }
+
   const handlePost = async () => {
-    const value = formRef.getValue(); // use that ref to get the form value
-    console.log('value: ', value);
-    if (value.title) console.log('title: ', value.title)
-    const { title, composer, key, performer } = value;
-    // send vid to ffmpeg for cropping & uploading to AWS
-    // use returned key to create local DB record, storing file url as well
+    const tempVidId = uuid.v4();
+    let uriParts = dataUri.split('.');
+    let fileType = uriParts[uriParts.length - 1];
+    const vidFile = {
+      uri: dataUri,
+      name: `${tempVidId}.mov`,
+      type: `video/${fileType}`
+    }
     try {
-      let formData = new FormData();
-      const UUID = uuid.v4();
-      let uriParts = dataUri.split('.');
-      let fileType = uriParts[uriParts.length - 1];
-      formData.append('video', {
-        uri: dataUri,
-        name: UUID,
-        type: `video/${fileType}`,
-      });
-      console.log('formData line 55: ', formData)
-      const vidKey = (await axios.post('https://duette.herokuapp.com/api/ffmpeg/accompaniment', formData)).data
-      // save AWS vid to local file
-      const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${vidKey}`;
-      const file = await FileSystem.downloadAsync(
-        s3Url,
-        FileSystem.documentDirectory + `${vidKey}.mp4`
-      )
-      console.log('Finished downloading to ', file.uri);
-      setLocalUri(file.uri);
-      setSuccess(true);
-      // create thumbnail
-      const thumbnail = await VideoThumbnails.getThumbnailAsync(dataUri, { time: 3000 });
-      const thumbnailUri = thumbnail.uri;
-      const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: vidKey, title, composer, key, performer, thumbnailUri, videoUri: file.uri })).data
-      console.log('videoRecord: ', videoRecord);
-      props.fetchVideos();
-      setSaving(false);
-      setSuccess(true);
-      // setShowDetailsModal(false);
+      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
+
+      const awsOptions = {
+        method: 'PUT',
+        body: vidFile,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'video/mov',
+        },
+      };
+      await fetch(signedUrl, awsOptions);
+      console.log('posted to s3!')
+      croppedVidId = uuid.v4();
+      const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/accompaniment/${tempVidId}/${croppedVidId}`)).data
+      jobs.push(job);
+      poll();
     } catch (e) {
       console.log('error in handleSave: ', e)
     }
@@ -115,7 +147,6 @@ const DetailsModal = (props) => {
       // </View>
     ) : (
         success ? (
-          // TODO: pick up here with real success component
           <View>
             <Text style={styles.titleTextBlue}>Successfully saved!</Text>
             <Image style={styles.successCat} source={require('../assets/images/happy_grumpy_cat.png')} />
