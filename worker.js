@@ -225,9 +225,9 @@ function start() {
             // delete all vids
             await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`)
             console.log('deleted cropped video')
+            job.progress({ percent: 95, currentStep: "finished saving" });
           }
         })
-        job.progress({ percent: 95, currentStep: "finished saving" });
         return { croppedVidId };
       } catch (e) {
         console.log('error in accompaniment worker: ', e)

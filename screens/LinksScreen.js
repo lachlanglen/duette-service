@@ -189,13 +189,13 @@ const ViewVids = (props) => {
                   <View>
                     <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
                       Loading...
-                  </Text>
+                    </Text>
                   </View>
                 ) : (
                     <View>
                       <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
                         No videos to display
-                  </Text>
+                      </Text>
                     </View>
                   )
               )

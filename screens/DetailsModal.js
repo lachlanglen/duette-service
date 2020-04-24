@@ -20,14 +20,16 @@ const DetailsModal = (props) => {
   const [postSuccess, setPostSuccess] = useState(false);
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [croppingInProgress, setCroppingInProgress] = useState(false); // jobs[0]
-  const [croppingDone, setCroppingDone] = useState(false); // jobs[0]
-  const [scalingInProgress, setScalingInProgress] = useState(false); // jobs[1]
-  const [scalingDone, setScalingDone] = useState(false); // jobs[1]
+  const [infoGettingInProgress, setInfoGettingInProgress] = useState(false); // jobs[0]
+  const [infoGettingDone, setInfoGettingDone] = useState(false); // jobs[0]
+  const [croppingInProgress, setCroppingInProgress] = useState(false); // jobs[1]
+  const [croppingDone, setCroppingDone] = useState(false); // jobs[1]
   const [savingInProgress, setSavingInProgress] = useState(false); // jobs[2]
   const [savingDone, setSavingDone] = useState(false); // jobs[2]
 
   const jobs = [];
+
+  console.log('jobs: ', jobs)
 
   let croppedVidId;
   let intervalId;
@@ -66,23 +68,16 @@ const DetailsModal = (props) => {
 
   */
 
-  const getJobStatus = async () => {
-    console.log('intervalId in getJobStatus: ', intervalId)
-    const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
-    console.log('status in getJobStatus: ', status)
-    if (status.state === 'completed') {
-      console.log('job completed!')
-      clearInterval(intervalId)
-      console.log('interval cleared');
-      // retrieve from s3
-      const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}`;
+  const download = async () => {
+    const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}`;
+    try {
+      const { uri } = await FileSystem.downloadAsync(
+        s3Url,
+        FileSystem.documentDirectory + `${croppedVidId}.mov`
+      )
+      console.log('Finished downloading to ', uri);
+      // create thumbnail
       try {
-        const { uri } = await FileSystem.downloadAsync(
-          s3Url,
-          FileSystem.documentDirectory + `${croppedVidId}.mov`
-        )
-        console.log('Finished downloading to ', uri);
-        // create thumbnail
         const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
         console.log('thumbnail: ', thumbnail)
         const thumbnailUri = thumbnail.uri;
@@ -90,16 +85,56 @@ const DetailsModal = (props) => {
         const value = formRef.getValue();
         const { title, composer, key, performer } = value;
         console.log('value: ', value)
-        // post to localDB
-        const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key, performer, thumbnailUri, videoUri: uri })).data
-        console.log('videoRecord: ', videoRecord);
-        props.fetchVideos();
-        setSuccess(true);
-        setSaving(false);
-        // setShowDetailsModal(false);
+        try {
+          // post to localDB
+          const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key, performer, thumbnailUri, videoUri: uri })).data
+          console.log('videoRecord: ', videoRecord);
+          props.fetchVideos();
+          setSuccess(true);
+          setSaving(false);
+          // setShowDetailsModal(false);
+        } catch (e) {
+          console.log('error creating new video record: ', e)
+        }
       } catch (e) {
-        console.log('error downloading from s3: ', e)
+        console.log('error getting thumbnail: ', e)
       }
+    } catch (e) {
+      console.log('error downloading from s3: ', e)
+    }
+  }
+
+  const getJobStatus = async () => {
+    console.log('intervalId in getJobStatus: ', intervalId)
+    const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
+    console.log('status in getJobStatus: ', status)
+    if (status.state !== 'completed') {
+      if (status.progress.percent === 20) {
+        setInfoGettingInProgress(false);
+        setInfoGettingDone(true);
+        setCroppingInProgress(true);
+      } else if (status.progress.percent === 60) {
+        if (!infoGettingDone) {
+          setInfoGettingInProgress(false);
+          setInfoGettingDone(true);
+        }
+        setCroppingInProgress(false);
+        setCroppingDone(true);
+        setSavingInProgress(true);
+      } else if (status.progress.percent === 95) {
+        if (!croppingDone) {
+          setCroppingInProgress(false);
+          setCroppingDone(true);
+        }
+        setSavingInProgress(false);
+        setSavingDone(true);
+      }
+    } else {
+      // job is completed
+      console.log('job completed!')
+      clearInterval(intervalId)
+      console.log('interval cleared');
+      download();
     }
   }
 
@@ -135,15 +170,16 @@ const DetailsModal = (props) => {
       // const value = formRef.getValue();
       // const { title, composer, key, performer } = formRef.getValue();
       // console.log('value: ', value)
+      setInfoGettingInProgress(true);
       poll(500);
     } catch (e) {
-      console.log('error in handleSave: ', e)
+      console.log('error in handlePost: ', e)
     }
   }
 
   const handleSave = () => {
     // FIXME: shouldn't be savable if form hasn't been completed
-    // setSaving(true);
+    setSaving(true);
     handlePost();
   }
 
@@ -164,7 +200,14 @@ const DetailsModal = (props) => {
   return (
     saving ? (
       // <View style={{ flex: 1 }}>
-      <CatsGallery />
+      <CatsGallery
+        infoGettingDone={infoGettingDone}
+        infoGettingInProgress={infoGettingInProgress}
+        croppingDone={croppingDone}
+        croppingInProgress={croppingInProgress}
+        savingDone={savingDone}
+        savingInProgress={savingInProgress}
+      />
       // </View>
     ) : (
         success ? (

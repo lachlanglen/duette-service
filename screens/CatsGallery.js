@@ -1,35 +1,69 @@
+/* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Icon } from 'react-native-elements';
 import Gallery from 'react-native-image-gallery';
 
 const CatsGallery = (props) => {
 
   console.log('in CatsGallery')
 
-  /* pass in as props:
-
-  croppingInProgress, croppingDone
-  scalingInProgress, scalingDone
-  savingInProgress, savingDone
-
-  */
+  const {
+    infoGettingDone,
+    infoGettingInProgress,
+    croppingDone,
+    croppingInProgress,
+    savingDone,
+    savingInProgress,
+  } = props;
 
   // FIXME: doesn't load on landscape view
   return (
     <View style={{ flex: 1 }}>
       <Text style={styles.titleTextBlue}>We're saving your video.</Text>
       <View style={styles.progressBar}>
-        <ActivityIndicator size="small" color="#0047B9" />
-        <Text style={styles.progressText}>Cropping video</Text>
+        {
+          infoGettingDone ? (
+            <Icon
+              name="done"
+              type="material"
+              color="green"
+              size={28} />
+          ) : (
+              infoGettingInProgress &&
+              <ActivityIndicator size="small" color="#0047B9" />
+            )
+        }
+        <Text style={{ ...styles.progressText, color: infoGettingDone ? 'green' : 'darkgrey' }}>Getting video info</Text>
       </View>
       <View style={styles.progressBar}>
-        <ActivityIndicator size="small" color="#0047B9" />
-        <Text style={styles.progressText}>Scaling video</Text>
+        {
+          croppingDone ? (
+            <Icon
+              name="done"
+              type="material"
+              color="green"
+              size={60} />
+          ) : (
+              <ActivityIndicator size="small" color="#0047B9" />
+            )
+        }
+        <Text style={{ ...styles.progressText, color: savingDone ? 'green' : 'darkgrey' }}>Scaling/Cropping</Text>
       </View>
       <View style={styles.progressBar}>
-        <ActivityIndicator size="small" color="#0047B9" />
-        <Text style={styles.progressText}>Saving video</Text>
+        {
+          savingDone ? (
+            <Icon
+              name="done"
+              type="material"
+              color="green"
+              size={60} />
+          ) : (
+              <ActivityIndicator size="small" color="#0047B9" />
+            )
+        }
+        <Text style={{ ...styles.progressText, color: savingDone ? 'green' : 'darkgrey' }}>Saving video</Text>
       </View>
       <Text style={styles.bodyText}>This could take a few minutes, depending on the video length and your internet connection.</Text>
       <Text style={styles.titleTextSeaweed}>Have fun swiping through these cat pics while you're waiting! 😸</Text>
@@ -63,7 +97,8 @@ const styles = StyleSheet.create({
   progressText: {
     paddingLeft: 20,
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    alignSelf: 'center'
   },
   titleTextSeaweed: {
     fontSize: 16,
