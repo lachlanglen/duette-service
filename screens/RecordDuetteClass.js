@@ -40,8 +40,7 @@ class RecordDuetteModal extends Component {
             flexDirection: 'column',
           }}>
             <View style={{ flexDirection: 'row' }}>
-              <Text>Hi</Text>
-              {/* <Video
+              <Video
                 rate={1.0}
                 volume={1.0}
                 isMuted={false}
@@ -74,7 +73,7 @@ class RecordDuetteModal extends Component {
                   </Text>
                   </TouchableOpacity>
                 </View>
-              </Camera> */}
+              </Camera>
             </View>
           </View>
         </Modal>

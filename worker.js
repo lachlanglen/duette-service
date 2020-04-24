@@ -15,6 +15,7 @@ const unlinkAsync = promisify(fs.unlink)
 
 // Connect to a local redis intance locally, and the Heroku-provided URL in production
 let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const logoUrl = 'https://duette.s3.us-east-2.amazonaws.com/duette-logo-121x53.png'
 
 // Spin up multiple processes to handle jobs to take advantage of more CPU cores
 // See: https://devcenter.heroku.com/articles/node-concurrency for more info
@@ -198,10 +199,15 @@ function start() {
 
         console.log('fileInfo: ', fileInfo);
 
+        job.progress({ percent: 20, currentStep: "finished getting info" });
+
         // crop & trim vid
-        if (fileInfo.orientation === 'portrait') await exec(`ffmpeg -i ${vidUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=iw:${fileInfo.croppedHeight}:0:${fileInfo.offset}" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
+        if (fileInfo.orientation === 'portrait') await exec(`ffmpeg -i ${vidUrl} -i ${logoUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=iw:${fileInfo.croppedHeight}:0:${fileInfo.offset}" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
         if (fileInfo.orientation === 'landscape') await exec(`ffmpeg -i ${vidUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=${fileInfo.croppedWidth}:ih:${fileInfo.offset}:0" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
         console.log('cropped and trimmed accompaniment video!')
+
+        job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
+
 
         // post video to AWS
         const params = {
@@ -221,6 +227,7 @@ function start() {
             console.log('deleted cropped video')
           }
         })
+        job.progress({ percent: 95, currentStep: "finished saving" });
         return { croppedVidId };
       } catch (e) {
         console.log('error in accompaniment worker: ', e)

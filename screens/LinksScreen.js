@@ -27,6 +27,7 @@ const ViewVids = (props) => {
   const [previewVid, setPreviewVid] = useState('');
   const [alertCompleted, setAlertCompleted] = useState(false);
   const [bluetooth, setBluetooth] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -95,7 +96,7 @@ const ViewVids = (props) => {
   }
 
   const handleSearch = text => {
-    console.log('text: ', text);
+    setSearchText(text);
     setFilteredVideos(text);
   }
 
@@ -184,11 +185,19 @@ const ViewVids = (props) => {
               />
             ) : (
                 // VIDEOS HAVEN'T LOADED
-                <View>
-                  <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
-                    No videos to display
+                !searchText ? (
+                  <View>
+                    <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
+                      Loading...
                   </Text>
-                </View>
+                  </View>
+                ) : (
+                    <View>
+                      <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
+                        No videos to display
+                  </Text>
+                    </View>
+                  )
               )
           }
         </SafeAreaView>

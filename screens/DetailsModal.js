@@ -20,6 +20,12 @@ const DetailsModal = (props) => {
   const [postSuccess, setPostSuccess] = useState(false);
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [croppingInProgress, setCroppingInProgress] = useState(false); // jobs[0]
+  const [croppingDone, setCroppingDone] = useState(false); // jobs[0]
+  const [scalingInProgress, setScalingInProgress] = useState(false); // jobs[1]
+  const [scalingDone, setScalingDone] = useState(false); // jobs[1]
+  const [savingInProgress, setSavingInProgress] = useState(false); // jobs[2]
+  const [savingDone, setSavingDone] = useState(false); // jobs[2]
 
   const jobs = [];
 
@@ -51,6 +57,14 @@ const DetailsModal = (props) => {
       },
     },
   };
+
+  /* status:
+
+  croppingInProgress, croppingDone
+  scalingInProgress, scalingDone
+  savingInProgress, savingDone
+
+  */
 
   const getJobStatus = async () => {
     console.log('intervalId in getJobStatus: ', intervalId)
@@ -118,10 +132,10 @@ const DetailsModal = (props) => {
       croppedVidId = uuid.v4();
       const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/accompaniment/${tempVidId}/${croppedVidId}`)).data
       jobs.push(job);
-      const value = formRef.getValue();
+      // const value = formRef.getValue();
       // const { title, composer, key, performer } = formRef.getValue();
-      console.log('value: ', value)
-      poll(2000);
+      // console.log('value: ', value)
+      poll(500);
     } catch (e) {
       console.log('error in handleSave: ', e)
     }
@@ -129,7 +143,7 @@ const DetailsModal = (props) => {
 
   const handleSave = () => {
     // FIXME: shouldn't be savable if form hasn't been completed
-    setSaving(true);
+    // setSaving(true);
     handlePost();
   }
 
@@ -192,7 +206,7 @@ const DetailsModal = (props) => {
                         <Button
                           title="Save Video!"
                           onPress={handleSave}
-                          disabled={!formRef}
+                        // disabled={formRef ? !formRef.getValue() : true}
                         />
                         <Button
                           title="Back"
