@@ -202,7 +202,7 @@ function start() {
         job.progress({ percent: 20, currentStep: "finished getting info" });
 
         // crop & trim vid
-        if (fileInfo.orientation === 'portrait') await exec(`ffmpeg -i ${vidUrl} -i ${logoUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=iw:${fileInfo.croppedHeight}:0:${fileInfo.offset}" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
+        if (fileInfo.orientation === 'portrait') await exec(`ffmpeg -i ${vidUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=iw:${fileInfo.croppedHeight}:0:${fileInfo.offset}" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
         if (fileInfo.orientation === 'landscape') await exec(`ffmpeg -i ${vidUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=${fileInfo.croppedWidth}:ih:${fileInfo.offset}:0" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
         console.log('cropped and trimmed accompaniment video!')
 
