@@ -2,26 +2,81 @@ const express = require('express')
 const router = express.Router();
 const { User } = require('../../db/models/index');
 
-router.post('/', (req, res, next) => {
-  console.log('req.body in user GET: ', req.body)
-  const { facebookToken, displayName, photoURL } = req.body;
-
+router.get('/facebookId/:facebookId', (req, res, next) => {
+  const { facebookId } = req.params;
   User.findOne({
     where: {
-      facebookToken
+      facebookId,
     }
   })
     .then(user => {
       if (user) {
+        res.status(200).send(user);
+      } else {
+        res.status(404).send(`user not found with facebookId ${facebookId}`)
+      }
+    })
+})
+
+router.post('/', (req, res, next) => {
+  console.log('req.body in user GET: ', req.body)
+  const {
+    name,
+    facebookId,
+    expires,
+    pictureUrl,
+    pictureWidth,
+    pictureHeight,
+    lastLogin,
+    email
+  } = req.body;
+
+  User.findOne({
+    where: {
+      facebookId
+    }
+  })
+    .then(user => {
+      // user already exists; update user with lastLogin and other info to ensure it's up to date
+      if (user) {
         console.log('user found!')
+        user.update({
+          name,
+          facebookId,
+          expires: expires.toString(),
+          pictureUrl,
+          pictureWidth,
+          pictureHeight,
+          lastLogin: lastLogin.toString(),
+          email
+        })
+          .then(updatedUser => {
+            console.log('updatedUser: ', updatedUser);
+            res.status(200).send(updatedUser);
+          })
+          .catch(e => {
+            console.log('error updating user: ', e);
+            res.status(400).send(e);
+          })
         res.status(200).send(user)
       } else {
+        // user doesn't exist
         // create user
-        User.create({ facebookToken, displayName, photoURL })
+        console.log('in user ELSE block')
+        User.create({
+          name,
+          facebookId,
+          expires: expires.toString(),
+          pictureUrl,
+          pictureWidth,
+          pictureHeight,
+          lastLogin: lastLogin.toString(),
+          email
+        })
           .then(newUser => res.status(201).send(newUser))
           .catch(e => {
             console.log('error creating new user: ', e);
-            res.status(400).send('error creating new user: ', e)
+            res.status(400).send(e)
           })
       }
     })

@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Button } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Gallery from 'react-native-image-gallery';
 
@@ -16,6 +16,7 @@ const CatsGallery = (props) => {
     croppingInProgress,
     savingDone,
     savingInProgress,
+    setSaving
   } = props;
 
   // FIXME: doesn't load on landscape view
@@ -31,7 +32,7 @@ const CatsGallery = (props) => {
               color="green"
               size={28} />
           ) : (
-              infoGettingInProgress &&
+              // infoGettingInProgress &&
               <ActivityIndicator size="small" color="#0047B9" />
             )
         }
@@ -44,7 +45,7 @@ const CatsGallery = (props) => {
               name="done"
               type="material"
               color="green"
-              size={60} />
+              size={28} />
           ) : (
               <ActivityIndicator size="small" color="#0047B9" />
             )
@@ -58,7 +59,7 @@ const CatsGallery = (props) => {
               name="done"
               type="material"
               color="green"
-              size={60} />
+              size={28} />
           ) : (
               <ActivityIndicator size="small" color="#0047B9" />
             )
@@ -67,6 +68,7 @@ const CatsGallery = (props) => {
       </View>
       <Text style={styles.bodyText}>This could take a few minutes, depending on the video length and your internet connection.</Text>
       <Text style={styles.titleTextSeaweed}>Have fun swiping through these cat pics while you're waiting! 😸</Text>
+      <Button title="Back" onPress={() => setSaving(false)} />
       <Gallery
         images={props.cats}
       />

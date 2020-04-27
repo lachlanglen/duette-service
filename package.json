@@ -42,6 +42,7 @@
     "expo-media-library": "~8.0.0",
     "expo-random": "^8.1.0",
     "expo-screen-orientation": "^1.0.0",
+    "expo-secure-store": "^8.1.0",
     "expo-sensors": "~8.0.0",
     "expo-video-thumbnails": "~4.0.0",
     "expo-web-browser": "~8.0.0",

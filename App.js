@@ -1,9 +1,11 @@
+/* eslint-disable radix */
 import React from 'react';
 import { Provider, connect } from 'react-redux'
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import store from './redux/store';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
+import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -11,7 +13,8 @@ import ErrorBoundary from './ErrorBoundary';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 import { setVideos, fetchVideos } from './redux/videos';
-import { loadCats } from './redux/cats'
+import { loadCats } from './redux/cats';
+import { fetchUser } from './redux/user';
 
 const Stack = createStackNavigator();
 
@@ -40,9 +43,26 @@ export default function App(props) {
           ...Ionicons.font,
           'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
         });
-
-        // const videos = await (axios.get('https://duette.herokuapp.com/api/video')).data;
-        // console.log('videos in App.js: ', videos)
+        // check for accessToken and expiry on secure store
+        const accessToken = await SecureStore.getItemAsync('accessToken');
+        if (accessToken) {
+          // check for expires
+          const expires = await SecureStore.getItemAsync('expires');
+          console.log('expires: ', expires);
+          console.log('Date.now(): ', Date.now().toString().slice(0, 10));
+          // if token is still valid
+          if (parseInt(expires) > parseInt(Date.now().toString().slice(0, 10))) {
+            console.log('user is current!')
+            // fetch and set user with facebookId
+            const facebookId = await SecureStore.getItemAsync('facebookId');
+            console.log('facebookId: ', facebookId)
+            store.dispatch(fetchUser(facebookId));
+          } else {
+            console.log('token is no longer valid')
+            console.log('parseInt(expires) - Date.now(): ', parseInt(expires) - Date.now())
+          }
+          // if token has expired, user will be prompted to login which will refresh their token
+        }
         console.log('before fetchVideos')
         store.dispatch(fetchVideos());
         store.dispatch(loadCats());

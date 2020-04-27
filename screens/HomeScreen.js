@@ -8,9 +8,9 @@ import { Camera } from 'expo-camera';
 import { ScreenOrientation } from 'expo';
 import { Video } from 'expo-av';
 import DetailsModal from './DetailsModal';
-import { loadCats } from '../redux/cats';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from './FacebookSignin';
+import UserInfoMenu from '../components/UserInfoMenu';
 
 const HomeScreen = (props) => {
 
@@ -22,12 +22,14 @@ const HomeScreen = (props) => {
   const [cameraRef, setCameraRef] = useState(null);
   const [preview, setPreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  // const [loaded, setLoaded] = useState(false);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
 
   useEffect(() => {
     detectOrientation();
+    // setLoaded(true);
   }, [])
 
   const detectOrientation = async () => {
@@ -50,7 +52,6 @@ const HomeScreen = (props) => {
       const { status } = await Camera.requestPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
-    // FIXME: doesn't reload when a vid is added
   }, []);
 
   // useEffect(() => {
@@ -115,167 +116,175 @@ const HomeScreen = (props) => {
     setShowDetailsModal(true);
   }
 
-  // console.log('dataUri: ', dataUri)
-
-  // console.log('preview: ', preview)
-  // console.log('showDetailsModal: ', showDetailsModal)
+  console.log('props.user in HomeScreen: ', props.user)
+  console.log('props.displayUserInfo: ', props.displayUserInfo)
 
   return (
-    // !props.user ? (
-    //   <FacebookSignin />
-    // ) : (
-    !preview ? (
-      // record video:
-      <View style={{ flex: 1 }}>
-        {
-          record ? (
-            // user has clicked 'Record!' button
-            <Modal
-              animationType='fade'
-              onOrientationChange={e => handleModalOrientationChange(e)}
-              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-            >
-              <View style={{
-                flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'black',
-                paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0
-              }}>
-                <View
-                  style={{
-                    width: screenOrientation === 'PORTRAIT' ? screenWidth : screenHeight / 9 * 8,
-                    height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight
+    // is user currently signed in?
+    // ==> NO
+    !props.user.id ? (
+      // send to facebook signin & store accessToken, expires & facebookId on secure store
+      <FacebookSignin />
+    ) : (
+        // ==> YES
+        !preview ? (
+          // record video:
+          <View style={{ flex: 1 }}>
+            {
+              record ? (
+                // user has clicked 'Record!' button
+                <Modal
+                  animationType='fade'
+                  onOrientationChange={e => handleModalOrientationChange(e)}
+                  supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+                >
+                  <View style={{
+                    flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'black',
+                    paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0
                   }}>
-                  <Camera style={{ width: '100%', height: '100%' }} type={Camera.Constants.Type.front} ref={ref => setCameraRef(ref)}>
-                    <View>
+                    <View
+                      style={{
+                        width: screenOrientation === 'PORTRAIT' ? screenWidth : screenHeight / 9 * 8,
+                        height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight
+                      }}>
+                      <Camera style={{ width: '100%', height: '100%' }} type={Camera.Constants.Type.front} ref={ref => setCameraRef(ref)}>
+                        <View>
+                          <TouchableOpacity
+                            onPress={handleRecordExit}
+                          >
+                            <Text style={{
+                              color: 'red',
+                              fontSize: recording ? 15 : 20,
+                              paddingLeft: 20,
+                              paddingTop: 20,
+                              fontWeight: recording ? 'bold' : 'normal'
+                            }}
+                            >
+                              {recording ? 'Recording' : 'Cancel'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            backgroundColor: 'transparent',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                          }}>
+                          <TouchableOpacity
+                            onPress={toggleRecord}
+                            style={{
+                              borderWidth: 5,
+                              borderColor: recording ? 'darkred' : 'darkred',
+                              alignSelf: 'flex-end',
+                              width: 50,
+                              height: 50,
+                              backgroundColor: recording ? 'black' : 'red',
+                              borderRadius: 50,
+                              margin: 10,
+                            }}
+                          />
+                        </View>
+                      </Camera>
+                    </View>
+                  </View>
+                </Modal>
+              ) : (
+                  // landing page ('Record' button not clicked)
+                  <View style={{ flex: 1, backgroundColor: 'white' }}>
+                    {
+                      props.displayUserInfo &&
+                      <UserInfoMenu />
+                    }
+                    <View style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+                      <Image
+                        source={require('../assets/images/duette-logo-HD.png')} style={{ width: 300, height: 300 }} />
+                      <Button title="Record a new base track" onPress={() => setRecord(true)} />
+                      <Button title="Record a Duette" onPress={() => props.navigation.navigate("Links")} />
+                    </View>
+                  </View>
+                )
+            }
+          </View >
+        ) : (
+            // preview video:
+            showDetailsModal ? (
+              // ADD DETAILS MODAL
+              <DetailsModal setPreview={setPreview} setRecord={setRecord} setShowDetailsModal={setShowDetailsModal} handleDetailsExit={handleDetailsExit} dataUri={dataUri} />
+            ) : (
+                // PREVIEW VIDEO MODAL
+                <Modal
+                  animationType='fade'
+                  onOrientationChange={e => handleModalOrientationChange(e)}
+                  supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+                >
+                  <View
+                    style={{
+                      flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'flex-start',
+                      backgroundColor: 'black',
+                      height: '100%',
+                      paddingLeft: screenOrientation === 'PORTRAIT' ? 0 : (screenWidth - screenHeight / 9 * 8) / 2,
+                      paddingTop: screenOrientation === 'PORTRAIT' ? (screenHeight - screenWidth / 8 * 9) / 2 : 0,
+                    }}>
+                    <View
+                      style={{
+                        width: screenOrientation === 'PORTRAIT' ? screenWidth : screenHeight / 9 * 8,
+                        height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight,
+                      }}>
+                      <Video
+                        source={{ uri: dataUri }}
+                        rate={1.0}
+                        volume={1.0}
+                        isMuted={false}
+                        resizeMode="cover"
+                        shouldPlay
+                        positionMillis={50}
+                        useNativeControls={true}
+                        isLooping={false}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </View>
+                    <View style={{
+                      flexDirection: screenOrientation === 'PORTRAIT' ? 'row' : 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: 'black',
+                      width: screenOrientation === 'PORTRAIT' ? '100%' : (screenWidth - screenHeight / 9 * 8) / 2,
+                      height: screenOrientation === 'PORTRAIT' ? (screenHeight - screenWidth / 8 * 9) / 2 : '100%'
+                    }}>
                       <TouchableOpacity
-                        onPress={handleRecordExit}
-                      >
-                        <Text style={{
-                          color: 'red',
-                          fontSize: recording ? 15 : 20,
-                          paddingLeft: 20,
-                          paddingTop: 20,
-                          fontWeight: recording ? 'bold' : 'normal'
+                        style={{
+                          ...styles.button,
+                          marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
+                          marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
                         }}
-                        >
-                          {recording ? 'Recording' : 'Cancel'}
+                        onPress={handleSave}>
+                        <Text style={styles.overlayText}
+                        >Save
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          ...styles.button,
+                          marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
+                          marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
+                        }}
+                        onPress={handleRedo}>
+                        <Text style={styles.overlayText}
+                        >Redo
                         </Text>
                       </TouchableOpacity>
                     </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        backgroundColor: 'transparent',
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                      }}>
-                      <TouchableOpacity
-                        onPress={toggleRecord}
-                        style={{
-                          borderWidth: 5,
-                          borderColor: recording ? 'darkred' : 'darkred',
-                          alignSelf: 'flex-end',
-                          width: 50,
-                          height: 50,
-                          backgroundColor: recording ? 'black' : 'red',
-                          borderRadius: 50,
-                          margin: 10,
-                        }}
-                      />
-                    </View>
-                  </Camera>
-                </View>
-              </View>
-            </Modal>
-          ) : (
-              // landing page ('Record' button not clicked)
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
-                <Image
-                  source={require('../assets/images/duette-logo-HD.png')} style={{ width: 300, height: 300 }} />
-                <Button title="Record a new base track" onPress={() => setRecord(true)} />
-                <Button title="Record a Duette" onPress={() => props.navigation.navigate("Links")} />
-              </View>
-            )
-        }
-      </View >
-    ) : (
-        // preview video:
-        showDetailsModal ? (
-          // ADD DETAILS MODAL
-          <DetailsModal setPreview={setPreview} setRecord={setRecord} setShowDetailsModal={setShowDetailsModal} handleDetailsExit={handleDetailsExit} dataUri={dataUri} />
-        ) : (
-            // PREVIEW VIDEO MODAL
-            <Modal
-              animationType='fade'
-              onOrientationChange={e => handleModalOrientationChange(e)}
-              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-            >
-              <View
-                style={{
-                  flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
-                  justifyContent: 'flex-start',
-                  alignItems: 'flex-start',
-                  backgroundColor: 'black',
-                  height: '100%',
-                  paddingLeft: screenOrientation === 'PORTRAIT' ? 0 : (screenWidth - screenHeight / 9 * 8) / 2,
-                  paddingTop: screenOrientation === 'PORTRAIT' ? (screenHeight - screenWidth / 8 * 9) / 2 : 0,
-                }}>
-                <View
-                  style={{
-                    width: screenOrientation === 'PORTRAIT' ? screenWidth : screenHeight / 9 * 8,
-                    height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight,
-                  }}>
-                  <Video
-                    source={{ uri: dataUri }}
-                    rate={1.0}
-                    volume={1.0}
-                    isMuted={false}
-                    resizeMode="cover"
-                    shouldPlay
-                    positionMillis={50}
-                    useNativeControls={true}
-                    isLooping={false}
-                    style={{ width: '100%', height: '100%' }}
-                  />
-                </View>
-                <View style={{
-                  flexDirection: screenOrientation === 'PORTRAIT' ? 'row' : 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'black',
-                  width: screenOrientation === 'PORTRAIT' ? '100%' : (screenWidth - screenHeight / 9 * 8) / 2,
-                  height: screenOrientation === 'PORTRAIT' ? (screenHeight - screenWidth / 8 * 9) / 2 : '100%'
-                }}>
-                  <TouchableOpacity
-                    style={{
-                      ...styles.button,
-                      marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
-                      marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
-                    }}
-                    onPress={handleSave}>
-                    <Text style={styles.overlayText}
-                    >Save
-                        </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={{
-                      ...styles.button,
-                      marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
-                      marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
-                    }}
-                    onPress={handleRedo}>
-                    <Text style={styles.overlayText}
-                    >Redo
-                        </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Modal>
+                  </View>
+                </Modal>
+              )
           )
       )
-    // )
   );
 }
 
@@ -319,9 +328,16 @@ const styles = StyleSheet.create({
 
 const mapDispatch = dispatch => {
   return {
-    setCats: () => dispatch(loadCats()),
     fetchVideos: () => dispatch(fetchVideos())
   }
 }
 
-export default connect(null, mapDispatch)(HomeScreen)
+const mapState = ({ user, videos, displayUserInfo }) => {
+  return {
+    user,
+    videos,
+    displayUserInfo
+  }
+}
+
+export default connect(mapState, mapDispatch)(HomeScreen)

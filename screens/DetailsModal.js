@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /* eslint-disable max-statements */
 import React, { useState } from 'react';
 // import { withRouter } from 'react-router-dom'
@@ -12,6 +13,7 @@ import axios from 'axios';
 import CatsGallery from './CatsGallery';
 import { fetchVideos } from '../redux/videos';
 import { Polly } from 'aws-sdk';
+import Form from '../components/Form';
 
 const DetailsModal = (props) => {
   const { setRecord, setPreview, setShowDetailsModal, handleDetailsExit, dataUri } = props;
@@ -20,12 +22,17 @@ const DetailsModal = (props) => {
   const [postSuccess, setPostSuccess] = useState(false);
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [infoGettingInProgress, setInfoGettingInProgress] = useState(false); // jobs[0]
-  const [infoGettingDone, setInfoGettingDone] = useState(false); // jobs[0]
-  const [croppingInProgress, setCroppingInProgress] = useState(false); // jobs[1]
-  const [croppingDone, setCroppingDone] = useState(false); // jobs[1]
-  const [savingInProgress, setSavingInProgress] = useState(false); // jobs[2]
-  const [savingDone, setSavingDone] = useState(false); // jobs[2]
+  const [infoGettingInProgress, setInfoGettingInProgress] = useState(false);
+  const [infoGettingDone, setInfoGettingDone] = useState(false);
+  const [croppingInProgress, setCroppingInProgress] = useState(false);
+  const [croppingDone, setCroppingDone] = useState(false);
+  const [savingInProgress, setSavingInProgress] = useState(false);
+  const [savingDone, setSavingDone] = useState(false);
+
+  const [title, setTitle] = useState('');
+  const [composer, setComposer] = useState('');
+  const [songKey, setSongKey] = useState('');
+  const [performer, setPerformer] = useState(props.user.name);
 
   const jobs = [];
 
@@ -34,31 +41,31 @@ const DetailsModal = (props) => {
   let croppedVidId;
   let intervalId;
 
-  const VideoForm = t.struct({
-    title: t.String,
-    composer: t.String,
-    key: t.String,
-    performer: t.String
-  });
+  // const VideoForm = t.struct({
+  //   title: t.String,
+  //   composer: t.String,
+  //   key: t.String,
+  //   performer: t.String
+  // });
 
-  const Form = t.form.Form;
+  // const Form = t.form.Form;
 
-  const options = {
-    fields: {
-      title: {
-        error: 'Please add song title',
-      },
-      composer: {
-        error: 'Please add composer',
-      },
-      key: {
-        error: `Please add key (e.g. 'C# minor')`,
-      },
-      performer: {
-        error: 'Please add your name!',
-      },
-    },
-  };
+  // const options = {
+  //   fields: {
+  //     title: {
+  //       error: 'Please add song title',
+  //     },
+  //     composer: {
+  //       error: 'Please add composer',
+  //     },
+  //     key: {
+  //       error: `Please add key (e.g. 'C# minor')`,
+  //     },
+  //     performer: {
+  //       error: 'Please add your name!',
+  //     },
+  //   },
+  // };
 
   /* status:
 
@@ -73,14 +80,15 @@ const DetailsModal = (props) => {
     try {
       const { uri } = await FileSystem.downloadAsync(
         s3Url,
-        FileSystem.documentDirectory + `${croppedVidId}.mov`
+        FileSystem.documentDirectory + `${croppedVidId}.mp4`
       )
       console.log('Finished downloading to ', uri);
       // create thumbnail
       try {
-        const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
-        console.log('thumbnail: ', thumbnail)
-        const thumbnailUri = thumbnail.uri;
+        // console.log('uri line 82: ', uri)
+        // const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
+        // console.log('thumbnail: ', thumbnail)
+        // const thumbnailUri = thumbnail.uri;
         // get info from form
         const value = formRef.getValue();
         const { title, composer, key, performer } = value;
@@ -131,6 +139,9 @@ const DetailsModal = (props) => {
       }
     } else {
       // job is completed
+      if (!infoGettingDone) setInfoGettingDone(true);
+      if (!croppingDone) setCroppingDone(true);
+      if (!savingDone) setSavingDone(true);
       console.log('job completed!')
       clearInterval(intervalId)
       console.log('interval cleared');
@@ -178,7 +189,6 @@ const DetailsModal = (props) => {
   }
 
   const handleSave = () => {
-    // FIXME: shouldn't be savable if form hasn't been completed
     setSaving(true);
     handlePost();
   }
@@ -207,6 +217,7 @@ const DetailsModal = (props) => {
         croppingInProgress={croppingInProgress}
         savingDone={savingDone}
         savingInProgress={savingInProgress}
+        setSaving={setSaving}
       />
       // </View>
     ) : (
@@ -239,23 +250,17 @@ const DetailsModal = (props) => {
                         title="Home" />
                     </View>
                   ) : (
-                      <View style={{ paddingTop: 30, paddingHorizontal: 10 }}>
-                        <Text style={{ fontSize: 20, color: 'blue', fontWeight: 'bold', textAlign: 'center', margin: 10 }}>Please enter the following details:</Text>
-                        <Form
-                          type={VideoForm}
-                          ref={ref => setFormRef(ref)}
-                          options={options}
-                        />
-                        <Button
-                          title="Save Video!"
-                          onPress={handleSave}
-                        // disabled={formRef ? !formRef.getValue() : true}
-                        />
-                        <Button
-                          title="Back"
-                          onPress={() => setShowDetailsModal(false)}
-                        />
-                      </View>
+                      <Form
+                        handleSave={handleSave}
+                        title={title}
+                        setTitle={setTitle}
+                        composer={composer}
+                        setComposer={setComposer}
+                        songKey={songKey}
+                        setSongKey={setSongKey}
+                        performer={performer}
+                        setPerformer={setPerformer}
+                        setShowDetailsModal={setShowDetailsModal} />
                     )
                 }
               </Modal>
@@ -292,12 +297,18 @@ const styles = StyleSheet.create({
   }
 });
 
+const mapState = ({ user }) => {
+  return {
+    user,
+  }
+}
+
 const mapDispatch = dispatch => {
   return {
     fetchVideos: () => dispatch(fetchVideos()),
   }
 }
 
-export default connect(null, mapDispatch)(DetailsModal);
+export default connect(mapState, mapDispatch)(DetailsModal);
 
 // export default withRouter(DetailsModal);

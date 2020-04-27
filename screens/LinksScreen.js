@@ -18,6 +18,7 @@ import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import { loadCats } from '../redux/cats';
 import { fetchVideos } from '../redux/videos';
+import FacebookSignin from './FacebookSignin';
 
 const ViewVids = (props) => {
 
@@ -162,45 +163,50 @@ const ViewVids = (props) => {
   // console.log('props.videos.length: ', props.videos.length)
 
   return (
-    showRecordDuetteModal ? (
-      // RECORD A DUETTE
-      <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+    !props.user.id ? (
+      // send to facebook signin & store accessToken, expires & facebookId on secure store
+      <FacebookSignin />
     ) : (
-        // VIEW VIDEOS
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD12B' }}>
-          <Searchbar
-            placeholder="Title, composer or performer"
-            onChangeText={handleSearch}
-            style={{ borderRadius: 0, borderBottomColor: 'grey', borderBottomWidth: 2 }}
-          // value={}
-          />
-          {
-            props.videos.length > 0 ? (
-              <FlatList
-                data={props.videos}
-                renderItem={({ item }) => <Item id={item.id} title={item.title} thumbnailUri={item.thumbnailUri} performer={item.performer} composer={item.composer} theKey={item.key} videoUri={item.videoUri} />}
-                // key={screenOrientation}
-                keyExtractor={item => item.id}
-                viewabilityConfig={{}}
+        showRecordDuetteModal ? (
+          // RECORD A DUETTE
+          <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+        ) : (
+            // VIEW VIDEOS
+            <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD12B' }}>
+              <Searchbar
+                placeholder="Title, composer or performer"
+                onChangeText={handleSearch}
+                style={{ borderRadius: 0, borderBottomColor: 'grey', borderBottomWidth: 2 }}
+              // value={}
               />
-            ) : (
-                // VIDEOS HAVEN'T LOADED
-                !searchText ? (
-                  <View>
-                    <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
-                      Loading...
-                    </Text>
-                  </View>
+              {
+                props.videos.length > 0 ? (
+                  <FlatList
+                    data={props.videos}
+                    renderItem={({ item }) => <Item id={item.id} title={item.title} thumbnailUri={item.thumbnailUri} performer={item.performer} composer={item.composer} theKey={item.key} videoUri={item.videoUri} />}
+                    // key={screenOrientation}
+                    keyExtractor={item => item.id}
+                    viewabilityConfig={{}}
+                  />
                 ) : (
-                    <View>
-                      <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
-                        No videos to display
+                    // VIDEOS HAVEN'T LOADED
+                    !searchText ? (
+                      <View>
+                        <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
+                          Loading...
+                    </Text>
+                      </View>
+                    ) : (
+                        <View>
+                          <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
+                            No videos to display
                       </Text>
-                    </View>
+                        </View>
+                      )
                   )
-              )
-          }
-        </SafeAreaView>
+              }
+            </SafeAreaView>
+          )
       )
   )
 }
@@ -284,11 +290,12 @@ const styles = StyleSheet.create({
 });
 
 
-const mapState = ({ videos, cats, selectedVideo }) => {
+const mapState = ({ videos, cats, selectedVideo, user }) => {
   return {
     videos,
     cats,
-    selectedVideo
+    selectedVideo,
+    user
   }
 }
 

@@ -7,27 +7,47 @@ const User = connection.define('user', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
   },
-  facebookToken: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    },
-  },
-  displayName: {
+  facebookId: {
     type: Sequelize.STRING,
     allowNull: false,
     validate: {
       notEmpty: true,
     },
   },
-  photoURL: {
-    type: Sequelize.TEXT,
+  expires: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    }
+  },
+  name: {
+    type: Sequelize.STRING,
     allowNull: false,
     validate: {
       notEmpty: true,
     },
   },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  pictureUrl: {
+    type: Sequelize.TEXT,
+    allowNull: true,
+  },
+  pictureWidth: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  pictureHeight: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  lastLogin: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  }
 })
 
 module.exports = User;
