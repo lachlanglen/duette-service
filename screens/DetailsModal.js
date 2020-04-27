@@ -6,7 +6,6 @@ import { Image, Text, View, Modal, Button, StyleSheet, ScrollView, Alert } from 
 import { connect } from 'react-redux';
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import * as ImageManipulator from "expo-image-manipulator";
-import t from 'tcomb-form-native';
 import * as FileSystem from 'expo-file-system';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
@@ -41,40 +40,6 @@ const DetailsModal = (props) => {
   let croppedVidId;
   let intervalId;
 
-  // const VideoForm = t.struct({
-  //   title: t.String,
-  //   composer: t.String,
-  //   key: t.String,
-  //   performer: t.String
-  // });
-
-  // const Form = t.form.Form;
-
-  // const options = {
-  //   fields: {
-  //     title: {
-  //       error: 'Please add song title',
-  //     },
-  //     composer: {
-  //       error: 'Please add composer',
-  //     },
-  //     key: {
-  //       error: `Please add key (e.g. 'C# minor')`,
-  //     },
-  //     performer: {
-  //       error: 'Please add your name!',
-  //     },
-  //   },
-  // };
-
-  /* status:
-
-  croppingInProgress, croppingDone
-  scalingInProgress, scalingDone
-  savingInProgress, savingDone
-
-  */
-
   const download = async () => {
     const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}`;
     try {
@@ -82,20 +47,21 @@ const DetailsModal = (props) => {
         s3Url,
         FileSystem.documentDirectory + `${croppedVidId}.mp4`
       )
-      console.log('Finished downloading to ', uri);
+      console.log('Finished downloading vid to ', uri);
       // create thumbnail
       try {
-        // console.log('uri line 82: ', uri)
+        const thumbnailUrl = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}thumbnail`;
+        const thumbnail = await FileSystem.downloadAsync(
+          thumbnailUrl,
+          FileSystem.documentDirectory + `${croppedVidId}thumbnail.jpg`
+        )
+        console.log('Finished downloading vid to ', thumbnail.uri);
         // const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
         // console.log('thumbnail: ', thumbnail)
         // const thumbnailUri = thumbnail.uri;
-        // get info from form
-        const value = formRef.getValue();
-        const { title, composer, key, performer } = value;
-        console.log('value: ', value)
         try {
           // post to localDB
-          const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key, performer, thumbnailUri, videoUri: uri })).data
+          const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key: songKey, performer, thumbnailUri: thumbnail.uri, videoUri: uri })).data
           console.log('videoRecord: ', videoRecord);
           props.fetchVideos();
           setSuccess(true);
@@ -113,7 +79,7 @@ const DetailsModal = (props) => {
   }
 
   const getJobStatus = async () => {
-    console.log('intervalId in getJobStatus: ', intervalId)
+    // console.log('intervalId in getJobStatus: ', intervalId)
     const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
     console.log('status in getJobStatus: ', status)
     if (status.state !== 'completed') {

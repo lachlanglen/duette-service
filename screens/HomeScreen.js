@@ -22,14 +22,14 @@ const HomeScreen = (props) => {
   const [cameraRef, setCameraRef] = useState(null);
   const [preview, setPreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  // const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
 
   useEffect(() => {
     detectOrientation();
-    // setLoaded(true);
+    setLoaded(true);
   }, [])
 
   const detectOrientation = async () => {
@@ -117,7 +117,7 @@ const HomeScreen = (props) => {
   }
 
   console.log('props.user in HomeScreen: ', props.user)
-  console.log('props.displayUserInfo: ', props.displayUserInfo)
+  // console.log('props.displayUserInfo: ', props.displayUserInfo)
 
   return (
     // is user currently signed in?

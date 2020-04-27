@@ -208,24 +208,44 @@ function start() {
 
         job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
 
+        // create thumbnail
+
+        await exec(`-i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.jpg`);
+        console.log('created thumbnail!');
 
         // post video to AWS
-        const params = {
+        const vidParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: croppedVidId,
           Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}cropped.mov`),
         }
 
-        s3.upload(params, async (err, data) => {
+        const thumbnailParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: `${croppedVidId}thumbnail`,
+          Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`),
+        }
+
+        s3.upload(vidParams, (err, data) => {
           if (err) {
-            console.log('error uploading to s3: ', err)
+            console.log('error uploading video to s3: ', err)
             throw new Error(err);
           } else {
-            console.log('success uploading to s3! data: ', data);
-            // delete all vids
-            await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`)
-            console.log('deleted cropped video')
-            job.progress({ percent: 95, currentStep: "finished saving" });
+            console.log('success uploading video to s3! data: ', data);
+            // upload thumbnail
+            s3.upload(thumbnailParams, async (error, d) => {
+              if (error) {
+                console.log('error uploading thumbnail to s3: ', error)
+                throw new Error(err);
+              } else {
+                console.log('success uploading thumbnail to s3! data: ', d);
+                // delete all files
+                await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`);
+                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`)
+                console.log('deleted cropped video and thumbnail')
+                job.progress({ percent: 95, currentStep: 'finished saving' });
+              }
+            })
           }
         })
         return { croppedVidId };

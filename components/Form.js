@@ -18,7 +18,7 @@ const Form = (props) => {
     handleSave
   } = props;
 
-  console.log('title: ', title, 'composer: ', composer, 'key: ', songKey, 'performer: ', performer)
+  // console.log('title: ', title, 'composer: ', composer, 'key: ', songKey, 'performer: ', performer)
 
   return (
     <View style={styles.container}>

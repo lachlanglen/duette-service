@@ -8,13 +8,13 @@ const Auth = new AuthService;
 
 export const handleLogin = async () => {
   const permissionsObj = await Auth.loginWithFacebook();
-  console.log('permissionsObj: ', permissionsObj);
+  // console.log('permissionsObj: ', permissionsObj);
   if (permissionsObj.type === 'success') {
     const { declinedPermissions, expires, permissions, token } = permissionsObj;
     try {
       const basicInfo = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
       const { id, name } = await basicInfo.json();
-      console.log('id: ', id, 'name: ', name)
+      // console.log('id: ', id, 'name: ', name)
       const moreInfo = await fetch(`https://graph.facebook.com/10158413653431177?fields=email,picture&access_token=${token}`);
       const { email, picture } = await moreInfo.json();
       // create or update user & store this user on state
