@@ -103,6 +103,10 @@ const DetailsModal = (props) => {
         setSavingInProgress(false);
         setSavingDone(true);
       }
+    } else if (status.state === 'failed') {
+      // handle failed case
+      console.log('job failed')
+      clearInterval(intervalId);
     } else {
       // job is completed
       if (!infoGettingDone) setInfoGettingDone(true);

@@ -210,7 +210,7 @@ function start() {
 
         // create thumbnail
 
-        await exec(`-i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.jpg`);
+        await exec(`ffmpeg -i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.jpg`);
         console.log('created thumbnail!');
 
         // post video to AWS
