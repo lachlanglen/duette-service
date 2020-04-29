@@ -1,49 +1,38 @@
-import * as SecureStore from 'expo-secure-store';
-import store from './redux/store';
-import { clearCurrentUser, createOrUpdateUser } from './redux/user';
-import { toggleUserInfo } from './redux/userInfo';
-import AuthService from './services/Auth';
+const bcrypt = require('bcrypt');
 
-const Auth = new AuthService;
-
-export const handleLogin = async () => {
-  const permissionsObj = await Auth.loginWithFacebook();
-  // console.log('permissionsObj: ', permissionsObj);
-  if (permissionsObj.type === 'success') {
-    const { declinedPermissions, expires, permissions, token } = permissionsObj;
-    try {
-      const basicInfo = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
-      const { id, name } = await basicInfo.json();
-      // console.log('id: ', id, 'name: ', name)
-      const moreInfo = await fetch(`https://graph.facebook.com/10158413653431177?fields=email,picture&access_token=${token}`);
-      const { email, picture } = await moreInfo.json();
-      // create or update user & store this user on state
-      store.dispatch(createOrUpdateUser({ id, name, picture, email, expires }));
-      // save token and expiry to secure store
-      try {
-        await SecureStore.setItemAsync('accessToken', token);
-        await SecureStore.setItemAsync('expires', expires.toString());
-        await SecureStore.setItemAsync('facebookId', id);
-      } catch (e) {
-        console.log('error setting access token, expires or facebookId keys on secure store: ', e)
-      }
-    } catch (e) {
-      console.log('error fetching user info: ', e)
+const hasher = (itemToHash) => {
+  console.log('itemToHash: ', itemToHash)
+  const saltRounds = 10;
+  bcrypt.genSalt(saltRounds, (err, salt) => {
+    if (err) {
+      console.log('error generating salt: ', err)
+    } else {
+      console.log('no error! salt: ', salt)
+      bcrypt.hash(itemToHash, salt, (error, hash) => {
+        if (error) {
+          console.log('error generating hash: ', error)
+        } else {
+          console.log('no error! hash: ', hash)
+          return hash;
+        }
+      });
     }
-  } else {
-    console.log('login cancelled')
-  }
+  });
+  // return hashed;
 }
 
-export const handleLogout = async (displayUserInfo) => {
-  try {
-    await SecureStore.deleteItemAsync('accessToken');
-    await SecureStore.deleteItemAsync('expires');
-    await SecureStore.deleteItemAsync('facebookId');
-    console.log('deleted items from secure store');
-    store.dispatch(clearCurrentUser());
-    store.dispatch(toggleUserInfo(!displayUserInfo));
-  } catch (e) {
-    console.log('error deleting items from secure store: ', e)
-  }
+const compare = (item, hash) => {
+  bcrypt.compare(item, hash, (err, result) => {
+    if (err) {
+      console.log('error comparing: ', err)
+    } else {
+      // result === true
+      return result;
+    }
+  });
+}
+
+module.exports = {
+  hasher,
+  compare
 };

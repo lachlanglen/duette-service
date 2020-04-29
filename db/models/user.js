@@ -7,7 +7,7 @@ const User = connection.define('user', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
   },
-  facebookId: {
+  hashedFacebookId: {
     type: Sequelize.STRING,
     allowNull: false,
     validate: {
@@ -28,7 +28,7 @@ const User = connection.define('user', {
       notEmpty: true,
     },
   },
-  email: {
+  hashedEmail: {
     type: Sequelize.STRING,
     allowNull: true,
   },

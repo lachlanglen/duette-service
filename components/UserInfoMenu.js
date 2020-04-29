@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux'
-import { handleLogout } from '../utils';
+import { handleLogout } from '../services/utils';
 
 const UserInfoMenu = (props) => {
 

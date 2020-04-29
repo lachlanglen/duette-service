@@ -1,12 +1,17 @@
 const express = require('express')
 const router = express.Router();
 const { User } = require('../../db/models/index');
+const { hasher } = require('../../utils');
+const bcrypt = require('bcrypt');
 
-router.get('/facebookId/:facebookId', (req, res, next) => {
+const saltRounds = 10;
+
+router.get('/facebookId/:facebookId', async (req, res, next) => {
   const { facebookId } = req.params;
+  const hashedId = await bcrypt.hash(facebookId, saltRounds);
   User.findOne({
     where: {
-      facebookId,
+      hashedFacebookId: hashedId
     }
   })
     .then(user => {
@@ -18,7 +23,7 @@ router.get('/facebookId/:facebookId', (req, res, next) => {
     })
 })
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
   console.log('req.body in user GET: ', req.body)
   const {
     name,
@@ -31,9 +36,15 @@ router.post('/', (req, res, next) => {
     email
   } = req.body;
 
+  const hashedId = await bcrypt.hash(facebookId, saltRounds);
+  const hashedEmail = await bcrypt.hash(email, saltRounds);
+
+  console.log('hashedId: ', hashedId);
+  console.log('hashedEmail: ', hashedEmail);
+
   User.findOne({
     where: {
-      facebookId
+      hashedFacebookId: hashedId,
     }
   })
     .then(user => {
@@ -42,13 +53,13 @@ router.post('/', (req, res, next) => {
         console.log('user found!')
         user.update({
           name,
-          facebookId,
+          hashedFacebookId: hashedId,
           expires: expires.toString(),
           pictureUrl,
           pictureWidth,
           pictureHeight,
           lastLogin: lastLogin.toString(),
-          email
+          hashedEmail,
         })
           .then(updatedUser => {
             console.log('updatedUser: ', updatedUser);
@@ -65,13 +76,13 @@ router.post('/', (req, res, next) => {
         console.log('in user ELSE block')
         User.create({
           name,
-          facebookId,
+          hashedFacebookId: hashedId,
           expires: expires.toString(),
           pictureUrl,
           pictureWidth,
           pictureHeight,
           lastLogin: lastLogin.toString(),
-          email
+          hashedEmail,
         })
           .then(newUser => res.status(201).send(newUser))
           .catch(e => {

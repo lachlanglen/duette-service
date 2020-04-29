@@ -3,7 +3,7 @@ import { Image, StyleSheet, Text, View, Button } from 'react-native';
 import { connect } from 'react-redux';
 
 import { createOrUpdateUser } from '../redux/user';
-import { handleLogin } from '../utils';
+import { handleLogin } from '../services/utils';
 
 const FacebookSignin = (props) => {
 

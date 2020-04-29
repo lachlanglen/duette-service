@@ -45,7 +45,7 @@ const DetailsModal = (props) => {
     try {
       const { uri } = await FileSystem.downloadAsync(
         s3Url,
-        FileSystem.documentDirectory + `${croppedVidId}.mp4`
+        FileSystem.documentDirectory + `${croppedVidId}.mov`
       )
       console.log('Finished downloading vid to ', uri);
       // create thumbnail
@@ -55,10 +55,7 @@ const DetailsModal = (props) => {
           thumbnailUrl,
           FileSystem.documentDirectory + `${croppedVidId}thumbnail.jpg`
         )
-        console.log('Finished downloading vid to ', thumbnail.uri);
-        // const thumbnail = await VideoThumbnails.getThumbnailAsync(uri, { time: 5000 });
-        // console.log('thumbnail: ', thumbnail)
-        // const thumbnailUri = thumbnail.uri;
+        console.log('Finished downloading thumbnail to ', thumbnail.uri);
         try {
           // post to localDB
           const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key: songKey, performer, thumbnailUri: thumbnail.uri, videoUri: uri })).data

@@ -13,7 +13,7 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import { setVideo } from '../redux/singleVideo'
 import RecordDuetteModal from './RecordDuetteModal';
-// import RecordDuetteModal from './RecordDuetteClass';
+// import RecordDuetteClassModal from './RecordDuetteClass';
 import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import { loadCats } from '../redux/cats';
@@ -169,7 +169,9 @@ const ViewVids = (props) => {
     ) : (
         showRecordDuetteModal ? (
           // RECORD A DUETTE
-          <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+          <View style={styles.container}>
+            <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+          </View>
         ) : (
             // VIEW VIDEOS
             <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD12B' }}>

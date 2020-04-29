@@ -1,31 +1,27 @@
-/* eslint-disable max-statements */
 /* eslint-disable complexity */
-/* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
 import { ScreenOrientation } from 'expo';
-import PreviewModal from './PreviewModal';
 
-const RecordDuetteModal = (props) => {
+const videoUrl = 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4'
+
+const RecordVideoModal = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  const { showRecordDuetteModal, setShowRecordDuetteModal, bluetooth } = props;
+  const { showModal, setShowModal } = props;
 
   const [recording, setRecording] = useState(false);
   const [cameraRef, setCameraRef] = useState(null);
   const [duetteUri, setDuetteUri] = useState('');
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
   const [vidRef, setVidRef] = useState(null);
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
   // const [vidIsPlaying, setVidIsPlaying] = useState(false);
-
 
   useEffect(() => {
     detectOrientation();
@@ -54,7 +50,6 @@ const RecordDuetteModal = (props) => {
         await vidRef.playAsync();
         const vid = await cameraRef.recordAsync();
         setDuetteUri(vid.uri);
-        setShowPreviewModal(true);
       } catch (e) {
         console.log('error recording: ', e)
       }
@@ -69,12 +64,12 @@ const RecordDuetteModal = (props) => {
     vidRef.unloadAsync()
       .then(() => {
         console.log('successfully unloaded video')
-        setShowRecordDuetteModal(false);
+        setShowModal(false);
         // props.selectedVideo.videoUri = '';
       })
       .catch((e) => {
         console.log('error unloading video: ', e)
-        setShowRecordDuetteModal(false);
+        setShowModal(false);
         // props.selectedVideo.videoUri = '';
       })
   }
@@ -86,10 +81,6 @@ const RecordDuetteModal = (props) => {
 
   return (
     // <View style={styles.container}>
-    //   {
-    //     showPreviewModal ? (
-    //       <PreviewModal handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
-    //     ) : (
     <Modal
       onRequestClose={handleCancel}
       supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
@@ -106,8 +97,7 @@ const RecordDuetteModal = (props) => {
         <View style={{ flexDirection: 'row' }}>
           <Video
             ref={ref => setVidRef(ref)}
-            // source={{ uri: props.selectedVideo.videoUri }}
-            source={{ uri: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4' }}
+            source={{ uri: videoUrl }}
             rate={1.0}
             volume={1.0}
             isMuted={false}
@@ -118,7 +108,6 @@ const RecordDuetteModal = (props) => {
             // isLooping={false}
             style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
           />
-          {/* TODO: add codec to camera input? (e.g. .mov) */}
           <Camera
             style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
             type={Camera.Constants.Type.front}
@@ -184,8 +173,6 @@ const RecordDuetteModal = (props) => {
         }
       </View>
     </Modal >
-    //       )
-    //   }
     // </View >
   )
 }
@@ -197,22 +184,16 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#ffffff',
   },
-  overlay: {
-    alignItems: "center",
-    justifyContent: 'center',
-    backgroundColor: "#DDDDDD",
-    padding: 10,
-    position: 'absolute',
-    opacity: 0.5,
-    alignSelf: 'center',
-    borderColor: 'black',
-  }
+  // overlay: {
+  //   alignItems: "center",
+  //   justifyContent: 'center',
+  //   backgroundColor: "#DDDDDD",
+  //   padding: 10,
+  //   position: 'absolute',
+  //   opacity: 0.5,
+  //   alignSelf: 'center',
+  //   borderColor: 'black',
+  // }
 });
 
-const mapState = ({ selectedVideo }) => {
-  return {
-    selectedVideo
-  }
-}
-
-export default connect(mapState)(RecordDuetteModal);
+export default RecordVideoModal;
