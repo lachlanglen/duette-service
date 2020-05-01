@@ -6,7 +6,7 @@ import { Camera } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
 const videoUrl = 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4'
-const AWSUrl = 'https://duette.s3.us-east-2.amazonaws.com/d68770b5-914e-4689-b08a-1ff8270b6539'
+const AWSUrl = 'https://duette.s3.us-east-2.amazonaws.com/89ce6848-3b00-4efa-ba3b-687b1e4a761f.mov'
 
 const RecordVideoModal = (props) => {
 

@@ -128,7 +128,7 @@ function start() {
         // post video to AWS
         const params = {
           Bucket: process.env.AWS_BUCKET_NAME,
-          Key: combinedKey,
+          Key: `${combinedKey}.mov`,
           Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`),
         }
         s3.upload(params, async (err, data) => {
@@ -222,7 +222,7 @@ function start() {
 
         const thumbnailParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
-          Key: `${croppedVidId}thumbnail`,
+          Key: `${croppedVidId}thumbnail.png`,
           Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`),
         }
 

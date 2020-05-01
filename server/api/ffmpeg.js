@@ -62,6 +62,7 @@ router.post('/job/duette/:duetteKey/:accompanimentKey/:delay?', async (req, res,
       duetteKey,
       accompanimentKey,
       delay,
+      combinedKey: `${accompanimentKey}${duetteKey}`,
       type: 'duette'
     })
     console.log('job in job route: ', job)
