@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View, Dimensions, Modal, Button } from 'react-native';
 import { connect } from 'react-redux'
 import { Camera } from 'expo-camera';
-import { ScreenOrientation } from 'expo';
+// import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { Video } from 'expo-av';
 import DetailsModal from './DetailsModal';
 import { fetchVideos } from '../redux/videos';

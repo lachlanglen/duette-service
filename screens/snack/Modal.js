@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
-import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 const videoUrl = 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4'
+const AWSUrl = 'https://duette.s3.us-east-2.amazonaws.com/d68770b5-914e-4689-b08a-1ff8270b6539'
 
 const RecordVideoModal = (props) => {
 
@@ -21,7 +22,6 @@ const RecordVideoModal = (props) => {
   const [vidRef, setVidRef] = useState(null);
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
-  // const [vidIsPlaying, setVidIsPlaying] = useState(false);
 
   useEffect(() => {
     detectOrientation();
@@ -65,12 +65,10 @@ const RecordVideoModal = (props) => {
       .then(() => {
         console.log('successfully unloaded video')
         setShowModal(false);
-        // props.selectedVideo.videoUri = '';
       })
       .catch((e) => {
         console.log('error unloading video: ', e)
         setShowModal(false);
-        // props.selectedVideo.videoUri = '';
       })
   }
 
@@ -80,7 +78,6 @@ const RecordVideoModal = (props) => {
   }
 
   return (
-    // <View style={styles.container}>
     <Modal
       onRequestClose={handleCancel}
       supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
@@ -97,7 +94,7 @@ const RecordVideoModal = (props) => {
         <View style={{ flexDirection: 'row' }}>
           <Video
             ref={ref => setVidRef(ref)}
-            source={{ uri: videoUrl }}
+            source={{ uri: AWSUrl }}
             rate={1.0}
             volume={1.0}
             isMuted={false}
@@ -105,7 +102,6 @@ const RecordVideoModal = (props) => {
             positionMillis={0}
             progressUpdateIntervalMillis={50}
             onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-            // isLooping={false}
             style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
           />
           <Camera
@@ -173,27 +169,7 @@ const RecordVideoModal = (props) => {
         }
       </View>
     </Modal >
-    // </View >
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    marginTop: 50,
-    padding: 20,
-    backgroundColor: '#ffffff',
-  },
-  // overlay: {
-  //   alignItems: "center",
-  //   justifyContent: 'center',
-  //   backgroundColor: "#DDDDDD",
-  //   padding: 10,
-  //   position: 'absolute',
-  //   opacity: 0.5,
-  //   alignSelf: 'center',
-  //   borderColor: 'black',
-  // }
-});
 
 export default RecordVideoModal;

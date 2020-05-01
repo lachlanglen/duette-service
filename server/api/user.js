@@ -1,17 +1,12 @@
 const express = require('express')
 const router = express.Router();
 const { User } = require('../../db/models/index');
-const { hasher } = require('../../utils');
-const bcrypt = require('bcrypt');
-
-const saltRounds = 10;
 
 router.get('/facebookId/:facebookId', async (req, res, next) => {
   const { facebookId } = req.params;
-  const hashedId = await bcrypt.hash(facebookId, saltRounds);
   User.findOne({
     where: {
-      hashedFacebookId: hashedId
+      facebookId,
     }
   })
     .then(user => {
@@ -36,15 +31,9 @@ router.post('/', async (req, res, next) => {
     email
   } = req.body;
 
-  const hashedId = await bcrypt.hash(facebookId, saltRounds);
-  const hashedEmail = await bcrypt.hash(email, saltRounds);
-
-  console.log('hashedId: ', hashedId);
-  console.log('hashedEmail: ', hashedEmail);
-
   User.findOne({
     where: {
-      hashedFacebookId: hashedId,
+      facebookId,
     }
   })
     .then(user => {
@@ -53,13 +42,13 @@ router.post('/', async (req, res, next) => {
         console.log('user found!')
         user.update({
           name,
-          hashedFacebookId: hashedId,
+          facebookId,
           expires: expires.toString(),
           pictureUrl,
           pictureWidth,
           pictureHeight,
           lastLogin: lastLogin.toString(),
-          hashedEmail,
+          email,
         })
           .then(updatedUser => {
             console.log('updatedUser: ', updatedUser);
@@ -76,13 +65,13 @@ router.post('/', async (req, res, next) => {
         console.log('in user ELSE block')
         User.create({
           name,
-          hashedFacebookId: hashedId,
+          facebookId,
           expires: expires.toString(),
           pictureUrl,
           pictureWidth,
           pictureHeight,
           lastLogin: lastLogin.toString(),
-          hashedEmail,
+          email,
         })
           .then(newUser => res.status(201).send(newUser))
           .catch(e => {

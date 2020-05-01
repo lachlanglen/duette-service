@@ -216,7 +216,7 @@ function start() {
         // post video to AWS
         const vidParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
-          Key: croppedVidId,
+          Key: `${croppedVidId}.mov`,
           Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}cropped.mov`),
         }
 

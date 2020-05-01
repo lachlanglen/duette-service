@@ -6,14 +6,15 @@ import { Searchbar } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { DeviceMotion } from 'expo-sensors';
-import { ScreenOrientation } from 'expo';
+// import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { Video } from 'expo-av';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { setVideo } from '../redux/singleVideo'
-import RecordDuetteModal from './RecordDuetteModal';
-// import RecordDuetteClassModal from './RecordDuetteClass';
+// import RecordDuetteModal from './RecordDuetteModal';
+import RecordDuetteClassModal from './RecordDuetteClass';
 import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import { loadCats } from '../redux/cats';
@@ -170,7 +171,7 @@ const ViewVids = (props) => {
         showRecordDuetteModal ? (
           // RECORD A DUETTE
           <View style={styles.container}>
-            <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+            <RecordDuetteClassModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
           </View>
         ) : (
             // VIEW VIDEOS

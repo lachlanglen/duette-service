@@ -42,7 +42,7 @@ const BottomTabNavigator = (props) => {
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
       <BottomTab.Screen
         name="Home"
-        component={Home}
+        component={HomeScreen}
         options={{
           title: 'Record a base track!',
           style: { backgroundColor: 'pink' },

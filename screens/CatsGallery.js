@@ -50,7 +50,7 @@ const CatsGallery = (props) => {
               <ActivityIndicator size="small" color="#0047B9" />
             )
         }
-        <Text style={{ ...styles.progressText, color: savingDone ? 'green' : 'darkgrey' }}>Scaling/Cropping</Text>
+        <Text style={{ ...styles.progressText, color: croppingDone ? 'green' : 'darkgrey' }}>Scaling/Cropping</Text>
       </View>
       <View style={styles.progressBar}>
         {

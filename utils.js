@@ -18,7 +18,6 @@ const hasher = (itemToHash) => {
       });
     }
   });
-  // return hashed;
 }
 
 const compare = (item, hash) => {

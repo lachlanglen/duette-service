@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
-import { ScreenOrientation } from 'expo';
+// import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import PreviewModal from './PreviewModal';
 
 const RecordDuetteModal = (props) => {
@@ -44,6 +45,23 @@ const RecordDuetteModal = (props) => {
     })
   }
 
+  const record = async () => {
+    console.log('Date.now in record: ', Date.now())
+    await cameraRef.recordAsync();
+    // setDuetteUri(vid.uri);
+    // setShowPreviewModal(true);
+  }
+
+  const play = async () => {
+    console.log('Date.now in play: ', Date.now())
+    // cameraRef.stopRecording();
+    // console.log('recording stopped');
+    await vidRef.playAsync();
+    console.log('video playing')
+    await cameraRef.recordAsync();
+    // record();
+  }
+
   const toggleRecord = async () => {
     if (recording) {
       setRecording(false);
@@ -51,10 +69,12 @@ const RecordDuetteModal = (props) => {
     } else {
       try {
         setRecording(true);
-        await vidRef.playAsync();
-        const vid = await cameraRef.recordAsync();
-        setDuetteUri(vid.uri);
-        setShowPreviewModal(true);
+        record();
+        play();
+        // await vidRef.playAsync();
+        // const vid = await cameraRef.recordAsync();
+        // setDuetteUri(vid.uri);
+        // setShowPreviewModal(true);
       } catch (e) {
         console.log('error recording: ', e)
       }
@@ -65,19 +85,18 @@ const RecordDuetteModal = (props) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
   }
 
-  const handleCancel = () => {
-    vidRef.unloadAsync()
-      .then(() => {
-        console.log('successfully unloaded video')
-        setShowRecordDuetteModal(false);
-        // props.selectedVideo.videoUri = '';
-      })
-      .catch((e) => {
-        console.log('error unloading video: ', e)
-        setShowRecordDuetteModal(false);
-        // props.selectedVideo.videoUri = '';
-      })
+  const handleCancel = async () => {
+    try {
+      await vidRef.unloadAsync();
+      cameraRef.stopRecording();
+      console.log('successfully unloaded video and stopped recording');
+      setShowRecordDuetteModal(false);
+    } catch (e) {
+      console.log('error unloading video: ', e)
+    }
   }
+
+  // console.log('props.selectedVideo.videoUri: ', props.selectedVideo.videoUri)
 
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.isLoaded !== vidLoaded) setVidLoaded(updateObj.isLoaded);
@@ -86,10 +105,10 @@ const RecordDuetteModal = (props) => {
 
   return (
     // <View style={styles.container}>
-    //   {
-    //     showPreviewModal ? (
-    //       <PreviewModal handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
-    //     ) : (
+    /* {
+      showPreviewModal ? (
+        <PreviewModal handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
+      ) : ( */
     <Modal
       onRequestClose={handleCancel}
       supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
@@ -116,7 +135,10 @@ const RecordDuetteModal = (props) => {
             progressUpdateIntervalMillis={50}
             onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
             // isLooping={false}
-            style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+            style={{
+              width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+              height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9
+            }}
           />
           {/* TODO: add codec to camera input? (e.g. .mov) */}
           <Camera
@@ -184,9 +206,9 @@ const RecordDuetteModal = (props) => {
         }
       </View>
     </Modal >
-    //       )
-    //   }
-    // </View >
+    /* )
+  }
+</View > */
   )
 }
 

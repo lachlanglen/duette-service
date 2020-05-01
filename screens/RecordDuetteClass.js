@@ -2,7 +2,8 @@
 import React, { Component } from 'react';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
-import { ScreenOrientation } from 'expo';
+// import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
 
@@ -36,6 +37,10 @@ class RecordDuetteClassModal extends Component {
         this.setState({ screenOrientation: info.orientationInfo.orientation });
       }
     });
+  };
+
+  componentWillUnmount() {
+    ScreenOrientation.removeOrientationChangeListeners();
   }
 
   _handleVideoRef = component => {
@@ -47,6 +52,7 @@ class RecordDuetteClassModal extends Component {
   };
 
   handleCancel = () => {
+    this.cameraRef.stopRecording();
     this.vidRef.unloadAsync()
       .then(() => {
         console.log('successfully unloaded video');
@@ -65,8 +71,14 @@ class RecordDuetteClassModal extends Component {
   };
 
   handlePlaybackStatusUpdate = (updateObj) => {
-    if (updateObj.isLoaded !== this.state.vidLoaded) this.setState({ vidLoaded: updateObj.isLoaded });
-    if (updateObj.isBuffering === this.state.vidDoneBuffering) this.setState({ vidDoneBuffering: !updateObj.isBuffering });
+    if (updateObj.isLoaded && this.state.vidLoaded === false) {
+      console.log('line 75')
+      this.setState({ vidLoaded: true });
+    }
+    else if (!this.state.vidDoneBuffering && updateObj.isBuffering === false) {
+      console.log('line 79')
+      this.setState({ vidDoneBuffering: true });
+    }
   }
 
   toggleRecord = async () => {
@@ -86,6 +98,7 @@ class RecordDuetteClassModal extends Component {
   }
 
   render() {
+    console.log('this.state: ', this.state)
     return (
       <View style={styles.container}>
         {/* {
@@ -108,7 +121,8 @@ class RecordDuetteClassModal extends Component {
             <View style={{ flexDirection: 'row' }}>
               <Video
                 ref={this._handleVideoRef}
-                source={{ uri: this.props.selectedVideo.videoUri }}
+                source={{ uri: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4' }}
+                // source={{ uri: this.props.selectedVideo.videoUri }}
                 rate={1.0}
                 volume={1.0}
                 isMuted={false}

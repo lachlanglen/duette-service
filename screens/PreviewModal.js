@@ -7,7 +7,8 @@ import { connect } from 'react-redux';
 import { Slider, Alert, Image, View, Modal, Button, StyleSheet, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Icon } from 'react-native-elements'
 import { Video } from 'expo-av';
-import { ScreenOrientation } from 'expo';
+// import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import Constants from 'expo-constants';
