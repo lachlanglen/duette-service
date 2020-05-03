@@ -36,7 +36,7 @@ const DetailsModal = (props) => {
 
   const jobs = [];
 
-  console.log('jobs: ', jobs)
+  // console.log('jobs: ', jobs)
 
   let croppedVidId;
   let intervalId;

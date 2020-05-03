@@ -37,8 +37,8 @@ export const createOrUpdateUser = body => {
   console.log('in createOrUpdateUser thunk')
   const { id, name, picture, expires, email } = body;
   return dispatch => {
-    // axios.post('https://duette.herokuapp.com/api/user',
-    axios.post('http://192.168.0.12:5000/api/user',
+    axios.post('https://duette.herokuapp.com/api/user',
+      // axios.post('http://192.168.0.12:5000/api/user',
       {
         name,
         facebookId: id,
@@ -60,8 +60,8 @@ export const createOrUpdateUser = body => {
 export const fetchUser = facebookId => {
   console.log('in fetchUser thunk');
   return dispatch => {
-    // axios.get(`https://duette.herokuapp.com/api/user/facebookId/${facebookId}`)
-    axios.get(`http://192.168.0.12:5000/api/user/facebookId/${facebookId}`)
+    axios.get(`https://duette.herokuapp.com/api/user/facebookId/${facebookId}`)
+      // axios.get(`http://192.168.0.12:5000/api/user/facebookId/${facebookId}`)
       .then(user => dispatch(setUser(user.data)))
       .catch(e => console.log('error in fetchUser thunk: ', e))
   }

@@ -31,6 +31,8 @@ router.post('/', async (req, res, next) => {
     email
   } = req.body;
 
+  console.log('line 34 in user GET')
+
   User.findOne({
     where: {
       facebookId,

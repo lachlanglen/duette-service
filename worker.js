@@ -38,8 +38,8 @@ function start() {
       const { duetteKey, accompanimentKey, combinedKey, delay } = job.data;
       // console.log('job.data: ', job.data);
 
-      const accompanimentUrl = `https://duette.s3.us-east-2.amazonaws.com/${accompanimentKey}`;
-      const duetteUrl = `https://duette.s3.us-east-2.amazonaws.com/${duetteKey}`;
+      const accompanimentUrl = `https://duette.s3.us-east-2.amazonaws.com/${accompanimentKey}.mov`;
+      const duetteUrl = `https://duette.s3.us-east-2.amazonaws.com/${duetteKey}.mov`;
 
       const file1Info = {
         originalName: accompanimentKey,

@@ -112,12 +112,13 @@ const PreviewModal = (props) => {
         setSavingInProgress(false);
         setSavingDone(true);
       }
-    } else if (status.state === 'failed') {
-      // TODO: handle failed case
-      console.log('job failed')
+    }
+    if (status.state === 'failed') {
+      console.log('job failed');
       clearInterval(intervalId);
       setError(true);
-    } else {
+    }
+    if (status.state === 'completed') {
       // job is completed
       if (!infoGettingDone) setInfoGettingDone(true);
       if (!croppingDone) setCroppingDone(true);
@@ -154,8 +155,11 @@ const PreviewModal = (props) => {
       type: `video/${fileType}`
     }
 
+    console.log('id: ', id);
+    console.log('tempVidId: ', tempVidId)
+
     try {
-      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${id}`)).data;
+      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
 
       const options = {
         method: 'PUT',
@@ -509,6 +513,7 @@ const PreviewModal = (props) => {
                                   source={{ uri: duetteUri }}
                                   rate={1.0}
                                   volume={1.0}
+                                  // FIXME: no volume
                                   isMuted={false}
                                   resizeMode="cover"
                                   positionMillis={bluetooth ? 200 : 0}

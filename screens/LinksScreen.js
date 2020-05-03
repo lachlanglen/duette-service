@@ -108,6 +108,8 @@ const ViewVids = (props) => {
   // console.log('screen orientation: ', screenOrientation)
   // console.log('screenHeight: ', screenHeight, 'screenWidth: ', screenWidth)
 
+  // console.log('thumbnail: ', getAWSThumbnailUrl('e4b8d521-9668-468e-bea8-b7de6b2fdec4'))
+
   const Item = ({ id, title, composer, theKey, performer }) => {
     return (
       <View style={styles.item}>
