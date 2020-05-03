@@ -35,21 +35,6 @@ const Video = connection.define('video', {
       notEmpty: true,
     },
   },
-  thumbnailUri: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    }
-  },
-  videoUri: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    }
-  }
-  // TODO: add 'createdBy' or similar
 })
 
 module.exports = Video;

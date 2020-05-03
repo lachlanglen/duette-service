@@ -65,7 +65,7 @@ function start() {
         // get metadata on vid 1
         const metadata = await ffprobeAsync(accompanimentUrl)
 
-        console.log('metadata1: ', metadata)
+        // console.log('metadata1: ', metadata)
 
         if (!metadata.streams[0].rotation) {
           console.log('undefined rotation in file 1')
@@ -108,6 +108,9 @@ function start() {
 
         console.log('file1Info: ', file1Info);
         console.log('file2Info: ', file2Info);
+
+        job.progress({ percent: 20, currentStep: "finished getting info" });
+
         // crop & trim vid 2
         if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
         if (file2Info.orientation === 'landscape') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=${file2Info.croppedWidth}:ih:${file2Info.offset}:0" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
@@ -119,17 +122,26 @@ function start() {
         if (file2Info.croppedHeight < file1Info.height) await exec(`ffmpeg -i ${file2Info.originalName}cropped.mov -vf scale=-2:${file1Info.height} ${file2Info.originalName}scaled.mov`)
         console.log('scaled smaller vid!')
 
+        job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
+
         // if they are already the same height, no need to scale, just merge!
         if (!file1Info.isTallest && !file2Info.isTallest) await exec(`ffmpeg -i ${accompanimentUrl} -i ${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
         // if the smaller vid has been scaled:
         if (file1Info.isTallest || file2Info.isTallest) await exec(`ffmpeg -i ${file1Info.isTallest ? `${accompanimentUrl}` : `${file1Info.originalName}scaled`}.mov -i ${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
         console.log('combined vids!')
 
+        // add fade in & fade out
+        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}combined.mov -sseof -1 -copyts -i ${file1Info.originalName}${file2Info.originalName}combined.mov -filter_complex "[1]fade=out:0:30[t];[0][t]overlay,fade=in:0:30[v]; anullsrc,atrim=0:1[at];[0][at]acrossfade=d=1,afade=d=1[a]" -map "[v]" -map "[a]" -c:v libx264 -crf 22 -preset ultrafast -shortest ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`)
+
+        // add overlay
+        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov -i ${logoUrl} -filter_complex overlay=W-w-10:H-h-10 -codec:a copy -preset ultrafast -async 1 ${file1Info.originalName}${file2Info.originalName}overlay.mov`)
+        console.log('added overlay!')
+
         // post video to AWS
         const params = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: `${combinedKey}.mov`,
-          Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`),
+          Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`),
         }
         s3.upload(params, async (err, data) => {
           if (err) {
@@ -148,8 +160,11 @@ function start() {
               await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`)
               console.log('deleted video 2 scaled')
             }
-            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`)
-            console.log('deleted combined video')
+            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
+            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
+            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
+            console.log('deleted combined video, overlay & fade in/out');
+            job.progress({ percent: 95, currentStep: 'finished saving' });
           }
         })
         return { combinedKey };
@@ -204,14 +219,14 @@ function start() {
         // crop & trim vid
         if (fileInfo.orientation === 'portrait') await exec(`ffmpeg -i ${vidUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=iw:${fileInfo.croppedHeight}:0:${fileInfo.offset}" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
         if (fileInfo.orientation === 'landscape') await exec(`ffmpeg -i ${vidUrl} -ss 0.05 -t ${fileInfo.duration} -async 1 -filter:v "crop=${fileInfo.croppedWidth}:ih:${fileInfo.offset}:0" -preset ultrafast -c:a copy ${fileInfo.originalName}cropped.mov`)
-        console.log('cropped and trimmed accompaniment video!')
-
-        job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
+        console.log('cropped and trimmed accompaniment video!');
 
         // create thumbnail
 
         await exec(`ffmpeg -i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.jpg`);
         console.log('created thumbnail!');
+
+        job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
 
         // post video to AWS
         const vidParams = {
@@ -241,8 +256,8 @@ function start() {
                 console.log('success uploading thumbnail to s3! data: ', d);
                 // delete all files
                 await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`);
-                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`)
-                console.log('deleted cropped video and thumbnail')
+                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`);
+                console.log('deleted cropped video and thumbnail');
                 job.progress({ percent: 95, currentStep: 'finished saving' });
               }
             })

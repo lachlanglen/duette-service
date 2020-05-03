@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import * as SecureStore from 'expo-secure-store';
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-import Home from '../screens/snack/Home';
+// import Home from '../screens/snack/Home';
+// import Error from '../screens/Error';
 import LinksScreen from '../screens/LinksScreen';
 import { toggleUserInfo } from '../redux/userInfo';
 
@@ -25,6 +26,7 @@ const BottomTabNavigator = (props) => {
   });
 
   const handlePress = () => {
+    console.log('in handlePress')
     if (props.user.id) {
       props.toggleUserInfo(!props.displayUserInfo)
     }

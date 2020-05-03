@@ -4,20 +4,20 @@ import React, { useState } from 'react';
 // import { withRouter } from 'react-router-dom'
 import { Image, Text, View, Modal, Button, StyleSheet, ScrollView, Alert } from 'react-native';
 import { connect } from 'react-redux';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import * as ImageManipulator from "expo-image-manipulator";
-import * as FileSystem from 'expo-file-system';
+// import * as VideoThumbnails from 'expo-video-thumbnails';
+// import * as ImageManipulator from "expo-image-manipulator";
 import uuid from 'react-native-uuid';
 import axios from 'axios';
 import CatsGallery from './CatsGallery';
 import { fetchVideos } from '../redux/videos';
-import { Polly } from 'aws-sdk';
+// import { Polly } from 'aws-sdk';
 import Form from '../components/Form';
+import Error from './Error';
 
 const DetailsModal = (props) => {
   const { setRecord, setPreview, setShowDetailsModal, handleDetailsExit, dataUri } = props;
 
-  const [formRef, setFormRef] = useState(null);
+  // const [formRef, setFormRef] = useState(null);
   const [postSuccess, setPostSuccess] = useState(false);
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -27,6 +27,7 @@ const DetailsModal = (props) => {
   const [croppingDone, setCroppingDone] = useState(false);
   const [savingInProgress, setSavingInProgress] = useState(false);
   const [savingDone, setSavingDone] = useState(false);
+  const [error, setError] = useState(false);
 
   const [title, setTitle] = useState('');
   const [composer, setComposer] = useState('');
@@ -39,41 +40,6 @@ const DetailsModal = (props) => {
 
   let croppedVidId;
   let intervalId;
-
-  const download = async () => {
-    const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}`;
-    try {
-      const { uri } = await FileSystem.downloadAsync(
-        s3Url,
-        FileSystem.documentDirectory + `${croppedVidId}.mov`
-      )
-      console.log('Finished downloading vid to ', uri);
-      // create thumbnail
-      try {
-        const thumbnailUrl = `https://duette.s3.us-east-2.amazonaws.com/${croppedVidId}thumbnail`;
-        const thumbnail = await FileSystem.downloadAsync(
-          thumbnailUrl,
-          FileSystem.documentDirectory + `${croppedVidId}thumbnail.jpg`
-        )
-        console.log('Finished downloading thumbnail to ', thumbnail.uri);
-        try {
-          // post to localDB
-          const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key: songKey, performer, thumbnailUri: thumbnail.uri, videoUri: uri })).data
-          console.log('videoRecord: ', videoRecord);
-          props.fetchVideos();
-          setSuccess(true);
-          setSaving(false);
-          // setShowDetailsModal(false);
-        } catch (e) {
-          console.log('error creating new video record: ', e)
-        }
-      } catch (e) {
-        console.log('error getting thumbnail: ', e)
-      }
-    } catch (e) {
-      console.log('error downloading from s3: ', e)
-    }
-  }
 
   const getJobStatus = async () => {
     // console.log('intervalId in getJobStatus: ', intervalId)
@@ -101,9 +67,10 @@ const DetailsModal = (props) => {
         setSavingDone(true);
       }
     } else if (status.state === 'failed') {
-      // handle failed case
+      // TODO: handle failed case
       console.log('job failed')
       clearInterval(intervalId);
+      setError(true);
     } else {
       // job is completed
       if (!infoGettingDone) setInfoGettingDone(true);
@@ -112,7 +79,17 @@ const DetailsModal = (props) => {
       console.log('job completed!')
       clearInterval(intervalId)
       console.log('interval cleared');
-      download();
+      // post to db
+      try {
+        const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id })).data
+        console.log('videoRecord: ', videoRecord);
+        props.fetchVideos();
+        setSuccess(true);
+        setSaving(false);
+      } catch (e) {
+        console.log('error posting local video record: ', e);
+        setError(true);
+      }
     }
   }
 
@@ -137,7 +114,7 @@ const DetailsModal = (props) => {
         body: vidFile,
         headers: {
           Accept: 'application/json',
-          'Content-Type': 'video/mov',
+          'Content-Type': `video/${fileType}`,
         },
       };
       await fetch(signedUrl, awsOptions);
@@ -151,7 +128,8 @@ const DetailsModal = (props) => {
       setInfoGettingInProgress(true);
       poll(500);
     } catch (e) {
-      console.log('error in handlePost: ', e)
+      console.log('error in handlePost: ', e);
+      setError(true);
     }
   }
 
@@ -169,69 +147,74 @@ const DetailsModal = (props) => {
     setPreview(false);
   }
 
+  const handleError = () => {
+    setSaving(false);
+    setError(false);
+  };
+
   // console.log('showDetailsModal: ', showDetailsModal)
 
-  console.log('saving? ', saving)
-  console.log('hi in details modal')
-
   return (
-    saving ? (
-      // <View style={{ flex: 1 }}>
-      <CatsGallery
-        infoGettingDone={infoGettingDone}
-        infoGettingInProgress={infoGettingInProgress}
-        croppingDone={croppingDone}
-        croppingInProgress={croppingInProgress}
-        savingDone={savingDone}
-        savingInProgress={savingInProgress}
-        setSaving={setSaving}
-      />
-      // </View>
+    error ? (
+      <Error handleGoBack={handleError} />
     ) : (
-        success ? (
-          <View>
-            <Text style={styles.titleTextBlue}>Successfully saved!</Text>
-            <Image style={styles.successCat} source={require('../assets/images/happy_grumpy_cat.png')} />
-            <Button
-              title="Exit"
-              onPress={handleExit} />
-            <Button
-              title="Record another video"
-              onPress={handleRecordAnother} />
-          </View>
+        saving ? (
+          <CatsGallery
+            infoGettingDone={infoGettingDone}
+            infoGettingInProgress={infoGettingInProgress}
+            croppingDone={croppingDone}
+            croppingInProgress={croppingInProgress}
+            savingDone={savingDone}
+            savingInProgress={savingInProgress}
+            setSaving={setSaving}
+          />
         ) : (
-            <View style={styles.container}>
-              <Modal
-                onRequestClose={handleDetailsExit}
-                supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-              >
-                {
-                  postSuccess ? (
-                    <View style={{ paddingTop: 50 }}>
-                      <Text style={{ fontSize: 30, fontWeight: 'bold', textAlign: 'center', color: '#0047B9' }}>Posted!</Text>
-                      <Button
-                        title="Record another accompaniment"
-                        onPress={handleRecordAnother} />
-                      <Button
-                        onPress={handleDetailsExit}
-                        title="Home" />
-                    </View>
-                  ) : (
-                      <Form
-                        handleSave={handleSave}
-                        title={title}
-                        setTitle={setTitle}
-                        composer={composer}
-                        setComposer={setComposer}
-                        songKey={songKey}
-                        setSongKey={setSongKey}
-                        performer={performer}
-                        setPerformer={setPerformer}
-                        setShowDetailsModal={setShowDetailsModal} />
-                    )
-                }
-              </Modal>
-            </View >
+            success ? (
+              <View>
+                <Text style={styles.titleTextBlue}>Successfully saved!</Text>
+                <Image style={styles.successCat} source={require('../assets/images/happy_grumpy_cat.png')} />
+                <Button
+                  title="Exit"
+                  onPress={handleExit} />
+                <Button
+                  title="Record another video"
+                  onPress={handleRecordAnother} />
+              </View>
+            ) : (
+                <View style={styles.container}>
+                  <Modal
+                    onRequestClose={handleDetailsExit}
+                    supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+                  >
+                    {
+                      postSuccess ? (
+                        // TODO: what is this??
+                        <View style={{ paddingTop: 50 }}>
+                          <Text style={{ fontSize: 30, fontWeight: 'bold', textAlign: 'center', color: '#0047B9' }}>Posted!</Text>
+                          <Button
+                            title="Record another accompaniment"
+                            onPress={handleRecordAnother} />
+                          <Button
+                            onPress={handleDetailsExit}
+                            title="Home" />
+                        </View>
+                      ) : (
+                          <Form
+                            handleSave={handleSave}
+                            title={title}
+                            setTitle={setTitle}
+                            composer={composer}
+                            setComposer={setComposer}
+                            songKey={songKey}
+                            setSongKey={setSongKey}
+                            performer={performer}
+                            setPerformer={setPerformer}
+                            setShowDetailsModal={setShowDetailsModal} />
+                        )
+                    }
+                  </Modal>
+                </View >
+              )
           )
       )
   )

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { Video } = require('../../db/models/index');
+const { Video } = require('../../db');
 
 router.post('/', (req, res, next) => {
   // TODO: destructure req.body for security purposes

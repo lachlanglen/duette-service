@@ -7,14 +7,6 @@ const Duette = connection.define('duette', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
   },
-  videoUri: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    }
-  }
-  // TODO: add 'createdBy' or similar
 })
 
 module.exports = Duette;

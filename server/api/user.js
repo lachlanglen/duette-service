@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { User } = require('../../db/models/index');
+const { User } = require('../../db');
 
 router.get('/facebookId/:facebookId', async (req, res, next) => {
   const { facebookId } = req.params;

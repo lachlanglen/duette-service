@@ -13,13 +13,13 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import { setVideo } from '../redux/singleVideo'
-// import RecordDuetteModal from './RecordDuetteModal';
-import RecordDuetteClassModal from './RecordDuetteClass';
-import * as FileSystem from 'expo-file-system';
+import RecordDuetteModal from './RecordDuetteModal';
+// import RecordDuetteClassModal from './RecordDuetteClass';
 import Constants from 'expo-constants';
 import { loadCats } from '../redux/cats';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from './FacebookSignin';
+import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 
 const ViewVids = (props) => {
 
@@ -30,6 +30,7 @@ const ViewVids = (props) => {
   const [alertCompleted, setAlertCompleted] = useState(false);
   const [bluetooth, setBluetooth] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [error, setError] = useState(false);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -43,7 +44,7 @@ const ViewVids = (props) => {
   // if (props.videos && props.videos.length === 0) props.fetchVideos();
 
   const handleBluetooth = (id) => {
-    console.log('in handleBluetooth');
+    // console.log('in handleBluetooth');
     setBluetooth(true);
     setPreviewVid('');
     props.setVideo(id);
@@ -51,7 +52,7 @@ const ViewVids = (props) => {
   }
 
   const handleWired = (id) => {
-    console.log('in handleWired');
+    // console.log('in handleWired');
     setBluetooth(false);
     setPreviewVid('');
     props.setVideo(id);
@@ -59,9 +60,9 @@ const ViewVids = (props) => {
   }
 
   const detectOrientation = async () => {
-    console.log('in detectOrientation')
+    // console.log('in detectOrientation')
     const { orientation } = await ScreenOrientation.getOrientationAsync();
-    console.log('orientation: ', orientation)
+    // console.log('orientation: ', orientation)
     setScreenOrientation(orientation.split('_')[0])
     ScreenOrientation.addOrientationChangeListener(info => {
       setScreenOrientation(info.orientationInfo.orientation);
@@ -107,14 +108,14 @@ const ViewVids = (props) => {
   // console.log('screen orientation: ', screenOrientation)
   // console.log('screenHeight: ', screenHeight, 'screenWidth: ', screenWidth)
 
-  const Item = ({ id, title, composer, theKey, performer, thumbnailUri, videoUri }) => {
+  const Item = ({ id, title, composer, theKey, performer }) => {
     return (
       <View style={styles.item}>
         <View>
           {
             previewVid === id ? (
               <Video
-                source={{ uri: videoUri }}
+                source={{ uri: getAWSVideoUrl(id) }}
                 rate={1.0}
                 volume={1.0}
                 isMuted={false}
@@ -131,7 +132,7 @@ const ViewVids = (props) => {
             ) : (
                 <View>
                   <Image
-                    source={{ uri: thumbnailUri }}
+                    source={{ uri: getAWSThumbnailUrl(id) }}
                     style={{
                       ...styles.media,
                       width: screenWidth * 0.8,
@@ -171,7 +172,7 @@ const ViewVids = (props) => {
         showRecordDuetteModal ? (
           // RECORD A DUETTE
           <View style={styles.container}>
-            <RecordDuetteClassModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+            <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
           </View>
         ) : (
             // VIEW VIDEOS
@@ -186,7 +187,7 @@ const ViewVids = (props) => {
                 props.videos.length > 0 ? (
                   <FlatList
                     data={props.videos}
-                    renderItem={({ item }) => <Item id={item.id} title={item.title} thumbnailUri={item.thumbnailUri} performer={item.performer} composer={item.composer} theKey={item.key} videoUri={item.videoUri} />}
+                    renderItem={({ item }) => <Item id={item.id} title={item.title} performer={item.performer} composer={item.composer} theKey={item.key} />}
                     // key={screenOrientation}
                     keyExtractor={item => item.id}
                     viewabilityConfig={{}}

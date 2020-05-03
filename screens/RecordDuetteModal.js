@@ -9,6 +9,8 @@ import { Camera } from 'expo-camera';
 // import { ScreenOrientation } from 'expo';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import PreviewModal from './PreviewModal';
+import { getAWSVideoUrl } from '../constants/urls';
+import Error from './Error';
 
 const RecordDuetteModal = (props) => {
 
@@ -25,6 +27,7 @@ const RecordDuetteModal = (props) => {
   const [vidRef, setVidRef] = useState(null);
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
+  const [error, setError] = useState(false);
   // const [vidIsPlaying, setVidIsPlaying] = useState(false);
 
 
@@ -47,25 +50,41 @@ const RecordDuetteModal = (props) => {
 
   const record = async () => {
     console.log('Date.now in record: ', Date.now())
-    await cameraRef.recordAsync();
-    // setDuetteUri(vid.uri);
-    // setShowPreviewModal(true);
+    try {
+      const vid = await cameraRef.recordAsync();
+      // console.log('vid.uri: ', vid.uri)
+      setDuetteUri(vid.uri);
+      setShowPreviewModal(true);
+    } catch (e) {
+      console.log('error starting recording: ', e);
+      setError(true);
+    }
   }
 
   const play = async () => {
     console.log('Date.now in play: ', Date.now())
     // cameraRef.stopRecording();
     // console.log('recording stopped');
-    await vidRef.playAsync();
-    console.log('video playing')
-    await cameraRef.recordAsync();
-    // record();
+    try {
+      // TODO: add from milliseconds
+      await vidRef.playAsync();
+      console.log('video playing')
+      // const vid = await cameraRef.recordAsync();
+      // setDuetteUri(vid.uri);
+      // record();
+    } catch (e) {
+      console.log('error playing or recording: ', e);
+      setError(true);
+    }
   }
+
+  console.log('duetteUri: ', duetteUri)
 
   const toggleRecord = async () => {
     if (recording) {
       setRecording(false);
       cameraRef.stopRecording();
+      setShowPreviewModal(true);
     } else {
       try {
         setRecording(true);
@@ -92,123 +111,130 @@ const RecordDuetteModal = (props) => {
       console.log('successfully unloaded video and stopped recording');
       setShowRecordDuetteModal(false);
     } catch (e) {
-      console.log('error unloading video: ', e)
+      console.log('error unloading video: ', e);
     }
   }
-
-  // console.log('props.selectedVideo.videoUri: ', props.selectedVideo.videoUri)
 
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.isLoaded !== vidLoaded) setVidLoaded(updateObj.isLoaded);
     if (updateObj.isBuffering === vidDoneBuffering) setVidDoneBuffering(!updateObj.isBuffering);
+  };
+
+  const handleError = () => {
+    setRecording(false);
+    setShowPreviewModal(false);
   }
 
   return (
-    // <View style={styles.container}>
-    /* {
-      showPreviewModal ? (
-        <PreviewModal handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
-      ) : ( */
-    <Modal
-      onRequestClose={handleCancel}
-      supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-      onOrientationChange={e => handleModalOrientationChange(e)}
-    >
-      <View style={{
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'black',
-        paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-        height: '100%'
-      }}>
-        <View style={{ flexDirection: 'row' }}>
-          <Video
-            ref={ref => setVidRef(ref)}
-            // source={{ uri: props.selectedVideo.videoUri }}
-            source={{ uri: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4' }}
-            rate={1.0}
-            volume={1.0}
-            isMuted={false}
-            resizeMode="cover"
-            positionMillis={0}
-            progressUpdateIntervalMillis={50}
-            onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-            // isLooping={false}
-            style={{
-              width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-              height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9
-            }}
-          />
-          {/* TODO: add codec to camera input? (e.g. .mov) */}
-          <Camera
-            style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
-            type={Camera.Constants.Type.front}
-            ref={ref => setCameraRef(ref)}>
-            <View>
-              <TouchableOpacity
-                onPress={!recording ? handleCancel : () => { }}
-              >
-                <Text style={{
-                  color: 'red',
-                  fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
-                  paddingLeft: 20,
-                  paddingTop: 20,
-                  fontWeight: 'normal'
-                }}
+    error ? (
+      <Error handleGoBack={handleError} />
+    ) : (
+        <View style={styles.container}>
+          {
+            showPreviewModal ? (
+              <PreviewModal handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
+            ) : (
+                <Modal
+                  onRequestClose={handleCancel}
+                  supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+                  onOrientationChange={e => handleModalOrientationChange(e)}
                 >
-                  {recording ? 'Recording' : 'Cancel'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            {
-              vidLoaded && vidDoneBuffering &&
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: 'transparent',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  onPress={toggleRecord}
-                  style={{
-                    borderWidth: screenWidth / 100,
-                    borderColor: recording ? 'darkred' : 'darkred',
-                    alignSelf: 'flex-end',
-                    width: screenWidth / 10,
-                    height: screenWidth / 10,
-                    backgroundColor: recording ? 'black' : 'red',
-                    borderRadius: 50,
-                    margin: 10,
-                  }}
-                />
-              </View>
-            }
-            {
-              screenOrientation === 'LANDSCAPE' &&
-              <TouchableOpacity
-                onPress={handleCancel}
-                style={{ alignItems: 'center', paddingBottom: 10, height: 30 }}
-              >
-                <Text style={{ color: 'red' }}>Having a problem? Touch here to try again.</Text>
-              </TouchableOpacity>
-            }
-          </Camera>
-        </View>
-        {
-          screenOrientation === 'PORTRAIT' &&
-          <TouchableOpacity
-            onPress={handleCancel}
-          >
-            <Text style={{ color: 'red', marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
-          </TouchableOpacity>
-        }
-      </View>
-    </Modal >
-    /* )
-  }
-</View > */
+                  <View style={{
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'black',
+                    paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                    height: '100%'
+                  }}>
+                    <View style={{ flexDirection: 'row' }}>
+                      <Video
+                        ref={ref => setVidRef(ref)}
+                        source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
+                        // source={{ uri: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4' }}
+                        rate={1.0}
+                        volume={1.0}
+                        isMuted={false}
+                        resizeMode="cover"
+                        positionMillis={0}
+                        progressUpdateIntervalMillis={50}
+                        onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+                        // isLooping={false}
+                        style={{
+                          width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                          height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9
+                        }}
+                      />
+                      {/* TODO: add codec to camera input? (e.g. .mov) */}
+                      <Camera
+                        style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                        type={Camera.Constants.Type.front}
+                        ref={ref => setCameraRef(ref)}>
+                        <View>
+                          <TouchableOpacity
+                            onPress={!recording ? handleCancel : () => { }}
+                          >
+                            <Text style={{
+                              color: 'red',
+                              fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
+                              paddingLeft: 20,
+                              paddingTop: 20,
+                              fontWeight: 'normal'
+                            }}
+                            >
+                              {recording ? 'Recording' : 'Cancel'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                        {
+                          vidLoaded && vidDoneBuffering &&
+                          <View
+                            style={{
+                              flex: 1,
+                              backgroundColor: 'transparent',
+                              flexDirection: 'row',
+                              justifyContent: 'center',
+                            }}>
+                            <TouchableOpacity
+                              onPress={toggleRecord}
+                              style={{
+                                borderWidth: screenWidth / 100,
+                                borderColor: recording ? 'darkred' : 'darkred',
+                                alignSelf: 'flex-end',
+                                width: screenWidth / 10,
+                                height: screenWidth / 10,
+                                backgroundColor: recording ? 'black' : 'red',
+                                borderRadius: 50,
+                                margin: 10,
+                              }}
+                            />
+                          </View>
+                        }
+                        {
+                          screenOrientation === 'LANDSCAPE' &&
+                          <TouchableOpacity
+                            onPress={handleCancel}
+                            style={{ alignItems: 'center', paddingBottom: 10, height: 30 }}
+                          >
+                            <Text style={{ color: 'red' }}>Having a problem? Touch here to try again.</Text>
+                          </TouchableOpacity>
+                        }
+                      </Camera>
+                    </View>
+                    {
+                      screenOrientation === 'PORTRAIT' &&
+                      <TouchableOpacity
+                        onPress={handleCancel}
+                      >
+                        <Text style={{ color: 'red', marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
+                      </TouchableOpacity>
+                    }
+                  </View>
+                </Modal >
+              )
+          }
+        </View >
+      )
   )
 }
 

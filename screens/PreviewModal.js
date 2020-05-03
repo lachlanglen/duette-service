@@ -4,21 +4,23 @@
 /* eslint-disable no-use-before-define */
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Slider, Alert, Image, View, Modal, Button, StyleSheet, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { Alert, Image, View, Modal, Button, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Icon } from 'react-native-elements'
 import { Video } from 'expo-av';
 // import { ScreenOrientation } from 'expo';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-import Constants from 'expo-constants';
-import { RNS3 } from 'react-native-s3-upload';
+// import Constants from 'expo-constants';
+// import { RNS3 } from 'react-native-s3-upload';
 import axios from 'axios';
 import uuid from 'react-native-uuid';
-import DisplayMergedVideo from './DisplayMergedVideo';
+// import DisplayMergedVideo from './DisplayMergedVideo';
 import CatsGallery from './CatsGallery';
+import { getAWSVideoUrl } from '../constants/urls';
+import Error from './Error';
 
-const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_BUCKET_REGION } = Constants.manifest.extra;
+// const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_BUCKET_REGION } = Constants.manifest.extra;
 
 const PreviewModal = (props) => {
 
@@ -28,7 +30,6 @@ const PreviewModal = (props) => {
   const { handleCancel, bluetooth, duetteUri, showPreviewModal, setShowPreviewModal, showRecordDuetteModal, setShowRecordDuetteModal } = props;
 
   const [displayMergedVideo, setDisplayMergedVideo] = useState(false);
-  const [mergedLocalUri, setMergedLocalUri] = useState('');
   const [success, setSuccess] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('')
   const [previewSelected, setPreviewSelected] = useState(false);
@@ -42,24 +43,23 @@ const PreviewModal = (props) => {
   const [bothVidsReady, setBothVidsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [delay, setDelay] = useState(0);
-  const [customOffset, setCustomOffset] = useState(0);
-  // const [jobStatus, setJobStatus] = useState('');
-  // const [combinedKey, setCombinedKey] = useState('');
+  // const [customOffset, setCustomOffset] = useState(0);
+  const [infoGettingInProgress, setInfoGettingInProgress] = useState(false);
+  const [infoGettingDone, setInfoGettingDone] = useState(false);
+  const [croppingInProgress, setCroppingInProgress] = useState(false);
+  const [croppingDone, setCroppingDone] = useState(false);
+  const [savingInProgress, setSavingInProgress] = useState(false);
+  const [savingDone, setSavingDone] = useState(false);
+  const [error, setError] = useState(false);
 
   let intervalId;
   let combinedKey;
   let tempVidId;
 
-  const minVal = -250;
-  const maxVal = 250;
+  // const minVal = -250;
+  // const maxVal = 250;
 
   const jobs = [];
-
-  // if (vidARef) {
-  //   vidARef.loadAsync({ uri: props.selectedVideo.videoUri })
-  //     .then(info => console.log('success loading vidA! ', info))
-  //     .catch(e => console.log('error loading vidA: ', e))
-  // }
 
   useEffect(() => {
     detectOrientation();
@@ -83,38 +83,58 @@ const PreviewModal = (props) => {
   }
 
   const handleSave = () => {
-    console.log('in handleSave')
     setSaving(true);
     handlePost();
   }
 
   const getJobStatus = async () => {
-    console.log('intervalId in getJobStatus: ', intervalId)
+    // console.log('intervalId in getJobStatus: ', intervalId)
     const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
     console.log('status in getJobStatus: ', status)
-    if (status.state === 'completed') {
+    if (status.state !== 'completed') {
+      if (status.progress.percent === 20) {
+        setInfoGettingInProgress(false);
+        setInfoGettingDone(true);
+        setCroppingInProgress(true);
+      } else if (status.progress.percent === 60) {
+        if (!infoGettingDone) {
+          setInfoGettingInProgress(false);
+          setInfoGettingDone(true);
+        }
+        setCroppingInProgress(false);
+        setCroppingDone(true);
+        setSavingInProgress(true);
+      } else if (status.progress.percent === 95) {
+        if (!croppingDone) {
+          setCroppingInProgress(false);
+          setCroppingDone(true);
+        }
+        setSavingInProgress(false);
+        setSavingDone(true);
+      }
+    } else if (status.state === 'failed') {
+      // TODO: handle failed case
+      console.log('job failed')
+      clearInterval(intervalId);
+      setError(true);
+    } else {
+      // job is completed
+      if (!infoGettingDone) setInfoGettingDone(true);
+      if (!croppingDone) setCroppingDone(true);
+      if (!savingDone) setSavingDone(true);
       console.log('job completed!')
       clearInterval(intervalId)
       console.log('interval cleared');
-      // setJobStatus('completed');
-      console.log('combinedKey in getJobStatus: ', combinedKey)
-      // retrieve from s3
-      const s3Url = `https://duette.s3.us-east-2.amazonaws.com/${combinedKey}`;
       try {
-        const { uri } = await FileSystem.downloadAsync(
-          s3Url,
-          FileSystem.documentDirectory + `${combinedKey}.mov`
-        )
-        console.log('Finished downloading to ', uri);
-        const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { videoUri: uri, id: combinedKey });
+        const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: combinedKey, userId: props.user.id });
         console.log('duette: ', newDuetteInDB.data)
         await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
         console.log('temp video deleted!');
-        setMergedLocalUri(uri);
         setSuccess(true);
         setSaving(false);
       } catch (e) {
-        console.log('error downloading from s3: ', e)
+        console.log('error downloading from s3: ', e);
+        setError(true);
       }
     }
   }
@@ -124,84 +144,75 @@ const PreviewModal = (props) => {
   }
 
   const handlePost = async () => {
-    // console.log('in handlePost')
     const id = uuid.v4();
     tempVidId = id;
     let uriParts = duetteUri.split('.');
     let fileType = uriParts[uriParts.length - 1];
     const file = {
       uri: duetteUri,
-      name: `${id}.mov`,
+      name: `${tempVidId}.mov`,
       type: `video/${fileType}`
     }
 
-    const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${id}`)).data;
-
-    const options = {
-      method: 'PUT',
-      body: file,
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'video/mov',
-      },
-    };
-
     try {
-      await fetch(signedUrl, options);
-      console.log('posted to s3!')
-      // send both video keys to back end for processing
-      const duetteKey = id;
-      const accompanimentKey = props.selectedVideo.id;
-      const combinedVidKey = `${accompanimentKey}${duetteKey}`
-      const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
-      jobs.push(job);
-      // save combinedKey
-      combinedKey = combinedVidKey;
-      poll(2000);
-    }
-    catch (e) {
-      console.log('error posting to s3: ', e)
-    }
+      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${id}`)).data;
 
-    // TODO: listen for job completion
+      const options = {
+        method: 'PUT',
+        body: file,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': `video/${fileType}`,
+        },
+      };
 
-    // const infoArr = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/getinfo`, formData)).data;
-    // console.log('info retrieved: ', infoArr);
-    // const croppedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/crop/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, infoArr)).data;
-    // infoArr.push(croppedPath);
-    // console.log('cropped! infoArr: ', infoArr);
-    // const scaledPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/scale`, infoArr)).data;
-    // infoArr.push(scaledPath);
-    // console.log('scaled! infoArr: ', infoArr);
-    // const combinedPath = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/combine`, infoArr)).data;
-    // infoArr.push(combinedPath);
-    // console.log('combined! infoArr: ', infoArr);
-    // const key = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/duette/aws`, infoArr)).data
-    // // add to local DB:
-    // console.log('uploaded to AWS and files deleted!');
-    // const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: key });
-    // console.log('duette: ', newDuetteInDB.data)
+      try {
+        await fetch(signedUrl, options);
+        console.log('posted to s3!')
+        const duetteKey = tempVidId;
+        const accompanimentKey = props.selectedVideo.id;
+        const combinedVidKey = `${accompanimentKey}${duetteKey}`;
+        try {
+          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
+          jobs.push(job);
+          // save combinedKey
+          combinedKey = combinedVidKey;
+          setInfoGettingInProgress(true);
+          poll(500);
+        } catch (e) {
+          console.log('error posting job: ', e);
+          setError(true);
+        }
+      }
+      catch (e) {
+        console.log('error posting to s3: ', e);
+        setError(true);
+      }
+    } catch (e) {
+      console.log('error getting signedUrl: ', e);
+      setError(true);
+    }
   }
 
   const handleModalOrientationChange = (ev) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
   }
 
-  const handleBack = () => {
-    setShowPreviewModal(false)
-    // FileSystem.downloadAsync(
-    //   'https://duette.s3.us-east-2.amazonaws.com/98462f9c-e359-4904-9c50-df6dc8d31a4b',
-    //   FileSystem.documentDirectory + `98462f9c-e359-4904-9c50-df6dc8d31a4b.mp4`
-    // )
-    //   .then(({ uri }) => {
-    //     console.log('Finished downloading to ', uri);
-    //     setMergedLocalUri(uri);
-    //     setSuccess(true);
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
-  }
+  // const handleBack = () => {
+  //   setShowPreviewModal(false)
+  //   // FileSystem.downloadAsync(
+  //   //   'https://duette.s3.us-east-2.amazonaws.com/98462f9c-e359-4904-9c50-df6dc8d31a4b',
+  //   //   FileSystem.documentDirectory + `98462f9c-e359-4904-9c50-df6dc8d31a4b.mp4`
+  //   // )
+  //   //   .then(({ uri }) => {
+  //   //     console.log('Finished downloading to ', uri);
+  //   //     setMergedLocalUri(uri);
+  //   //     setSuccess(true);
+  //   //   })
+  //   //   .catch(error => {
+  //   //     console.error(error);
+  //   //   });
+  // }
 
   const handleView = () => {
     // setShowPreviewModal(false);
@@ -217,6 +228,7 @@ const PreviewModal = (props) => {
     setIsPlaying(true);
   }
 
+  // FIXME: rewatch not functional
   const handleRewatch = () => {
     setRewatch(true);
     setPreviewComplete(false);
@@ -232,16 +244,31 @@ const PreviewModal = (props) => {
   }
 
   const saveVideo = async () => {
-    await MediaLibrary.saveToLibraryAsync(mergedLocalUri);
-    console.log('saved to library!')
-    Alert.alert(
-      'Saved',
-      'Your video has been saved to your Camera Roll!',
-      [
-        { text: 'Home', onPress: () => handleGoHome() },
-      ],
-      { cancelable: false }
-    )
+    try {
+      const { uri } = await FileSystem.downloadAsync(
+        getAWSVideoUrl(combinedKey),
+        FileSystem.documentDirectory + `${combinedKey}.mov`
+      )
+      console.log('Finished downloading to ', uri);
+      try {
+        await MediaLibrary.saveToLibraryAsync(uri);
+        console.log('saved to library!')
+        Alert.alert(
+          'Saved',
+          'Your video has been saved to your Camera Roll!',
+          [
+            { text: 'Home', onPress: () => handleGoHome() },
+          ],
+          { cancelable: false }
+        )
+      } catch (e) {
+        console.log('error saving to camera roll: ', e);
+        setError(true);
+      }
+    } catch (e) {
+      console.log('error downloading to local file: ', e);
+      setError(true);
+    }
   }
 
   const handleSaveToCameraRoll = async () => {
@@ -252,32 +279,39 @@ const PreviewModal = (props) => {
         // TODO: set a loading view
         saveVideo();
       } else {
-        // notify client that they have to allow permissions to access video
+        // TODO: notify user that they have to allow permissions to access video
       }
     } else {
       saveVideo();
     }
   }
 
-  console.log('vid1Ready: ', vid1Ready)
-  console.log('vid2Ready: ', vid1Ready)
-  console.log('bothVidsReady: ', bothVidsReady)
+  // console.log('vid1Ready: ', vid1Ready)
+  // console.log('vid2Ready: ', vid1Ready)
+  // console.log('bothVidsReady: ', bothVidsReady)
 
   const handlePlaybackStatusUpdateVid1 = (updateObj) => {
+    // console.log('vid1 updateObj: ', updateObj)
     if (!vid1Ready && !vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
+      console.log('line 295')
       setVid1Ready(true)
     } else if (!vid1Ready && vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
+      console.log('line 298')
       setBothVidsReady(true);
     } if (updateObj.didJustFinish) {
+      console.log('line 301')
       setPreviewComplete(true);
       setIsPlaying(false);
     }
   }
 
   const handlePlaybackStatusUpdateVid2 = (updateObj) => {
+    // console.log('vid2 updateObj: ', updateObj)
     if (!vid1Ready && !vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
+      console.log('line 309')
       setVid2Ready(true)
     } else if (vid1Ready && !vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
+      console.log('line 312')
       setBothVidsReady(true);
     }
   }
@@ -306,6 +340,20 @@ const PreviewModal = (props) => {
   const syncForward = async () => {
     await handleSyncForward();
     handleShowPreview();
+  };
+
+  const handleError = () => {
+    setDisplayMergedVideo(false);
+    setSuccess(false);
+    setPreviewSelected(false);
+    setPreviewComplete(false);
+    setSaving(false);
+    setInfoGettingInProgress(false);
+    setInfoGettingDone(false);
+    setCroppingInProgress(false);
+    setCroppingDone(false);
+    setSavingInProgress(false);
+    setSavingDone(false);
   }
 
   // const handleSyncForward = async () => {
@@ -327,38 +375,46 @@ const PreviewModal = (props) => {
 
   // console.log('mergedLocalUri: ', mergedLocalUri)
 
+  console.log('duetteUri: ', duetteUri)
+
+  // console.log('vidARef: ', vidARef);
+  // console.log('vidBRef: ', vidBRef);
+
   return (
-    <View style={styles.container}>
-      {
-        displayMergedVideo ? (
-          // <DisplayMergedVideo
-          //   mergedLocalUri={mergedLocalUri}
-          //   displayMergedVideo={displayMergedVideo}
-          //   setDisplayMergedVideo={setDisplayMergedVideo}
-          // />
-          <Modal
-            onRequestClose={handleExit}
-            supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-            onOrientationChange={e => handleModalOrientationChange(e)}>
-            <View>
-              <Video
-                source={{ uri: mergedLocalUri }}
-                rate={1.0}
-                volume={1.0}
-                isMuted={false}
-                resizeMode="cover"
-                shouldPlay
-                isLooping={false}
-                useNativeControls={true}
-                // style={{ width: 100, height: 100 }}
-                style={{
-                  width: screenWidth,
-                  height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                  marginBottom: 15,
-                  // marginTop: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-                }}
-              >
-                {/* <View
+    error ? (
+      <Error handleGoBack={handleError} />
+    ) : (
+        <View style={styles.container}>
+          {
+            displayMergedVideo ? (
+              // <DisplayMergedVideo
+              //   mergedLocalUri={mergedLocalUri}
+              //   displayMergedVideo={displayMergedVideo}
+              //   setDisplayMergedVideo={setDisplayMergedVideo}
+              // />
+              <Modal
+                onRequestClose={handleExit}
+                supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+                onOrientationChange={e => handleModalOrientationChange(e)}>
+                <View>
+                  <Video
+                    source={{ uri: getAWSVideoUrl(combinedKey) }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={false}
+                    resizeMode="cover"
+                    shouldPlay
+                    isLooping={false}
+                    useNativeControls={true}
+                    // style={{ width: 100, height: 100 }}
+                    style={{
+                      width: screenWidth,
+                      height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                      marginBottom: 15,
+                      // marginTop: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                    }}
+                  >
+                    {/* <View
                   style={{
                     width: screenWidth,
                     height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
@@ -381,187 +437,194 @@ const PreviewModal = (props) => {
                     </TouchableOpacity>
                   </TouchableOpacity>
                 </View> */}
-              </Video>
-              <Button
-                style={{ marginTop: 30 }}
-                title="Save to Camera Roll"
-                onPress={handleSaveToCameraRoll} />
-              <Button
-                title="Re-Record"
-                onPress={handleRedo} />
-            </View>
-          </Modal>
-        ) : (
-            <Modal
-              onRequestClose={handleExit}
-              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-              onOrientationChange={e => handleModalOrientationChange(e)}
-            >{
-                saving ? (
-                  // <View style={{ padding: 20 }}>
-                  <CatsGallery />
-                  // </View>
-                ) : (
-                    success ? (
-                      // video has been merged
-                      <View style={styles.saveContainer}>
-                        <Text style={styles.savingHeader}>Video saved!</Text>
-                        <Image source={{ uri: 'https://media.giphy.com/media/13OyGVcay7aWUE/giphy.gif' }} style={{ width: 300, height: 200, marginTop: 20, marginBottom: 20 }} />
-                        <Button
-                          // style={styles.savingButton}
-                          title="View Video"
-                          onPress={handleView}>
-                        </Button>
-                        <Button
-                          // style={styles.savingButton}
-                          title="Save to Camera Roll"
-                          onPress={handleSaveToCameraRoll}>
-                        </Button>
-                      </View>
+                  </Video>
+                  <Button
+                    style={{ marginTop: 30 }}
+                    title="Save to Camera Roll"
+                    onPress={handleSaveToCameraRoll} />
+                  <Button
+                    title="Re-Record"
+                    onPress={handleRedo} />
+                </View>
+              </Modal>
+            ) : (
+                <Modal
+                  onRequestClose={handleExit}
+                  supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+                  onOrientationChange={e => handleModalOrientationChange(e)}
+                >{
+                    saving ? (
+                      <CatsGallery
+                        infoGettingDone={infoGettingDone}
+                        infoGettingInProgress={infoGettingInProgress}
+                        croppingDone={croppingDone}
+                        croppingInProgress={croppingInProgress}
+                        savingDone={savingDone}
+                        savingInProgress={savingInProgress}
+                        setSaving={setSaving}
+                      />
                     ) : (
-                        // video hasn't been merged yet
-                        // <View>
-                        <View style={{
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-                          backgroundColor: 'black',
-                          height: '100%'
-                        }}>
-                          <View style={{ flexDirection: 'row' }}>
-                            <Video
-                              ref={ref => setVidARef(ref)}
-                              source={{ uri: props.selectedVideo.videoUri }}
-                              rate={1.0}
-                              volume={1.0}
-                              isMuted={false}
-                              resizeMode="cover"
-                              // positionMillis={0}
-                              isLooping={false}
-                              style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
-                              onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid1(update)}
-                            />
-                            <Video
-                              ref={ref => setVidBRef(ref)}
-                              source={{ uri: duetteUri }}
-                              rate={1.0}
-                              volume={1.0}
-                              isMuted={false}
-                              resizeMode="cover"
-                              // positionMillis={bluetooth ? 200 : 0}
-                              isLooping={false}
-                              style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
-                              onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid2(update)}
-                            />
-                            {
-                              // if preview hasn't played yet (!previewSelected)
-                              // previewSelected &&
-                              !previewComplete && !isPlaying ? (
-                                <TouchableOpacity
-                                  onPress={handleShowPreview}
-                                  style={{ ...styles.overlay, width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
-                                  <Text style={{
-                                    fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 20,
-                                    fontWeight: 'bold'
-                                  }}>{bothVidsReady ? 'Touch to preview!' : 'Loading...'}</Text>
-                                </TouchableOpacity>
-                              ) : (
-                                  // if preview has played (previewComplete)
-                                  previewComplete &&
-                                  <TouchableOpacity
-                                    style={{ ...styles.overlay, opacity: 0.8, flexDirection: 'row', width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
-                                    <TouchableOpacity
-                                      style={styles.button}
-                                      onPress={handleSave}>
-                                      <Text
-                                        style={styles.overlayText}>
-                                        Save
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                      style={styles.button}
-                                      onPress={handleRedo}>
-                                      <Text
-                                        style={styles.overlayText}>
-                                        Redo
-                                        </Text>
-                                    </TouchableOpacity>
-                                  </TouchableOpacity>
-                                )
-                            }
+                        success ? (
+                          // video has been merged
+                          <View style={styles.saveContainer}>
+                            <Text style={styles.savingHeader}>Video saved!</Text>
+                            <Image source={{ uri: 'https://media.giphy.com/media/13OyGVcay7aWUE/giphy.gif' }} style={{ width: 300, height: 200, marginTop: 20, marginBottom: 20 }} />
+                            <Button
+                              // style={styles.savingButton}
+                              title="View Video"
+                              onPress={handleView}>
+                            </Button>
+                            <Button
+                              // style={styles.savingButton}
+                              title="Save to Camera Roll"
+                              onPress={handleSaveToCameraRoll}>
+                            </Button>
                           </View>
-                          {
-                            screenOrientation === 'PORTRAIT' &&
-                            <TouchableOpacity
-                            // style={{ backgroundColor: 'white' }}
-                            // onPress={handleCancel}
-                            >
-                              <Text style={{ color: 'white', marginTop: 20, marginVertical: 20, textAlign: 'center' }}>Not perfectly in sync? Use the arrows below to adjust to your taste!</Text>
-                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                <Icon
-                                  onPress={syncBack}
-                                  name="fast-rewind"
-                                  type="material"
-                                  color="white"
-                                  size={60} />
-                                <Text
-                                  style={{
-                                    fontSize: 30,
-                                    color: 'white',
-                                    alignSelf: 'center'
-                                  }}>{delay >= 0 && '+'} {delay} ms
+                        ) : (
+                            // video hasn't been merged yet
+                            // <View>
+                            <View style={{
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                              backgroundColor: 'black',
+                              height: '100%'
+                            }}>
+                              <View style={{ flexDirection: 'row' }}>
+                                <Video
+                                  ref={ref => setVidARef(ref)}
+                                  source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
+                                  rate={1.0}
+                                  volume={1.0}
+                                  isMuted={false}
+                                  resizeMode="cover"
+                                  positionMillis={0}
+                                  isLooping={false}
+                                  style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                                  onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid1(update)}
+                                />
+                                <Video
+                                  ref={ref => setVidBRef(ref)}
+                                  source={{ uri: duetteUri }}
+                                  rate={1.0}
+                                  volume={1.0}
+                                  isMuted={false}
+                                  resizeMode="cover"
+                                  positionMillis={bluetooth ? 200 : 0}
+                                  isLooping={false}
+                                  style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                                  onPlaybackStatusUpdate={update => handlePlaybackStatusUpdateVid2(update)}
+                                />
+                                {
+                                  // if preview hasn't played yet (!previewSelected)
+                                  // previewSelected &&
+                                  !previewComplete && !isPlaying ? (
+                                    <TouchableOpacity
+                                      onPress={handleShowPreview}
+                                      style={{ ...styles.overlay, width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
+                                      <Text style={{
+                                        fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 20,
+                                        fontWeight: 'bold'
+                                      }}>{bothVidsReady ? 'Touch to preview!' : 'Loading...'}</Text>
+                                    </TouchableOpacity>
+                                  ) : (
+                                      // if preview has played (previewComplete)
+                                      previewComplete &&
+                                      <TouchableOpacity
+                                        style={{ ...styles.overlay, opacity: 0.8, flexDirection: 'row', width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
+                                        <TouchableOpacity
+                                          style={styles.button}
+                                          onPress={handleSave}>
+                                          <Text
+                                            style={styles.overlayText}>
+                                            Save
+                                          </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                          style={styles.button}
+                                          onPress={handleRedo}>
+                                          <Text
+                                            style={styles.overlayText}>
+                                            Redo
+                                          </Text>
+                                        </TouchableOpacity>
+                                      </TouchableOpacity>
+                                    )
+                                }
+                              </View>
+                              {/* {
+                                screenOrientation === 'PORTRAIT' &&
+                                <TouchableOpacity
+                                // style={{ backgroundColor: 'white' }}
+                                // onPress={handleCancel}
+                                >
+                                  <Text style={{ color: 'white', marginTop: 20, marginVertical: 20, textAlign: 'center' }}>Not perfectly in sync? Use the arrows below to adjust to your taste!</Text>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon
+                                      onPress={syncBack}
+                                      name="fast-rewind"
+                                      type="material"
+                                      color="white"
+                                      size={60} />
+                                    <Text
+                                      style={{
+                                        fontSize: 30,
+                                        color: 'white',
+                                        alignSelf: 'center'
+                                      }}>{delay >= 0 && '+'} {delay} ms
                                 </Text>
-                                <Icon
-                                  onPress={syncForward}
-                                  name="fast-forward"
-                                  type="material"
-                                  color="white"
-                                  size={60} />
-                              </View>
-                              <Text style={{ fontStyle: 'italic', marginTop: 30, color: 'white', textAlign: 'center' }}>Hint:</Text>
-                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the accompaniment, press </Text><Icon name="fast-forward"
-                                  type="material"
-                                  color="yellow" />
-                              </View>
-                              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the accompaniment, press </Text><Icon name="fast-rewind"
-                                  type="material"
-                                  color="yellow" />
-                              </View>
-                            </TouchableOpacity>
-                          }
-                        </View>
-                        // {
-                        //   screenOrientation === 'PORTRAIT' &&
-                        //   <View style={{ backgroundColor: 'pink' }}>
-                        //     <TouchableOpacity
-                        //       style={styles.button}
-                        //       onPress={handleSave}>
-                        //       <Text
-                        //         style={styles.overlayText}>
-                        //         Save
-                        //             </Text>
-                        //     </TouchableOpacity>
-                        //     <TouchableOpacity
-                        //       style={styles.button}
-                        //       onPress={handleRedo}>
-                        //       <Text
-                        //         style={styles.overlayText}>
-                        //         Redo
-                        //             </Text>
-                        //     </TouchableOpacity>
-                        //   </View>
-                        // }
-                        /* </View> */
+                                    <Icon
+                                      onPress={syncForward}
+                                      name="fast-forward"
+                                      type="material"
+                                      color="white"
+                                      size={60} />
+                                  </View>
+                                  <Text style={{ fontStyle: 'italic', marginTop: 30, color: 'white', textAlign: 'center' }}>Hint:</Text>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the accompaniment, press </Text><Icon name="fast-forward"
+                                      type="material"
+                                      color="yellow" />
+                                  </View>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the accompaniment, press </Text><Icon name="fast-rewind"
+                                      type="material"
+                                      color="yellow" />
+                                  </View>
+                                </TouchableOpacity>
+                              } */}
+                            </View>
+                            // {
+                            //   screenOrientation === 'PORTRAIT' &&
+                            //   <View style={{ backgroundColor: 'pink' }}>
+                            //     <TouchableOpacity
+                            //       style={styles.button}
+                            //       onPress={handleSave}>
+                            //       <Text
+                            //         style={styles.overlayText}>
+                            //         Save
+                            //             </Text>
+                            //     </TouchableOpacity>
+                            //     <TouchableOpacity
+                            //       style={styles.button}
+                            //       onPress={handleRedo}>
+                            //       <Text
+                            //         style={styles.overlayText}>
+                            //         Redo
+                            //             </Text>
+                            //     </TouchableOpacity>
+                            //   </View>
+                            // }
+                            /* </View> */
+                          )
                       )
-                  )
-              }
-            </Modal>
-          )
-      }
-    </View >
+                  }
+                </Modal>
+              )
+          }
+        </View >
+      )
   )
 }
 
@@ -622,9 +685,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapState = ({ selectedVideo }) => {
+const mapState = ({ selectedVideo, user }) => {
   return {
-    selectedVideo
+    selectedVideo,
+    user,
   }
 }
 

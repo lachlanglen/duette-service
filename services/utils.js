@@ -25,10 +25,10 @@ export const handleLogin = async () => {
         await SecureStore.setItemAsync('expires', expires.toString());
         await SecureStore.setItemAsync('facebookId', id);
       } catch (e) {
-        console.log('error setting access token, expires or facebookId keys on secure store: ', e)
+        console.log('error setting access token, expires or facebookId keys on secure store: ', e);
       }
     } catch (e) {
-      console.log('error fetching user info: ', e)
+      console.log('error fetching user info: ', e);
     }
   } else {
     console.log('login cancelled')
