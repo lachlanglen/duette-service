@@ -15,10 +15,6 @@ const writeFileAsync = promisify(fs.writeFile)
 const ffprobeAsync = promisify(ffmpeg.ffprobe)
 const unlinkAsync = promisify(fs.unlink)
 
-console.log('process.env: ', process.env);
-console.log('process.env.MAILJET_APIKEY_PUBLIC:', process.env.MAILJET_APIKEY_PUBLIC)
-console.log('process.env.MAILJET_APIKEY_PRIVATE', process.env.MAILJET_APIKEY_PRIVATE)
-
 // Connect to a local redis intance locally, and the Heroku-provided URL in production
 let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const logoUrl = 'https://duette.s3.us-east-2.amazonaws.com/made-with-duette-300x200.png'
@@ -41,6 +37,10 @@ function start() {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
     if (job.data.type === 'duette') {
+      console.log('process.env: ', process.env);
+      console.log('process.env.MAILJET_APIKEY_PUBLIC:', process.env.MAILJET_APIKEY_PUBLIC)
+      console.log('process.env.MAILJET_APIKEY_PRIVATE', process.env.MAILJET_APIKEY_PRIVATE)
+
       const { duetteKey, accompanimentKey, combinedKey, delay, userName, userEmail } = job.data;
       // console.log('job.data: ', job.data);
 
@@ -200,7 +200,7 @@ function start() {
                     ],
                     Subject: 'Your video is ready!',
                     // TextPart: 'My first Mailjet email',
-                    HTMLPart: `<h3>Dear ${userName},</h3><h3>Your Duette has finished processing!</h3><div>Please <a href=https://duette.s3.us-east-2.amazonaws.com/${combinedKey}.mov>click here</a> to download your video.</h3><div>See you next time!</div><div>- Team Duette</div>`,
+                    HTMLPart: `<h3>Dear ${userName},</h3><h3>Your Duette has finished processing!</h3><div>Please <a href=${data.Location}>click here</a> to download your video.</h3><div>See you next time!</div><div>- Team Duette</div>`,
                     CustomID: duetteKey
                   }
                 ]
