@@ -37,9 +37,6 @@ function start() {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
     if (job.data.type === 'duette') {
-      console.log('process.env: ', process.env);
-      console.log('process.env.MAILJET_APIKEY_PUBLIC:', process.env.MAILJET_APIKEY_PUBLIC)
-      console.log('process.env.MAILJET_APIKEY_PRIVATE', process.env.MAILJET_APIKEY_PRIVATE)
 
       const { duetteKey, accompanimentKey, combinedKey, delay, userName, userEmail } = job.data;
       // console.log('job.data: ', job.data);
@@ -182,7 +179,7 @@ function start() {
             console.log('deleted combined video, overlay & fade in/out');
             job.progress({ percent: 95, currentStep: 'finished saving' });
             // send email to user
-            console.log('userName: ', userName, 'userEmail: ', userEmail)
+            // console.log('userName: ', userName, 'userEmail: ', userEmail)
             mailjet
               .post('send', { version: 'v3.1' })
               .request({
@@ -200,16 +197,18 @@ function start() {
                     ],
                     Subject: 'Your video is ready!',
                     // TextPart: 'My first Mailjet email',
-                    HTMLPart: `<h3>Dear ${userName},</h3><h3>Your Duette has finished processing!</h3><div>Please <a href=${data.Location}>click here</a> to download your video.</h3><div>See you next time!</div><div>- Team Duette</div>`,
+                    HTMLPart: `<h5>Hi ${userName},</h5><h4>Your Duette has finished processing!</h4><h4><a href=${data.Location}>Click here</a> to view your video.</h4><h5>See you next time!</h5><h5>- Team Duette</h5>`,
                     CustomID: duetteKey
                   }
                 ]
               })
-              .then(res => console.log('success sending email! response: ', res.body))
+              .then(res => {
+                console.log('success sending email! response: ', res.body);
+                return { combinedKey };
+              })
               .catch(e => console.log('error sending email: ', e))
           }
         })
-        return { combinedKey };
       } catch (e) {
         console.log('error in duette worker: ', e)
         throw new Error(e);
