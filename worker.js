@@ -15,7 +15,7 @@ const unlinkAsync = promisify(fs.unlink)
 
 // Connect to a local redis intance locally, and the Heroku-provided URL in production
 let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-const logoUrl = 'https://duette.s3.us-east-2.amazonaws.com/duette-logo-121x53.png'
+const logoUrl = 'https://duette.s3.us-east-2.amazonaws.com/made-with-duette-300x200.png'
 
 // Spin up multiple processes to handle jobs to take advantage of more CPU cores
 // See: https://devcenter.heroku.com/articles/node-concurrency for more info

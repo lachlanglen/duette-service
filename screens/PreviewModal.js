@@ -51,9 +51,9 @@ const PreviewModal = (props) => {
   const [savingInProgress, setSavingInProgress] = useState(false);
   const [savingDone, setSavingDone] = useState(false);
   const [error, setError] = useState(false);
+  const [combinedKey, setCombinedKey] = useState('');
 
   let intervalId;
-  let combinedKey;
   let tempVidId;
 
   // const minVal = -250;
@@ -127,7 +127,7 @@ const PreviewModal = (props) => {
       clearInterval(intervalId)
       console.log('interval cleared');
       try {
-        const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: combinedKey, userId: props.user.id });
+        const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
         console.log('duette: ', newDuetteInDB.data)
         await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
         console.log('temp video deleted!');
@@ -179,8 +179,7 @@ const PreviewModal = (props) => {
         try {
           const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
           jobs.push(job);
-          // save combinedKey
-          combinedKey = combinedVidKey;
+          setCombinedKey(combinedVidKey);
           setInfoGettingInProgress(true);
           poll(500);
         } catch (e) {
@@ -248,6 +247,8 @@ const PreviewModal = (props) => {
   }
 
   const saveVideo = async () => {
+    console.log('combinedKey: ', combinedKey);
+    console.log('getAWSVideoUrl: ', getAWSVideoUrl(combinedKey))
     try {
       const { uri } = await FileSystem.downloadAsync(
         getAWSVideoUrl(combinedKey),
@@ -349,7 +350,6 @@ const PreviewModal = (props) => {
   const handleError = () => {
     console.log('in handleError')
     setDisplayMergedVideo(false);
-    setSuccess(false);
     setPreviewSelected(false);
     setPreviewComplete(false);
     setSaving(false);
