@@ -15,6 +15,10 @@ const writeFileAsync = promisify(fs.writeFile)
 const ffprobeAsync = promisify(ffmpeg.ffprobe)
 const unlinkAsync = promisify(fs.unlink)
 
+console.log('process.env: ', process.env);
+console.log('process.env.MAILJET_APIKEY_PUBLIC:', process.env.MAILJET_APIKEY_PUBLIC)
+console.log('process.env.MAILJET_APIKEY_PRIVATE', process.env.MAILJET_APIKEY_PRIVATE)
+
 // Connect to a local redis intance locally, and the Heroku-provided URL in production
 let REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const logoUrl = 'https://duette.s3.us-east-2.amazonaws.com/made-with-duette-300x200.png'
@@ -178,6 +182,7 @@ function start() {
             console.log('deleted combined video, overlay & fade in/out');
             job.progress({ percent: 95, currentStep: 'finished saving' });
             // send email to user
+            console.log('userName: ', userName, 'userEmail: ', userEmail)
             mailjet
               .post('send', { version: 'v3.1' })
               .request({

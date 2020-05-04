@@ -16,8 +16,8 @@ const request = mailjet
           }
         ],
         Subject: 'Your video is ready!',
-        TextPart: 'My first Mailjet email',
-        HTMLPart: `<h3>Dear ${name}, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!`,
+        // TextPart: 'My first Mailjet email',
+        HTMLPart: `<h3>Dear Lachlan, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!`,
         CustomID: 'AppGettingStartedTest'
       }
     ]
