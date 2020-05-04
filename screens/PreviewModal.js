@@ -52,6 +52,7 @@ const PreviewModal = (props) => {
   const [savingDone, setSavingDone] = useState(false);
   const [error, setError] = useState(false);
   const [combinedKey, setCombinedKey] = useState('');
+  const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
 
   let intervalId;
   let tempVidId;
@@ -242,13 +243,13 @@ const PreviewModal = (props) => {
   }
 
   const handleGoHome = () => {
+    setSavingToCameraRoll(false);
     setShowPreviewModal(false);
     setShowRecordDuetteModal(false);
   }
 
   const saveVideo = async () => {
-    console.log('combinedKey: ', combinedKey);
-    console.log('getAWSVideoUrl: ', getAWSVideoUrl(combinedKey))
+    setSavingToCameraRoll(true);
     try {
       const { uri } = await FileSystem.downloadAsync(
         getAWSVideoUrl(combinedKey),
@@ -257,15 +258,16 @@ const PreviewModal = (props) => {
       console.log('Finished downloading to ', uri);
       try {
         await MediaLibrary.saveToLibraryAsync(uri);
-        console.log('saved to library!')
+        console.log('saved to library!');
         Alert.alert(
           'Saved',
           'Your video has been saved to your Camera Roll!',
           [
             { text: 'Home', onPress: () => handleGoHome() },
+            { text: 'OK', onPress: () => setSavingToCameraRoll(false) }
           ],
           { cancelable: false }
-        )
+        );
       } catch (e) {
         console.log('error saving to camera roll: ', e);
         setError(true);
@@ -301,6 +303,7 @@ const PreviewModal = (props) => {
       console.log('line 295')
       setVid1Ready(true)
     } else if (!vid1Ready && vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
+      // FIXME: something funny going on here with re-watches - 'line 298' gets logged a bunch of times throughout playback
       console.log('line 298')
       setBothVidsReady(true);
     } if (updateObj.didJustFinish) {
@@ -386,6 +389,19 @@ const PreviewModal = (props) => {
   // console.log('vidARef: ', vidARef);
   // console.log('vidBRef: ', vidBRef);
 
+  const handleBack = () => {
+    setPreviewComplete(false);
+    setSaving(false);
+    setInfoGettingInProgress(false);
+    setInfoGettingDone(false);
+    setCroppingInProgress(false);
+    setCroppingDone(false);
+    setSavingInProgress(false);
+    clearInterval(intervalId);
+    setSaving(false);
+
+  }
+
   return (
     error ? (
       <Error handleGoBack={handleError} />
@@ -402,25 +418,33 @@ const PreviewModal = (props) => {
                 onRequestClose={handleExit}
                 supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
                 onOrientationChange={e => handleModalOrientationChange(e)}>
-                <View>
-                  <Video
-                    source={{ uri: getAWSVideoUrl(combinedKey) }}
-                    rate={1.0}
-                    volume={1.0}
-                    isMuted={false}
-                    resizeMode="cover"
-                    shouldPlay
-                    isLooping={false}
-                    useNativeControls={true}
-                    // style={{ width: 100, height: 100 }}
-                    style={{
-                      width: screenWidth,
-                      height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                      marginBottom: 15,
-                      // marginTop: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-                    }}
-                  >
-                    {/* <View
+                <View style={{
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                  backgroundColor: 'black',
+                  height: '100%'
+                }}>
+                  <View>
+                    <Video
+                      source={{ uri: getAWSVideoUrl(combinedKey) }}
+                      rate={1.0}
+                      volume={1.0}
+                      isMuted={false}
+                      resizeMode="cover"
+                      shouldPlay
+                      isLooping={false}
+                      useNativeControls={true}
+                      // style={{ width: 100, height: 100 }}
+                      style={{
+                        width: screenWidth,
+                        height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                        marginBottom: 15,
+                        // marginTop: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                      }}
+                    >
+                      {/* <View
                   style={{
                     width: screenWidth,
                     height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
@@ -443,14 +467,15 @@ const PreviewModal = (props) => {
                     </TouchableOpacity>
                   </TouchableOpacity>
                 </View> */}
-                  </Video>
-                  <Button
-                    style={{ marginTop: 30 }}
-                    title="Save to Camera Roll"
-                    onPress={handleSaveToCameraRoll} />
-                  <Button
-                    title="Re-Record"
-                    onPress={handleRedo} />
+                    </Video>
+                    <Button
+                      disabled={savingToCameraRoll}
+                      title={savingToCameraRoll ? "Saving to Camera Roll..." : "Save to Camera Roll"}
+                      onPress={handleSaveToCameraRoll} />
+                    <Button
+                      title="Re-Record"
+                      onPress={handleRedo} />
+                  </View>
                 </View>
               </Modal>
             ) : (
@@ -469,6 +494,8 @@ const PreviewModal = (props) => {
                         savingDone={savingDone}
                         savingInProgress={savingInProgress}
                         setSaving={setSaving}
+                        addPadding={10}
+                        handleBack={handleBack}
                       />
                       // </View>
                     ) : (
@@ -478,13 +505,12 @@ const PreviewModal = (props) => {
                             <Text style={styles.savingHeader}>Video saved!</Text>
                             <Image source={{ uri: 'https://media.giphy.com/media/13OyGVcay7aWUE/giphy.gif' }} style={{ width: 300, height: 200, marginTop: 20, marginBottom: 20 }} />
                             <Button
-                              // style={styles.savingButton}
                               title="View Video"
                               onPress={handleView}>
                             </Button>
                             <Button
-                              // style={styles.savingButton}
-                              title="Save to Camera Roll"
+                              disabled={savingToCameraRoll}
+                              title={savingToCameraRoll ? "Saving to Camera Roll..." : "Save to Camera Roll"}
                               onPress={handleSaveToCameraRoll}>
                             </Button>
                           </View>
@@ -544,6 +570,14 @@ const PreviewModal = (props) => {
                                         style={{ ...styles.overlay, opacity: 0.8, flexDirection: 'row', width: screenWidth, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}>
                                         <TouchableOpacity
                                           style={styles.button}
+                                          onPress={handleShowPreview}>
+                                          <Text
+                                            style={styles.overlayText}>
+                                            View again
+                                          </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                          style={styles.button}
                                           onPress={handleSave}>
                                           <Text
                                             style={styles.overlayText}>
@@ -562,6 +596,38 @@ const PreviewModal = (props) => {
                                     )
                                 }
                               </View>
+                              {
+                                screenOrientation === 'PORTRAIT' && !previewComplete &&
+                                <View style={{ flexDirection: 'column', paddingTop: 15 }}>
+                                  <Button
+                                    title="Save"
+                                    onPress={handleSave} />
+                                  <Button
+                                    title="Redo"
+                                    onPress={handleRedo} />
+                                  {/* <Button
+                                    title="Watch again"
+                                    onPress={() => setPreviewComplete(false)} /> */}
+                                </View>
+                                // <View style={{ flexDirection: 'row' }}>
+                                //   <TouchableOpacity
+                                //     style={styles.button}
+                                //     onPress={handleSave}>
+                                //     <Text
+                                //       style={styles.overlayText}>
+                                //       Save
+                                //           </Text>
+                                //   </TouchableOpacity>
+                                //   <TouchableOpacity
+                                //     style={styles.button}
+                                //     onPress={handleRedo}>
+                                //     <Text
+                                //       style={styles.overlayText}>
+                                //       Redo
+                                //           </Text>
+                                //   </TouchableOpacity>
+                                // </View>
+                              }
                               {/* {
                                 screenOrientation === 'PORTRAIT' &&
                                 <TouchableOpacity
@@ -703,4 +769,4 @@ const mapState = ({ selectedVideo, user }) => {
 
 export default connect(mapState)(PreviewModal);
 
-                  // export default withRouter(PreviewModal);
+                        // export default withRouter(PreviewModal);

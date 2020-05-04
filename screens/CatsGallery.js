@@ -16,13 +16,15 @@ const CatsGallery = (props) => {
     croppingInProgress,
     savingDone,
     savingInProgress,
-    setSaving
+    setSaving,
+    handleBack
   } = props;
 
   // FIXME: doesn't load on landscape view
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, paddingTop: props.addPadding ? props.addPadding : 0 }}>
       <Text style={styles.titleTextBlue}>We're saving your video.</Text>
+      <Text style={{ ...styles.titleTextBlue, fontSize: 16, marginBottom: 20, color: '#187795' }}>Please don't leave this screen!</Text>
       <View style={styles.progressBar}>
         {
           infoGettingDone ? (
@@ -68,7 +70,7 @@ const CatsGallery = (props) => {
       </View>
       <Text style={styles.bodyText}>This could take a few minutes, depending on the video length and your internet connection.</Text>
       <Text style={styles.titleTextSeaweed}>Have fun swiping through these cat pics while you're waiting! 😸</Text>
-      <Button title="Back" onPress={() => setSaving(false)} />
+      <Button title="Back" onPress={handleBack} />
       <Gallery
         images={props.cats}
       />
@@ -82,19 +84,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleTextBlue: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: 'bold',
     alignSelf: 'center',
     textAlign: 'center',
     marginTop: 20,
-    marginBottom: 20,
-    marginHorizontal: 10,
+    // marginBottom: 10,
+    marginHorizontal: 5,
     color: '#0047B9'
   },
   progressBar: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 20
+    marginBottom: 15
   },
   progressText: {
     paddingLeft: 20,

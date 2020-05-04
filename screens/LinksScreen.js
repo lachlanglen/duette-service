@@ -20,6 +20,7 @@ import { loadCats } from '../redux/cats';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from './FacebookSignin';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
+import UserInfoMenu from '../components/UserInfoMenu';
 
 const ViewVids = (props) => {
 
@@ -179,6 +180,10 @@ const ViewVids = (props) => {
         ) : (
             // VIEW VIDEOS
             <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD12B' }}>
+              {
+                props.displayUserInfo &&
+                <UserInfoMenu />
+              }
               <Searchbar
                 placeholder="Title, composer or performer"
                 onChangeText={handleSearch}
@@ -296,12 +301,13 @@ const styles = StyleSheet.create({
 });
 
 
-const mapState = ({ videos, cats, selectedVideo, user }) => {
+const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user }) => {
   return {
     videos,
     cats,
     selectedVideo,
-    user
+    user,
+    displayUserInfo
   }
 }
 

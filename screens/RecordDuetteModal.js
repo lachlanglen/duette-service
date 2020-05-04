@@ -84,7 +84,7 @@ const RecordDuetteModal = (props) => {
     if (recording) {
       setRecording(false);
       cameraRef.stopRecording();
-      setShowPreviewModal(true);
+      // setShowPreviewModal(true);
     } else {
       try {
         setRecording(true);
