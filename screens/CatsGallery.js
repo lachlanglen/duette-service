@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     // marginBottom: 10,
-    marginHorizontal: 5,
+    marginHorizontal: 10,
     color: '#0047B9'
   },
   progressBar: {

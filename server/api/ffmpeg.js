@@ -55,6 +55,7 @@ router.delete('/jobs/removeJobs', async (req, res, next) => {
 
 router.post('/job/duette/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) => {
   const { duetteKey, accompanimentKey, delay } = req.params;
+  const { userName, userEmail } = req.body;
   console.log('delay: ', delay)
 
   try {
@@ -63,7 +64,9 @@ router.post('/job/duette/:duetteKey/:accompanimentKey/:delay?', async (req, res,
       accompanimentKey,
       delay,
       combinedKey: `${accompanimentKey}${duetteKey}`,
-      type: 'duette'
+      type: 'duette',
+      userName,
+      userEmail
     })
     console.log('job in job route: ', job)
     res.status(200).send(job);

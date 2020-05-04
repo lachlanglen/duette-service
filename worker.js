@@ -7,6 +7,8 @@ const ffmpeg = require('fluent-ffmpeg');
 const { promisify } = require('util');
 const { v4: uuidv4 } = require('uuid');
 const { s3 } = require('./awsconfig');
+const mailjet = require('node-mailjet')
+  .connect(process.env.MAILJET_APIKEY_PUBLIC, process.env.MAILJET_APIKEY_PRIVATE)
 
 const exec = promisify(require('child_process').exec)
 const writeFileAsync = promisify(fs.writeFile)
@@ -35,7 +37,7 @@ function start() {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
     if (job.data.type === 'duette') {
-      const { duetteKey, accompanimentKey, combinedKey, delay } = job.data;
+      const { duetteKey, accompanimentKey, combinedKey, delay, userName, userEmail } = job.data;
       // console.log('job.data: ', job.data);
 
       const accompanimentUrl = `https://duette.s3.us-east-2.amazonaws.com/${accompanimentKey}.mov`;
@@ -111,6 +113,16 @@ function start() {
 
         job.progress({ percent: 20, currentStep: "finished getting info" });
 
+        // await exec(
+        //   `ffmpeg -i ${duetteUrl} -ss ${delay ? `-ss ${delay} -t ${file2Info.duration} -t ${file2Info.duration}` : ''} -i ${accompanimentUrl} -i ${logoUrl} 
+        // -filter_complex "[1]crop=${file2Info.orientation === 'portrait' ? 'iw' : file2Info.croppedWidth}:${file2Info.orientation === 'portrait' ? file2Info.croppedHeight : 'ih'}:${file2Info.orientation === 'portrait' ? 0 : file2Info.offset}:${file2Info.orientation === 'portrait' ? file2Info.offset : 0},
+        // scale=-2:${vidA.height}[right];[0][right]hstack=inputs=2,
+        // fade=t=in:duration=1,
+        // fade=t=out:start_time=${vidB.duration - 1}:duration=1[bg];[bg][2]
+        // overlay=W-w-10:H-h-10:format=auto,format=yuv420p[v];[0:a][1:a]amix,
+        // afade=t=in:duration=1,afade=t=out:start_time=${vidB.duration - 1}:duration=1[a]" -map "[v]" -map "[a]" 
+        // -c:v libx264 -preset ultrafast -c:a aac -ac 2 -movflags +faststart output.mov`)
+
         // crop & trim vid 2
         if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
         if (file2Info.orientation === 'landscape') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=${file2Info.croppedWidth}:ih:${file2Info.offset}:0" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
@@ -165,6 +177,31 @@ function start() {
             await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
             console.log('deleted combined video, overlay & fade in/out');
             job.progress({ percent: 95, currentStep: 'finished saving' });
+            // send email to user
+            mailjet
+              .post('send', { version: 'v3.1' })
+              .request({
+                Messages: [
+                  {
+                    From: {
+                      Email: 'support@duette.app',
+                      Name: 'Duette'
+                    },
+                    To: [
+                      {
+                        Email: userEmail,
+                        Name: userName
+                      }
+                    ],
+                    Subject: 'Your video is ready!',
+                    // TextPart: 'My first Mailjet email',
+                    HTMLPart: `<h3>Dear ${userName},</h3><h3>Your Duette has finished processing!</h3><div>Please <a href=https://duette.s3.us-east-2.amazonaws.com/${combinedKey}.mov>click here</a> to download your video.</h3><div>See you next time!</div><div>- Team Duette</div>`,
+                    CustomID: duetteKey
+                  }
+                ]
+              })
+              .then(res => console.log('success sending email! response: ', res.body))
+              .catch(e => console.log('error sending email: ', e))
           }
         })
         return { combinedKey };

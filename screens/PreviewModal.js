@@ -178,7 +178,7 @@ const PreviewModal = (props) => {
         const accompanimentKey = props.selectedVideo.id;
         const combinedVidKey = `${accompanimentKey}${duetteKey}`;
         try {
-          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`)).data;
+          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
           jobs.push(job);
           setCombinedKey(combinedVidKey);
           setInfoGettingInProgress(true);
