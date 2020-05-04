@@ -197,7 +197,7 @@ function start() {
                     ],
                     Subject: 'Your video is ready!',
                     // TextPart: 'My first Mailjet email',
-                    HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to view your video.</h4><div>See you next time!</div><div>- Team Duette</div>`,
+                    HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>See you next time!</div><div>- Team Duette</div>`,
                     CustomID: duetteKey
                   }
                 ]
