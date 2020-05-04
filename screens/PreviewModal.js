@@ -159,7 +159,7 @@ const PreviewModal = (props) => {
     console.log('tempVidId: ', tempVidId)
 
     try {
-      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
+      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}.mov`)).data;
 
       const options = {
         method: 'PUT',
@@ -347,6 +347,7 @@ const PreviewModal = (props) => {
   };
 
   const handleError = () => {
+    console.log('in handleError')
     setDisplayMergedVideo(false);
     setSuccess(false);
     setPreviewSelected(false);
@@ -358,6 +359,7 @@ const PreviewModal = (props) => {
     setCroppingDone(false);
     setSavingInProgress(false);
     setSavingDone(false);
+    setError(false);
   }
 
   // const handleSyncForward = async () => {
@@ -458,6 +460,7 @@ const PreviewModal = (props) => {
                   onOrientationChange={e => handleModalOrientationChange(e)}
                 >{
                     saving ? (
+                      // <View style={{ paddingTop: 10 }}>
                       <CatsGallery
                         infoGettingDone={infoGettingDone}
                         infoGettingInProgress={infoGettingInProgress}
@@ -467,6 +470,7 @@ const PreviewModal = (props) => {
                         savingInProgress={savingInProgress}
                         setSaving={setSaving}
                       />
+                      // </View>
                     ) : (
                         success ? (
                           // video has been merged

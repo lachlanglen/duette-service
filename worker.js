@@ -125,9 +125,9 @@ function start() {
         job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
 
         // if they are already the same height, no need to scale, just merge!
-        if (!file1Info.isTallest && !file2Info.isTallest) await exec(`ffmpeg -i ${accompanimentUrl} -i ${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
+        if (!file1Info.isTallest && !file2Info.isTallest) await exec(`ffmpeg -i ${accompanimentUrl} -i ${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
         // if the smaller vid has been scaled:
-        if (file1Info.isTallest || file2Info.isTallest) await exec(`ffmpeg -i ${file1Info.isTallest ? `${accompanimentUrl}` : `${file1Info.originalName}scaled`}.mov -i ${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
+        if (file1Info.isTallest || file2Info.isTallest) await exec(`ffmpeg -i ${file1Info.isTallest ? `${accompanimentUrl}` : `${file1Info.originalName}scaled`}.mov -i ${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
         console.log('combined vids!')
 
         // add fade in & fade out
