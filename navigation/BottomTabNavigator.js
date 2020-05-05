@@ -32,8 +32,6 @@ const BottomTabNavigator = (props) => {
     }
   }
 
-  console.log('props.displayUserInfo: ', props.displayUserInfo)
-
   const UserIcon = () => (
     <View style={{ paddingRight: 12 }}>
       <Icon onPress={handlePress} underlayColor="#0047B9" name="perm-identity" type="material" color="white" size={25} />

@@ -6,4 +6,4 @@ module.exports = {
   Video,
   Duette,
   User,
-}
+};

@@ -12,7 +12,6 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 // import Constants from 'expo-constants';
-// import { RNS3 } from 'react-native-s3-upload';
 import axios from 'axios';
 import uuid from 'react-native-uuid';
 // import DisplayMergedVideo from './DisplayMergedVideo';

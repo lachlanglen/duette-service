@@ -1,20 +1,12 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Alert, StyleSheet, Text, View, Dimensions, Image, SafeAreaView, FlatList, TouchableOpacity, Modal } from 'react-native';
-import { Card, ListItem, Button, Icon } from 'react-native-elements'
+import { Alert, StyleSheet, Text, View, Dimensions, Image, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
 import { Searchbar } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
-import * as WebBrowser from 'expo-web-browser';
-import { DeviceMotion } from 'expo-sensors';
-// import { ScreenOrientation } from 'expo';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { Video } from 'expo-av';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import axios from 'axios';
 import { connect } from 'react-redux';
 import { setVideo } from '../redux/singleVideo'
 import RecordDuetteModal from './RecordDuetteModal';
-// import RecordDuetteClassModal from './RecordDuetteClass';
 import Constants from 'expo-constants';
 import { loadCats } from '../redux/cats';
 import { fetchVideos } from '../redux/videos';

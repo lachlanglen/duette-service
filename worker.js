@@ -68,30 +68,12 @@ function start() {
         // get metadata on vid 1
         const metadata = await ffprobeAsync(accompanimentUrl)
 
-        // console.log('metadata1: ', metadata)
-
-        if (!metadata.streams[0].rotation) {
-          console.log('undefined rotation in file 1')
-          // res.status(400).send(`unsupported orientation in file ${file1Info.originalName}`)
-        }
-
-        console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
-
         file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
         file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
 
         // get metadata on vid 2
         const metadata2 = await ffprobeAsync(duetteUrl)
-
-        // console.log('metadata2: ', metadata2)
-
-        if (!metadata2.streams[0].rotation) {
-          console.log('undefined rotation in file 2')
-          // res.status(400).send(`unsupported orientation in file ${file2Info.originalName}`)
-        }
-
-        console.log('metadata2.streams[0].rotation: ', metadata2.streams[0].rotation);
 
         file2Info.orientation = metadata2.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
         file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
@@ -179,7 +161,6 @@ function start() {
             console.log('deleted combined video, overlay & fade in/out');
             job.progress({ percent: 95, currentStep: 'finished saving' });
             // send email to user
-            // console.log('userName: ', userName, 'userEmail: ', userEmail)
             mailjet
               .post('send', { version: 'v3.1' })
               .request({
@@ -197,7 +178,7 @@ function start() {
                     ],
                     Subject: 'Your video is ready!',
                     // TextPart: 'My first Mailjet email',
-                    HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>See you next time!</div><div>- Team Duette</div>`,
+                    HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>Thanks for using Duette. See you next time!</div><div>- Team Duette</div>`,
                     CustomID: duetteKey
                   }
                 ]
@@ -232,15 +213,6 @@ function start() {
       try {
         // get metadata on vid file
         const metadata = await ffprobeAsync(vidUrl)
-
-        console.log('metadata duration: ', metadata.streams[0].duration)
-
-        if (!metadata.streams[0].rotation) {
-          console.log('undefined rotation in file 1')
-          // res.status(400).send(`unsupported orientation in file ${fileInfo.originalName}`)
-        }
-
-        console.log('metadata.streams[0].rotation: ', metadata.streams[0].rotation);
 
         fileInfo.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
         fileInfo.trueWidth = fileInfo.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;

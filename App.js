@@ -1,6 +1,6 @@
 /* eslint-disable radix */
 import React from 'react';
-import { Provider, connect } from 'react-redux'
+import { Provider } from 'react-redux'
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import store from './redux/store';
 import { SplashScreen } from 'expo';
@@ -9,12 +9,20 @@ import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import * as Sentry from 'sentry-expo';
+import Constants from 'expo-constants';
 import ErrorBoundary from './ErrorBoundary';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
-import { setVideos, fetchVideos } from './redux/videos';
+import { fetchVideos } from './redux/videos';
 import { loadCats } from './redux/cats';
 import { fetchUser } from './redux/user';
+
+Sentry.init({
+  dsn: 'https://4f1d90283940486d93204bc6690934e2@o378963.ingest.sentry.io/5203127',
+});
+
+Sentry.setRelease(Constants.manifest.revisionId);
 
 const Stack = createStackNavigator();
 
@@ -28,11 +36,8 @@ export default function App(props) {
 
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
-    console.log('in App.js useEffect')
     async function loadResourcesAndDataAsync() {
-      console.log('in loadResourcesAndDataAsync')
       try {
-        console.log('in try block')
         SplashScreen.preventAutoHide();
 
         // Load our initial navigation state
@@ -48,26 +53,18 @@ export default function App(props) {
         if (accessToken) {
           // check for expires
           const expires = await SecureStore.getItemAsync('expires');
-          console.log('expires: ', expires);
-          console.log('Date.now(): ', Date.now().toString().slice(0, 10));
+          // console.log('Date.now(): ', Date.now().toString().slice(0, 10));
           // if token is still valid
           if (parseInt(expires) > parseInt(Date.now().toString().slice(0, 10))) {
-            console.log('user is current!')
+            // user is current
             // fetch and set user with facebookId
             const facebookId = await SecureStore.getItemAsync('facebookId');
-            console.log('facebookId: ', facebookId)
             store.dispatch(fetchUser(facebookId));
-          } else {
-            console.log('token is no longer valid')
-            console.log('parseInt(expires) - Date.now(): ', parseInt(expires) - Date.now())
           }
-          // if token has expired, user will be prompted to login which will refresh their token
         }
-        console.log('before fetchVideos')
         store.dispatch(fetchVideos());
         store.dispatch(loadCats());
       } catch (e) {
-        // We might want to provide this error information to an error reporting service
         console.warn(e);
       } finally {
         setLoadingComplete(true);

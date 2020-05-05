@@ -31,7 +31,7 @@ const HomeScreen = (props) => {
   let screenHeight = Math.round(Dimensions.get('window').height);
 
   useEffect(() => {
-    detectOrientation();
+    // detectOrientation();
     setLoaded(true);
   }, [])
 

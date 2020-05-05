@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const PORT = process.env.PORT || 5432;
 const localDB = `postgres://localhost:${PORT}/duette`;
-// const testDB = `postgres://localhost:${PORT}/duette_test`
+
 let dbString;
 
 if (process.env.NODE_ENV === 'production') {

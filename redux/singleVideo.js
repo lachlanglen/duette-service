@@ -3,7 +3,6 @@ import axios from 'axios';
 const SET_SELECTED_VIDEO = 'SET_SELECTED_VIDEO';
 const CLEAR_SELECTED_VIDEO = 'CLEAR_SELECTED_VIDEO'
 
-//action creators
 const setSelectedVideo = video => {
   return {
     type: SET_SELECTED_VIDEO,
@@ -19,7 +18,6 @@ const clearSelectedVideo = () => {
   }
 }
 
-//reducer
 export const singleVideoReducer = (state = {}, action) => {
   switch (action.type) {
     case SET_SELECTED_VIDEO:
@@ -31,23 +29,10 @@ export const singleVideoReducer = (state = {}, action) => {
   }
 }
 
-//thunks
-// export const fetchVideo = function (videoId) {
-//   return dispatch => {
-//     axios.get(`https://duette.herokuapp.com/api/show/${videoId}`)
-//       .then(video => dispatch(setSelectedVideo(video.data)))
-//       .catch(e => console.log(e));
-//   }
-// };
-
 export const setVideo = id => {
-  console.log('in setVideo thunk')
   return dispatch => {
     axios.get(`https://duette.herokuapp.com/api/video/${id}`)
-      .then(video => {
-        console.log('video: ', video.data)
-        dispatch(setSelectedVideo(video.data))
-      })
+      .then(video => dispatch(setSelectedVideo(video.data)))
       .catch(e => console.log('error in setVideo thunk: ', e))
   }
 }

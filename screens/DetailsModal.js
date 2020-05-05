@@ -1,16 +1,12 @@
 /* eslint-disable complexity */
 /* eslint-disable max-statements */
 import React, { useState } from 'react';
-// import { withRouter } from 'react-router-dom'
-import { Image, Text, View, Modal, Button, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Image, Text, View, Modal, Button, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
-// import * as VideoThumbnails from 'expo-video-thumbnails';
-// import * as ImageManipulator from "expo-image-manipulator";
 import uuid from 'react-native-uuid';
 import axios from 'axios';
 import CatsGallery from './CatsGallery';
-import { fetchVideos } from '../redux/videos';
-// import { Polly } from 'aws-sdk';
+import { postVideo } from '../redux/videos';
 import Form from '../components/Form';
 import Error from './Error';
 
@@ -81,9 +77,7 @@ const DetailsModal = (props) => {
       console.log('interval cleared');
       // post to db
       try {
-        const videoRecord = (await axios.post('https://duette.herokuapp.com/api/video', { id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id })).data
-        console.log('videoRecord: ', videoRecord);
-        props.fetchVideos();
+        props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
         setSuccess(true);
         setSaving(false);
       } catch (e) {
@@ -255,7 +249,7 @@ const mapState = ({ user }) => {
 
 const mapDispatch = dispatch => {
   return {
-    fetchVideos: () => dispatch(fetchVideos()),
+    postVideo: details => dispatch(postVideo(details)),
   }
 }
 

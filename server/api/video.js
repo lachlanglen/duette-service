@@ -3,18 +3,31 @@ const router = express.Router();
 const { Video } = require('../../db');
 
 router.post('/', (req, res, next) => {
-  // TODO: destructure req.body for security purposes
-  // const {} = req.body;
-  Video.create(req.body)
+  const {
+    id,
+    title,
+    composer,
+    key,
+    performer,
+    userId
+  } = req.body;
+
+  Video.create({
+    id,
+    title,
+    composer,
+    key,
+    performer,
+    userId
+  })
     .then(created => res.status(201).send(created))
     .catch(e => {
       console.log('error creating new video record: ', e)
       res.status(400).send(e)
     })
-})
+});
 
 router.get('/:id?', (req, res, next) => {
-  console.log('in video get!')
   const { id } = req.params
   if (id) {
     Video.findOne({
@@ -30,10 +43,8 @@ router.get('/:id?', (req, res, next) => {
         }
       })
   } else {
-    console.log('in video GET else statement')
     Video.findAll()
       .then(videos => {
-        // console.log('videos: ', videos)
         res.status(200).send(videos)
       })
       .catch(e => {

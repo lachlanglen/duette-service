@@ -16,10 +16,9 @@ router.get('/facebookId/:facebookId', async (req, res, next) => {
         res.status(404).send(`user not found with facebookId ${facebookId}`)
       }
     })
-})
+});
 
 router.post('/', async (req, res, next) => {
-  console.log('req.body in user GET: ', req.body)
   const {
     name,
     facebookId,
@@ -31,17 +30,15 @@ router.post('/', async (req, res, next) => {
     email
   } = req.body;
 
-  console.log('line 34 in user GET')
-
   User.findOne({
     where: {
       facebookId,
     }
   })
     .then(user => {
-      // user already exists; update user with lastLogin and other info to ensure it's up to date
+      // user already exists
+      // update user with lastLogin and other info to ensure it's up to date
       if (user) {
-        console.log('user found!')
         user.update({
           name,
           facebookId,
@@ -53,7 +50,6 @@ router.post('/', async (req, res, next) => {
           email,
         })
           .then(updatedUser => {
-            console.log('updatedUser: ', updatedUser);
             res.status(200).send(updatedUser);
           })
           .catch(e => {
@@ -64,7 +60,6 @@ router.post('/', async (req, res, next) => {
       } else {
         // user doesn't exist
         // create user
-        console.log('in user ELSE block')
         User.create({
           name,
           facebookId,
@@ -82,6 +77,6 @@ router.post('/', async (req, res, next) => {
           })
       }
     })
-})
+});
 
 module.exports = router;
