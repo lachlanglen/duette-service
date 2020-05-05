@@ -8,9 +8,9 @@ import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
 // import { ScreenOrientation } from 'expo';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import PreviewModal from './PreviewModal';
+import PreviewModal from '../components/PreviewDuette';
 import { getAWSVideoUrl } from '../constants/urls';
-import Error from './Error';
+import Error from '../components/Error';
 
 const RecordDuetteModal = (props) => {
 

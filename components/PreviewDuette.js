@@ -5,28 +5,30 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Alert, Image, View, Modal, Button, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import { Icon } from 'react-native-elements'
 import { Video } from 'expo-av';
-// import { ScreenOrientation } from 'expo';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
-// import Constants from 'expo-constants';
 import axios from 'axios';
 import uuid from 'react-native-uuid';
-// import DisplayMergedVideo from './DisplayMergedVideo';
+import DisplayMergedVideo from './DisplayMergedVideo';
 import CatsGallery from './CatsGallery';
 import { getAWSVideoUrl } from '../constants/urls';
 import Error from './Error';
-
-// const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_BUCKET_REGION } = Constants.manifest.extra;
 
 const PreviewModal = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  const { handleCancel, bluetooth, duetteUri, showPreviewModal, setShowPreviewModal, showRecordDuetteModal, setShowRecordDuetteModal } = props;
+  const {
+    handleCancel,
+    bluetooth,
+    duetteUri,
+    showPreviewModal,
+    setShowPreviewModal,
+    showRecordDuetteModal,
+    setShowRecordDuetteModal } = props;
 
   const [displayMergedVideo, setDisplayMergedVideo] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -43,11 +45,8 @@ const PreviewModal = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [delay, setDelay] = useState(0);
   // const [customOffset, setCustomOffset] = useState(0);
-  const [infoGettingInProgress, setInfoGettingInProgress] = useState(false);
   const [infoGettingDone, setInfoGettingDone] = useState(false);
-  const [croppingInProgress, setCroppingInProgress] = useState(false);
   const [croppingDone, setCroppingDone] = useState(false);
-  const [savingInProgress, setSavingInProgress] = useState(false);
   const [savingDone, setSavingDone] = useState(false);
   const [error, setError] = useState(false);
   const [combinedKey, setCombinedKey] = useState('');
@@ -88,28 +87,19 @@ const PreviewModal = (props) => {
   }
 
   const getJobStatus = async () => {
-    // console.log('intervalId in getJobStatus: ', intervalId)
     const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
-    console.log('status in getJobStatus: ', status)
     if (status.state !== 'completed') {
       if (status.progress.percent === 20) {
-        setInfoGettingInProgress(false);
         setInfoGettingDone(true);
-        setCroppingInProgress(true);
       } else if (status.progress.percent === 60) {
         if (!infoGettingDone) {
-          setInfoGettingInProgress(false);
           setInfoGettingDone(true);
         }
-        setCroppingInProgress(false);
         setCroppingDone(true);
-        setSavingInProgress(true);
       } else if (status.progress.percent === 95) {
         if (!croppingDone) {
-          setCroppingInProgress(false);
           setCroppingDone(true);
         }
-        setSavingInProgress(false);
         setSavingDone(true);
       }
     }
@@ -123,9 +113,7 @@ const PreviewModal = (props) => {
       if (!infoGettingDone) setInfoGettingDone(true);
       if (!croppingDone) setCroppingDone(true);
       if (!savingDone) setSavingDone(true);
-      console.log('job completed!')
       clearInterval(intervalId)
-      console.log('interval cleared');
       try {
         const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
         console.log('duette: ', newDuetteInDB.data)
@@ -263,7 +251,7 @@ const PreviewModal = (props) => {
           'Your video has been saved to your Camera Roll!',
           [
             { text: 'Home', onPress: () => handleGoHome() },
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) }
+            // { text: 'OK', onPress: () => setSavingToCameraRoll(false) }
           ],
           { cancelable: false }
         );
@@ -391,11 +379,8 @@ const PreviewModal = (props) => {
   const handleBack = () => {
     setPreviewComplete(false);
     setSaving(false);
-    setInfoGettingInProgress(false);
     setInfoGettingDone(false);
-    setCroppingInProgress(false);
     setCroppingDone(false);
-    setSavingInProgress(false);
     clearInterval(intervalId);
     setSaving(false);
 
@@ -408,75 +393,13 @@ const PreviewModal = (props) => {
         <View style={styles.container}>
           {
             displayMergedVideo ? (
-              // <DisplayMergedVideo
-              //   mergedLocalUri={mergedLocalUri}
-              //   displayMergedVideo={displayMergedVideo}
-              //   setDisplayMergedVideo={setDisplayMergedVideo}
-              // />
-              <Modal
-                onRequestClose={handleExit}
-                supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-                onOrientationChange={e => handleModalOrientationChange(e)}>
-                <View style={{
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-                  backgroundColor: 'black',
-                  height: '100%'
-                }}>
-                  <View>
-                    <Video
-                      source={{ uri: getAWSVideoUrl(combinedKey) }}
-                      rate={1.0}
-                      volume={1.0}
-                      isMuted={false}
-                      resizeMode="cover"
-                      shouldPlay
-                      isLooping={false}
-                      useNativeControls={true}
-                      // style={{ width: 100, height: 100 }}
-                      style={{
-                        width: screenWidth,
-                        height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                        marginBottom: 15,
-                        // marginTop: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-                      }}
-                    >
-                      {/* <View
-                  style={{
-                    width: screenWidth,
-                    height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    flexDirection: 'column',
-                    // paddingRight: 5,
-                    // paddingBottom: 5
-                  }}>
-                  <TouchableOpacity style={{
-                    backgroundColor: 'black',
-                    width: screenWidth * 0.5,
-
-                  }}>
-                    <TouchableOpacity style={{ marginTop: 12, marginBottom: 6 }}>
-                      <Text style={styles.overlayText}>Save to Camera Roll</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ marginTop: 6, marginBottom: 12 }}>
-                      <Text style={styles.overlayText}>Re-Record</Text>
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                </View> */}
-                    </Video>
-                    <Button
-                      disabled={savingToCameraRoll}
-                      title={savingToCameraRoll ? "Saving to Camera Roll..." : "Save to Camera Roll"}
-                      onPress={handleSaveToCameraRoll} />
-                    <Button
-                      title="Re-Record"
-                      onPress={handleRedo} />
-                  </View>
-                </View>
-              </Modal>
+              <DisplayMergedVideo
+                handleExit={handleExit}
+                combinedKey={combinedKey}
+                savingToCameraRoll={savingToCameraRoll}
+                handleSaveToCameraRoll={handleSaveToCameraRoll}
+                handleRedo={handleRedo}
+              />
             ) : (
                 <Modal
                   onRequestClose={handleExit}
@@ -484,19 +407,12 @@ const PreviewModal = (props) => {
                   onOrientationChange={e => handleModalOrientationChange(e)}
                 >{
                     saving ? (
-                      // <View style={{ paddingTop: 10 }}>
                       <CatsGallery
                         infoGettingDone={infoGettingDone}
-                        infoGettingInProgress={infoGettingInProgress}
                         croppingDone={croppingDone}
-                        croppingInProgress={croppingInProgress}
                         savingDone={savingDone}
-                        savingInProgress={savingInProgress}
-                        setSaving={setSaving}
                         addPadding={10}
-                        handleBack={handleBack}
                       />
-                      // </View>
                     ) : (
                         success ? (
                           // video has been merged

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { View, StyleSheet, Button } from 'react-native';
 import Constants from 'expo-constants';
 
 import RecordVideoModal from './Modal';

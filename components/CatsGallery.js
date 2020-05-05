@@ -7,17 +7,10 @@ import Gallery from 'react-native-image-gallery';
 
 const CatsGallery = (props) => {
 
-  console.log('in CatsGallery')
-
   const {
     infoGettingDone,
-    infoGettingInProgress,
     croppingDone,
-    croppingInProgress,
     savingDone,
-    savingInProgress,
-    setSaving,
-    handleBack
   } = props;
 
   // FIXME: doesn't load on landscape view
@@ -34,7 +27,6 @@ const CatsGallery = (props) => {
               color="green"
               size={28} />
           ) : (
-              // infoGettingInProgress &&
               <ActivityIndicator size="small" color="#0047B9" />
             )
         }
@@ -70,7 +62,6 @@ const CatsGallery = (props) => {
       </View>
       <Text style={styles.bodyText}>This could take a few minutes, depending on the video length and your internet connection.</Text>
       <Text style={styles.titleTextSeaweed}>Have fun swiping through these cat pics while you're waiting! 😸</Text>
-      <Button title="Back" onPress={handleBack} />
       <Gallery
         images={props.cats}
       />
@@ -89,7 +80,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
     marginTop: 20,
-    // marginBottom: 10,
     marginHorizontal: 10,
     color: '#0047B9'
   },
@@ -118,7 +108,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
     marginBottom: 10,
-    // marginTop: 20,
     lineHeight: 22,
     color: 'black'
   },

@@ -1,16 +1,16 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import { connect } from 'react-redux';
 
 import { createOrUpdateUser } from '../redux/user';
 import { handleLogin } from '../services/utils';
 
-const FacebookSignin = (props) => {
+const FacebookSignin = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Welcome!</Text>
-      <Button onPress={handleLogin} title='Login with Facebook' />
+      <Text>Welcome to Duette!</Text>
+      <Button onPress={handleLogin} title="Login with Facebook" />
     </View>
   )
 }

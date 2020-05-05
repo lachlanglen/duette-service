@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions, Image, Button } from 'react-native';
+import { View, Text, Dimensions, Image, Button } from 'react-native';
 
 const Error = (props) => {
   const { handleGoBack } = props;
@@ -28,4 +28,3 @@ const Error = (props) => {
 }
 
 export default Error;
-
