@@ -39,7 +39,7 @@ function start() {
     if (job.data.type === 'duette') {
 
       const { duetteKey, accompanimentKey, combinedKey, delay, userName, userEmail } = job.data;
-      // console.log('job.data: ', job.data);
+      console.log('job.data: ', job.data);
 
       const accompanimentUrl = `https://duette.s3.us-east-2.amazonaws.com/${accompanimentKey}.mov`;
       const duetteUrl = `https://duette.s3.us-east-2.amazonaws.com/${duetteKey}.mov`;
