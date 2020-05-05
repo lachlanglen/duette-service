@@ -1,4 +1,5 @@
 const express = require('express');
+const AWS = require('aws-sdk');
 const bodyParser = require('body-parser')
 const chalk = require('chalk');
 const APIRouter = require('./api');
@@ -23,6 +24,11 @@ if (process.env.NODE_ENV !== 'production') {
   server.use(require('morgan')('dev'));
 }
 
+server.use('/', (req, res, next) => {
+  req.bucketName = process.env.AWS_BUCKET_NAME;
+  next();
+})
+
 server.use('/api', APIRouter);
 
 server.use((err, req, res, next) => {
@@ -33,4 +39,7 @@ server.use((err, req, res, next) => {
   res.status(err.status || 500).send(err.message || 'Internal server error');
 });
 
-module.exports = server;
+module.exports = {
+  server
+};
+

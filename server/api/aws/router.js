@@ -1,10 +1,9 @@
 const router = require('express').Router();
-const { s3 } = require('./config')
-const bucketName = process.env.AWS_BUCKET_NAME;
+const s3 = require('./config');
 
 router.post('/', (req, res, next) => {
   const { Key, Body } = req.body;
-  s3.putObject({ Bucket: bucketName, Key, Body }, (err, data) => {
+  s3.putObject({ Bucket: req.bucketName, Key, Body }, (err, data) => {
     if (err) {
       console.log('error: ', err)
       res.status(400).send(err)
@@ -17,7 +16,8 @@ router.post('/', (req, res, next) => {
 
 router.get('/getSignedUrl/:key', (req, res, next) => {
   const signedUrlExpireSeconds = 60 * 60;
-  const params = { Bucket: bucketName, Key: req.params.key, ContentType: 'multipart/form-data', Expires: signedUrlExpireSeconds };
+  console.log('req.bucketName: ', req.bucketName)
+  const params = { Bucket: req.bucketName, Key: req.params.key, ContentType: 'multipart/form-data', Expires: signedUrlExpireSeconds };
   s3.getSignedUrl('putObject', params, (err, url) => {
     if (err) {
       console.log('error getting signed url: ', err);
@@ -30,7 +30,7 @@ router.get('/getSignedUrl/:key', (req, res, next) => {
 
 router.get('/:Key', (req, res, next) => {
   const { Key } = req.params;
-  s3.getObject({ Bucket: bucketName, Key }, (error, data) => {
+  s3.getObject({ Bucket: req.bucketName, Key }, (error, data) => {
     if (error) {
       console.log('error getting object from AWS: ', error)
       return res.status(400).send(error)
@@ -41,10 +41,10 @@ router.get('/:Key', (req, res, next) => {
 
 router.delete('/:Key', (req, res, next) => {
   const { Key } = req.params;
-  s3.deleteObject({ Bucket: bucketName, Key }, (err, data) => {
+  s3.deleteObject({ Bucket: req.bucketName, Key }, (err, data) => {
     if (err) {
       console.log('error deleting object: ', err);
-      res.status(400).send(e);
+      res.status(400).send(err);
     } else {
       // console.log('object successfully deleted!');
       res.status(200).send(`Object deleted: Key ${Key}`)

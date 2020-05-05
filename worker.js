@@ -6,7 +6,7 @@ const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const { promisify } = require('util');
 const { v4: uuidv4 } = require('uuid');
-const { s3 } = require('./awsconfig');
+const s3 = require('./awsconfig');
 const mailjet = require('node-mailjet')
   .connect(process.env.MAILJET_APIKEY_PUBLIC, process.env.MAILJET_APIKEY_PRIVATE)
 
@@ -50,6 +50,7 @@ function start() {
         height: null,
         width: null,
         isTallest: false,
+        duration: null,
       };
       const file2Info = {
         originalName: duetteKey,
@@ -71,6 +72,7 @@ function start() {
         file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
         file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
+        file1Info.duration = metadata.streams[0].duration;
 
         // get metadata on vid 2
         const metadata2 = await ffprobeAsync(duetteUrl)
@@ -97,13 +99,13 @@ function start() {
         job.progress({ percent: 20, currentStep: "finished getting info" });
 
         // await exec(
-        //   `ffmpeg -i ${duetteUrl} -ss ${delay ? `-ss ${delay} -t ${file2Info.duration} -t ${file2Info.duration}` : ''} -i ${accompanimentUrl} -i ${logoUrl} 
-        // -filter_complex "[1]crop=${file2Info.orientation === 'portrait' ? 'iw' : file2Info.croppedWidth}:${file2Info.orientation === 'portrait' ? file2Info.croppedHeight : 'ih'}:${file2Info.orientation === 'portrait' ? 0 : file2Info.offset}:${file2Info.orientation === 'portrait' ? file2Info.offset : 0},
-        // scale=-2:${vidA.height}[right];[0][right]hstack=inputs=2,
+        //   `ffmpeg -i ${duetteUrl} -ss ${delay ? `-ss ${delay} -t ${file2Info.duration}` : ''} -i ${accompanimentUrl} -i ${logoUrl} 
+        // -filter_complex "[1]crop=${file2Info.orientation === 'portrait' ? 'iw' : file2Info.croppedWidth}:${file2Info.orientation === 'portrait' ? file2Info.croppedHeight : 'ih'}:${file2Info.orientation === 'portrait' ? 0 : file2Info.offset}:${file2Info.orientation === 'portrait' ? file2Info.offset : 0 },
+        // scale=-2:${file1Info.height < file2Info.croppedHeight ? file2Info.croppedHeight : file1Info.height }[${file1Info.height < file2Info.croppedHeight ? 'left' : 'right'}];[0][${file1Info.height < file2Info.croppedHeight ? 'left' : 'right'}]hstack=inputs=2,
         // fade=t=in:duration=1,
-        // fade=t=out:start_time=${vidB.duration - 1}:duration=1[bg];[bg][2]
+        // fade=t=out:start_time=${file2Info.duration > file1Info.duration ? file2Info.duration - 1 : file1Info.duration - 1}:duration=1[bg];[bg][2]
         // overlay=W-w-10:H-h-10:format=auto,format=yuv420p[v];[0:a][1:a]amix,
-        // afade=t=in:duration=1,afade=t=out:start_time=${vidB.duration - 1}:duration=1[a]" -map "[v]" -map "[a]" 
+        // afade=t=in:duration=1,afade=t=out:start_time=${file2Info.duration > file1Info.duration ? file2Info.duration - 1 : file1Info.duration - 1}:duration=1[a]" -map "[v]" -map "[a]" 
         // -c:v libx264 -preset ultrafast -c:a aac -ac 2 -movflags +faststart output.mov`)
 
         // crop & trim vid 2

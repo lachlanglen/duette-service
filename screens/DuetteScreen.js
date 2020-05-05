@@ -3,7 +3,7 @@ import { Alert, StyleSheet, Text, View, SafeAreaView, FlatList } from 'react-nat
 import { Searchbar } from 'react-native-paper';
 import { connect } from 'react-redux';
 import { setVideo } from '../redux/singleVideo'
-import RecordDuetteModal from './RecordDuetteModal';
+import RecordDuetteModal from '../components/RecordDuetteModal';
 import Constants from 'expo-constants';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';

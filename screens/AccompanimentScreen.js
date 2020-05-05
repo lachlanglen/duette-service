@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
 import { Image, View, Button } from 'react-native';
 import { connect } from 'react-redux'
@@ -121,7 +122,7 @@ const AccompanimentScreen = (props) => {
                           <Image
                             source={require('../assets/images/duette-logo-HD.png')} style={{ width: 300, height: 300 }} />
                           <Button title="Record a new base track" onPress={() => setRecord(true)} />
-                          <Button title="Record a Duette" onPress={() => props.navigation.navigate('Links')} />
+                          <Button title="Record a Duette" onPress={() => props.navigation.navigate('Duette')} />
                         </View>
                       </View>
                     )

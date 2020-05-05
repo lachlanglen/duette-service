@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Alert, Image, View, Modal, Button, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as FileSystem from 'expo-file-system';
@@ -16,7 +17,7 @@ import CatsGallery from './CatsGallery';
 import { getAWSVideoUrl } from '../constants/urls';
 import Error from './Error';
 
-const PreviewModal = (props) => {
+const PreviewDuette = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
@@ -54,6 +55,8 @@ const PreviewModal = (props) => {
 
   let intervalId;
   let tempVidId;
+
+  let offset = 0;
 
   // const minVal = -250;
   // const maxVal = 250;
@@ -165,10 +168,9 @@ const PreviewModal = (props) => {
         const accompanimentKey = props.selectedVideo.id;
         const combinedVidKey = `${accompanimentKey}${duetteKey}`;
         try {
-          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (delay + 200) / 1000 : delay / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
+          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (offset + 200) / 1000 : offset / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
           jobs.push(job);
           setCombinedKey(combinedVidKey);
-          setInfoGettingInProgress(true);
           poll(500);
         } catch (e) {
           console.log('error posting job: ', e);
@@ -214,8 +216,8 @@ const PreviewModal = (props) => {
     setPreviewComplete(false);
     setPreviewSelected(true);
     console.log('delay in handleShowPreview: ', delay)
+    await vidBRef.playFromPositionAsync(offset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     await vidARef.playFromPositionAsync(0);
-    await vidBRef.playFromPositionAsync(bluetooth ? bluetooth + delay : delay);
     setIsPlaying(true);
   }
 
@@ -291,7 +293,7 @@ const PreviewModal = (props) => {
       setVid1Ready(true)
     } else if (!vid1Ready && vid2Ready && updateObj.isLoaded && !updateObj.isBuffering) {
       // FIXME: something funny going on here with re-watches - 'line 298' gets logged a bunch of times throughout playback
-      console.log('line 298')
+      // console.log('line 298')
       setBothVidsReady(true);
     } if (updateObj.didJustFinish) {
       console.log('line 301')
@@ -312,29 +314,36 @@ const PreviewModal = (props) => {
   }
 
   const handleSyncBack = async () => {
+    if (offset === 0) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    setDelay(delay - 50);
+    // setDelay(delay - 50);
+    offset -= 100;
+    console.log('offset: ', offset);
+    // await vidBRef.playFromPositionAsync(offset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidARef.playFromPositionAsync(0);
+    handleShowPreview();
   }
 
   const syncBack = async () => {
-    await handleSyncBack();
-    handleShowPreview();
+    handleSyncBack();
   }
 
   const handleSyncForward = async () => {
     // stop videos
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    // update delay (minus 5ms)
-    setDelay(delay + 50);
+    // setDelay(delay + 50);
+    offset += 100;
+    console.log('offset: ', offset)
+    handleShowPreview();
+    // await vidBRef.playFromPositionAsync(offset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidARef.playFromPositionAsync(0);
     // start playing videos again, with vidB set to delay + bluetooth
-    // handleShowPreview();
   }
 
   const syncForward = async () => {
-    await handleSyncForward();
-    handleShowPreview();
+    handleSyncForward();
   };
 
   const handleError = () => {
@@ -343,11 +352,8 @@ const PreviewModal = (props) => {
     setPreviewSelected(false);
     setPreviewComplete(false);
     setSaving(false);
-    setInfoGettingInProgress(false);
     setInfoGettingDone(false);
-    setCroppingInProgress(false);
     setCroppingDone(false);
-    setSavingInProgress(false);
     setSavingDone(false);
     setError(false);
   }
@@ -371,7 +377,7 @@ const PreviewModal = (props) => {
 
   // console.log('mergedLocalUri: ', mergedLocalUri)
 
-  console.log('duetteUri: ', duetteUri)
+  // console.log('duetteUri: ', duetteUri)
 
   // console.log('vidARef: ', vidARef);
   // console.log('vidBRef: ', vidBRef);
@@ -513,35 +519,48 @@ const PreviewModal = (props) => {
                               </View>
                               {
                                 screenOrientation === 'PORTRAIT' && !previewComplete &&
-                                <View style={{ flexDirection: 'column', paddingTop: 15 }}>
-                                  <Button
-                                    title="Save"
-                                    onPress={handleSave} />
-                                  <Button
-                                    title="Redo"
-                                    onPress={handleRedo} />
-                                  {/* <Button
-                                    title="Watch again"
-                                    onPress={() => setPreviewComplete(false)} /> */}
+                                <View>
+                                  {/* <TouchableOpacity
+                                  // style={{ backgroundColor: 'white' }}
+                                  // onPress={handleCancel}
+                                  > */}
+                                  <Text style={{ color: 'white', marginTop: 20, marginVertical: 20, textAlign: 'center' }}>Not perfectly in sync? Use the arrows below to adjust to your taste!</Text>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Icon
+                                      onPress={syncBack}
+                                      name="fast-rewind"
+                                      type="material"
+                                      color="white"
+                                      size={60} />
+                                    <Text
+                                      style={{
+                                        fontSize: 30,
+                                        color: 'white',
+                                        alignSelf: 'center'
+                                      }}>{delay >= 0 && '+'} {offset} ms
+                                    </Text>
+                                    <Icon
+                                      onPress={syncForward}
+                                      name="fast-forward"
+                                      type="material"
+                                      color="white"
+                                      size={60} />
+                                  </View>
+                                  <Text style={{ fontStyle: 'italic', marginTop: 30, color: 'white', textAlign: 'center' }}>Hint:</Text>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the accompaniment, press </Text>
+                                    <Icon name="fast-forward"
+                                      type="material"
+                                      color="yellow" />
+                                  </View>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the accompaniment, press </Text>
+                                    <Icon name="fast-rewind"
+                                      type="material"
+                                      color="yellow" />
+                                  </View>
+                                  {/* </TouchableOpacity> */}
                                 </View>
-                                // <View style={{ flexDirection: 'row' }}>
-                                //   <TouchableOpacity
-                                //     style={styles.button}
-                                //     onPress={handleSave}>
-                                //     <Text
-                                //       style={styles.overlayText}>
-                                //       Save
-                                //           </Text>
-                                //   </TouchableOpacity>
-                                //   <TouchableOpacity
-                                //     style={styles.button}
-                                //     onPress={handleRedo}>
-                                //     <Text
-                                //       style={styles.overlayText}>
-                                //       Redo
-                                //           </Text>
-                                //   </TouchableOpacity>
-                                // </View>
                               }
                               {/* {
                                 screenOrientation === 'PORTRAIT' &&
@@ -563,7 +582,7 @@ const PreviewModal = (props) => {
                                         color: 'white',
                                         alignSelf: 'center'
                                       }}>{delay >= 0 && '+'} {delay} ms
-                                </Text>
+                                    </Text>
                                     <Icon
                                       onPress={syncForward}
                                       name="fast-forward"
@@ -682,6 +701,5 @@ const mapState = ({ selectedVideo, user }) => {
   }
 }
 
-export default connect(mapState)(PreviewModal);
+export default connect(mapState)(PreviewDuette);
 
-                        // export default withRouter(PreviewModal);
