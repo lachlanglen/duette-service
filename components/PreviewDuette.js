@@ -45,7 +45,7 @@ const PreviewDuette = (props) => {
   const [bothVidsReady, setBothVidsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [delay, setDelay] = useState(0);
-  // const [customOffset, setCustomOffset] = useState(0);
+  const [customOffset, setCustomOffset] = useState(0);
   const [infoGettingDone, setInfoGettingDone] = useState(false);
   const [croppingDone, setCroppingDone] = useState(false);
   const [savingDone, setSavingDone] = useState(false);
@@ -55,11 +55,6 @@ const PreviewDuette = (props) => {
 
   let intervalId;
   let tempVidId;
-
-  let offset = 0;
-
-  // const minVal = -250;
-  // const maxVal = 250;
 
   const jobs = [];
 
@@ -85,7 +80,7 @@ const PreviewDuette = (props) => {
   }
 
   const handleSave = () => {
-    // setSaving(true);
+    setSaving(true);
     handlePost();
   }
 
@@ -169,8 +164,7 @@ const PreviewDuette = (props) => {
         const accompanimentKey = props.selectedVideo.id;
         const combinedVidKey = `${accompanimentKey}${duetteKey}`;
         try {
-          console.log('offset in handlePost: ', offset)
-          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (offset + 200) / 1000 : offset / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
+          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (customOffset + 200) / 1000 : customOffset / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
           jobs.push(job);
           setCombinedKey(combinedVidKey);
           poll(500);
@@ -193,22 +187,6 @@ const PreviewDuette = (props) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
   }
 
-  // const handleBack = () => {
-  //   setShowPreviewModal(false)
-  //   // FileSystem.downloadAsync(
-  //   //   'https://duette.s3.us-east-2.amazonaws.com/98462f9c-e359-4904-9c50-df6dc8d31a4b',
-  //   //   FileSystem.documentDirectory + `98462f9c-e359-4904-9c50-df6dc8d31a4b.mp4`
-  //   // )
-  //   //   .then(({ uri }) => {
-  //   //     console.log('Finished downloading to ', uri);
-  //   //     setMergedLocalUri(uri);
-  //   //     setSuccess(true);
-  //   //   })
-  //   //   .catch(error => {
-  //   //     console.error(error);
-  //   //   });
-  // }
-
   const handleView = () => {
     // setShowPreviewModal(false);
     setDisplayMergedVideo(true);
@@ -217,8 +195,8 @@ const PreviewDuette = (props) => {
   const handleShowPreview = async () => {
     setPreviewComplete(false);
     setPreviewSelected(true);
-    console.log('delay in handleShowPreview: ', delay)
-    await vidBRef.playFromPositionAsync(offset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    console.log('customOffset in handleShowPreview: ', customOffset)
+    await vidBRef.playFromPositionAsync(customOffset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     await vidARef.playFromPositionAsync(0);
     setIsPlaying(true);
   }
@@ -316,15 +294,15 @@ const PreviewDuette = (props) => {
   }
 
   const handleSyncBack = async () => {
-    if (offset === 0) return;
+    if (customOffset === 100) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
     // setDelay(delay - 50);
-    offset -= 100;
-    console.log('offset: ', offset);
-    // await vidBRef.playFromPositionAsync(offset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    // await vidARef.playFromPositionAsync(0);
+    setCustomOffset(customOffset - 100);
     handleShowPreview();
+    console.log('customOffset in handleShowPreview: ', customOffset)
+    await vidBRef.playFromPositionAsync(customOffset - 100, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidARef.playFromPositionAsync(0);
   }
 
   const syncBack = async () => {
@@ -336,12 +314,12 @@ const PreviewDuette = (props) => {
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
     // setDelay(delay + 50);
-    offset += 100;
-    console.log('offset: ', offset)
-    handleShowPreview();
-    // await vidBRef.playFromPositionAsync(offset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    // await vidARef.playFromPositionAsync(0);
-    // start playing videos again, with vidB set to delay + bluetooth
+    setCustomOffset(customOffset + 100);
+    setPreviewComplete(false);
+    setPreviewSelected(true);
+    console.log('customOffset in handleShowPreview: ', customOffset)
+    await vidBRef.playFromPositionAsync(customOffset + 100, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidARef.playFromPositionAsync(0);
   }
 
   const syncForward = async () => {
@@ -555,12 +533,15 @@ const PreviewDuette = (props) => {
                                       type="material"
                                       color="yellow" />
                                   </View>
-                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                  <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                                     <Text style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the accompaniment, press </Text>
                                     <Icon name="fast-rewind"
                                       type="material"
                                       color="yellow" />
                                   </View>
+                                  <Button
+                                    title="Save"
+                                    onPress={handleSave} />
                                   {/* </TouchableOpacity> */}
                                 </View>
                               }

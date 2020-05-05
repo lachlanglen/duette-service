@@ -3,8 +3,6 @@ const bucketName = process.env.AWS_BUCKET_NAME;
 const bucketRegion = process.env.AWS_BUCKET_REGION;
 const identityPoolId = process.env.AWS_IDENTITY_POOL_ID;
 
-console.log('process.env.AWS_BUCKET_REGION in config: ', process.env.AWS_BUCKET_REGION)
-
 AWS.config.update({
   region: bucketRegion,
   credentials: new AWS.CognitoIdentityCredentials({
