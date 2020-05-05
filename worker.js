@@ -6,7 +6,7 @@ const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
 const { promisify } = require('util');
 const { v4: uuidv4 } = require('uuid');
-const s3 = require('./awsconfig');
+const s3 = require('./server/api/aws/config');
 const mailjet = require('node-mailjet')
   .connect(process.env.MAILJET_APIKEY_PUBLIC, process.env.MAILJET_APIKEY_PRIVATE)
 
