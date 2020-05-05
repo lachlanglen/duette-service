@@ -85,7 +85,7 @@ const PreviewDuette = (props) => {
   }
 
   const handleSave = () => {
-    setSaving(true);
+    // setSaving(true);
     handlePost();
   }
 
@@ -118,6 +118,7 @@ const PreviewDuette = (props) => {
       if (!savingDone) setSavingDone(true);
       clearInterval(intervalId)
       try {
+        console.log('props.user.id: ', props.user.id, 'props.selectedVideo.id: ', props.selectedVideo.id)
         const newDuetteInDB = await axios.post('https://duette.herokuapp.com/api/duette', { id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
         console.log('duette: ', newDuetteInDB.data)
         await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
@@ -168,6 +169,7 @@ const PreviewDuette = (props) => {
         const accompanimentKey = props.selectedVideo.id;
         const combinedVidKey = `${accompanimentKey}${duetteKey}`;
         try {
+          console.log('offset in handlePost: ', offset)
           const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (offset + 200) / 1000 : offset / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
           jobs.push(job);
           setCombinedKey(combinedVidKey);
@@ -525,7 +527,7 @@ const PreviewDuette = (props) => {
                                   // onPress={handleCancel}
                                   > */}
                                   <Text style={{ color: 'white', marginTop: 20, marginVertical: 20, textAlign: 'center' }}>Not perfectly in sync? Use the arrows below to adjust to your taste!</Text>
-                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
                                     <Icon
                                       onPress={syncBack}
                                       name="fast-rewind"
@@ -537,7 +539,7 @@ const PreviewDuette = (props) => {
                                         fontSize: 30,
                                         color: 'white',
                                         alignSelf: 'center'
-                                      }}>{delay >= 0 && '+'} {offset} ms
+                                      }}>|
                                     </Text>
                                     <Icon
                                       onPress={syncForward}

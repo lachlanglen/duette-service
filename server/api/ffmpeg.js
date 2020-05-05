@@ -47,6 +47,7 @@ router.delete('/jobs/removeJobs', async (req, res, next) => {
 
 router.post('/job/duette/:duetteKey/:accompanimentKey/:delay?', async (req, res, next) => {
   const { duetteKey, accompanimentKey, delay } = req.params;
+  console.log('delay in POST: ', delay)
   const { userName, userEmail } = req.body;
   try {
     let job = await videoQueue.add({
