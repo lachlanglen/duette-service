@@ -23,23 +23,6 @@ const RecordVideoModal = (props) => {
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
 
-  useEffect(() => {
-    detectOrientation();
-  }, [])
-
-  const detectOrientation = async () => {
-    const { orientation } = await ScreenOrientation.getOrientationAsync();
-    setScreenOrientation(orientation.split('_')[0])
-    ScreenOrientation.addOrientationChangeListener(info => {
-      if (info.orientationInfo.orientation === 'UNKNOWN') {
-        if (screenWidth > screenHeight) setScreenOrientation('LANDSCAPE')
-        if (screenWidth < screenHeight) setScreenOrientation('PORTRAIT')
-      } else {
-        setScreenOrientation(info.orientationInfo.orientation);
-      }
-    })
-  }
-
   const toggleRecord = async () => {
     if (recording) {
       setRecording(false);

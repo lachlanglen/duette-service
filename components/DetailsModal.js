@@ -10,7 +10,13 @@ import Form from './Form';
 import Error from './Error';
 
 const DetailsModal = (props) => {
-  const { setRecord, setPreview, setShowDetailsModal, handleDetailsExit, dataUri } = props;
+  const {
+    setRecord,
+    setPreview,
+    setShowDetailsModal,
+    handleDetailsExit,
+    dataUri
+  } = props;
 
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -47,28 +53,23 @@ const DetailsModal = (props) => {
       console.log('job failed')
       clearInterval(intervalId);
       setError(true);
+      throw new Error(`job #${jobs[0].id} failed: `, status.reason);
     } else {
       // job is completed
       if (!infoGettingDone) setInfoGettingDone(true);
       if (!croppingDone) setCroppingDone(true);
       if (!savingDone) setSavingDone(true);
-      console.log('job completed!')
       clearInterval(intervalId)
-      // post to db
-      try {
-        props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
-        setSuccess(true);
-        setSaving(false);
-      } catch (e) {
-        console.log('error posting local video record: ', e);
-        setError(true);
-      }
+      props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
+      // TODO: what if there's an error posting video?
+      setSuccess(true);
+      setSaving(false);
     }
   }
 
   const poll = interval => {
     intervalId = setInterval(getJobStatus, interval);
-  }
+  };
 
   const handlePost = async () => {
     const tempVidId = uuid.v4();
@@ -98,7 +99,7 @@ const DetailsModal = (props) => {
       console.log('error in handlePost: ', e);
       setError(true);
     }
-  }
+  };
 
   const handleSave = () => {
     setSaving(true);

@@ -1,23 +1,22 @@
-/* eslint-disable max-statements */
 /* eslint-disable complexity */
-/* eslint-disable no-use-before-define */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
-// import { ScreenOrientation } from 'expo';
-import * as ScreenOrientation from 'expo-screen-orientation';
-import PreviewDuette from './PreviewDuette';
 import { getAWSVideoUrl } from '../constants/urls';
 import Error from './Error';
+import ReviewDuette from './ReviewDuette';
 
 const RecordDuetteModal = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  const { showRecordDuetteModal, setShowRecordDuetteModal, bluetooth } = props;
+  const {
+    setShowRecordDuetteModal,
+    bluetooth,
+  } = props;
 
   const [recording, setRecording] = useState(false);
   const [cameraRef, setCameraRef] = useState(null);
@@ -28,92 +27,51 @@ const RecordDuetteModal = (props) => {
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
   const [error, setError] = useState(false);
-  // const [vidIsPlaying, setVidIsPlaying] = useState(false);
-
-
-  useEffect(() => {
-    detectOrientation();
-  }, [])
-
-  const detectOrientation = async () => {
-    const { orientation } = await ScreenOrientation.getOrientationAsync();
-    setScreenOrientation(orientation.split('_')[0])
-    ScreenOrientation.addOrientationChangeListener(info => {
-      if (info.orientationInfo.orientation === 'UNKNOWN') {
-        if (screenWidth > screenHeight) setScreenOrientation('LANDSCAPE')
-        if (screenWidth < screenHeight) setScreenOrientation('PORTRAIT')
-      } else {
-        setScreenOrientation(info.orientationInfo.orientation);
-      }
-    })
-  }
 
   const record = async () => {
-    console.log('Date.now in record: ', Date.now())
     try {
       const vid = await cameraRef.recordAsync();
-      // console.log('vid.uri: ', vid.uri)
       setDuetteUri(vid.uri);
       setShowPreviewModal(true);
     } catch (e) {
       console.log('error starting recording: ', e);
       setError(true);
     }
-  }
+  };
 
   const play = async () => {
-    console.log('Date.now in play: ', Date.now())
-    // cameraRef.stopRecording();
-    // console.log('recording stopped');
     try {
-      // TODO: add from milliseconds
-      await vidRef.playAsync();
-      console.log('video playing')
-      // const vid = await cameraRef.recordAsync();
-      // setDuetteUri(vid.uri);
-      // record();
+      await vidRef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     } catch (e) {
-      console.log('error playing or recording: ', e);
+      console.log('error playing video: ', e);
       setError(true);
     }
-  }
+  };
 
-  // console.log('duetteUri: ', duetteUri)
-
-  const toggleRecord = async () => {
+  const toggleRecord = () => {
     if (recording) {
       setRecording(false);
       cameraRef.stopRecording();
-      // setShowPreviewModal(true);
     } else {
-      try {
-        setRecording(true);
-        record();
-        play();
-        // await vidRef.playAsync();
-        // const vid = await cameraRef.recordAsync();
-        // setDuetteUri(vid.uri);
-        // setShowPreviewModal(true);
-      } catch (e) {
-        console.log('error recording: ', e)
-      }
+      setRecording(true);
+      record();
+      play();
     }
-  }
+  };
 
   const handleModalOrientationChange = (ev) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
-  }
+  };
 
   const handleCancel = async () => {
     try {
       await vidRef.unloadAsync();
       cameraRef.stopRecording();
-      console.log('successfully unloaded video and stopped recording');
       setShowRecordDuetteModal(false);
     } catch (e) {
       console.log('error unloading video: ', e);
     }
-  }
+  };
 
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.isLoaded !== vidLoaded) setVidLoaded(updateObj.isLoaded);
@@ -123,7 +81,7 @@ const RecordDuetteModal = (props) => {
   const handleError = () => {
     setRecording(false);
     setShowPreviewModal(false);
-  }
+  };
 
   return (
     error ? (
@@ -132,7 +90,12 @@ const RecordDuetteModal = (props) => {
         <View style={styles.container}>
           {
             showPreviewModal ? (
-              <PreviewDuette handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
+              <ReviewDuette
+                bluetooth={bluetooth}
+                setShowRecordDuetteModal={setShowRecordDuetteModal}
+                duetteUri={duetteUri}
+                setShowPreviewModal={setShowPreviewModal}
+              />
             ) : (
                 <Modal
                   onRequestClose={handleCancel}
@@ -151,35 +114,32 @@ const RecordDuetteModal = (props) => {
                       <Video
                         ref={ref => setVidRef(ref)}
                         source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
-                        // source={{ uri: 'https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4' }}
                         rate={1.0}
                         volume={1.0}
                         isMuted={false}
                         resizeMode="cover"
-                        positionMillis={0}
                         progressUpdateIntervalMillis={50}
                         onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-                        // isLooping={false}
                         style={{
                           width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-                          height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9
+                          height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
                         }}
                       />
                       {/* TODO: add codec to camera input? (e.g. .mov) */}
                       <Camera
-                        style={{ width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2, height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9 }}
+                        style={{
+                          width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                          height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                        }}
                         type={Camera.Constants.Type.front}
                         ref={ref => setCameraRef(ref)}>
                         <View>
                           <TouchableOpacity
-                            onPress={!recording ? handleCancel : () => { }}
+                            onPress={!recording && handleCancel}
                           >
                             <Text style={{
-                              color: 'red',
+                              ...styles.overlayText,
                               fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
-                              paddingLeft: 20,
-                              paddingTop: 20,
-                              fontWeight: 'normal'
                             }}
                             >
                               {recording ? 'Recording' : 'Cancel'}
@@ -189,23 +149,15 @@ const RecordDuetteModal = (props) => {
                         {
                           vidLoaded && vidDoneBuffering &&
                           <View
-                            style={{
-                              flex: 1,
-                              backgroundColor: 'transparent',
-                              flexDirection: 'row',
-                              justifyContent: 'center',
-                            }}>
+                            style={styles.recordButtonContainer}>
                             <TouchableOpacity
                               onPress={toggleRecord}
                               style={{
+                                ...styles.recordButton,
                                 borderWidth: screenWidth / 100,
-                                borderColor: recording ? 'darkred' : 'darkred',
-                                alignSelf: 'flex-end',
                                 width: screenWidth / 10,
                                 height: screenWidth / 10,
                                 backgroundColor: recording ? 'black' : 'red',
-                                borderRadius: 50,
-                                margin: 10,
                               }}
                             />
                           </View>
@@ -214,7 +166,7 @@ const RecordDuetteModal = (props) => {
                           screenOrientation === 'LANDSCAPE' &&
                           <TouchableOpacity
                             onPress={handleCancel}
-                            style={{ alignItems: 'center', paddingBottom: 10, height: 30 }}
+                            style={styles.problemContainerPortrait}
                           >
                             <Text style={{ color: 'red' }}>Having a problem? Touch here to try again.</Text>
                           </TouchableOpacity>
@@ -246,14 +198,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   overlay: {
-    alignItems: "center",
+    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: "#DDDDDD",
+    backgroundColor: '#DDDDDD',
     padding: 10,
     position: 'absolute',
     opacity: 0.5,
     alignSelf: 'center',
     borderColor: 'black',
+  },
+  overlayText: {
+    paddingLeft: 20,
+    paddingTop: 20,
+    fontWeight: 'normal',
+    color: 'red',
+  },
+  problemContainerPortrait: {
+    alignItems: 'center',
+    paddingBottom: 10,
+    height: 30,
+  },
+  recordButtonContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  recordButton: {
+    borderColor: 'darkred',
+    alignSelf: 'flex-end',
+    borderRadius: 50,
+    margin: 10,
   }
 });
 

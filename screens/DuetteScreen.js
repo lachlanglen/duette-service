@@ -19,17 +19,17 @@ const DuetteScreen = (props) => {
 
   const handleBluetooth = (id) => {
     setBluetooth(true);
-    setPreviewVid('');
+    if (previewVid) setPreviewVid('');
     props.setVideo(id);
     setShowRecordDuetteModal(true);
-  }
+  };
 
   const handleWired = (id) => {
     setBluetooth(false);
-    setPreviewVid('');
+    if (previewVid) setPreviewVid('');
     props.setVideo(id);
     setShowRecordDuetteModal(true);
-  }
+  };
 
   const handleUse = (id) => {
     Alert.alert(
@@ -41,20 +41,20 @@ const DuetteScreen = (props) => {
       ],
       { cancelable: false }
     );
-  }
+  };
 
   const handlePreview = (id) => {
     setPreviewVid(id);
-  }
+  };
 
   const setFilteredVideos = text => {
     props.fetchVideos(text);
-  }
+  };
 
   const handleSearch = text => {
     setSearchText(text);
     setFilteredVideos(text);
-  }
+  };
 
   return (
     !props.user.id ? (
@@ -64,11 +64,14 @@ const DuetteScreen = (props) => {
         showRecordDuetteModal ? (
           // RECORD A DUETTE
           <View style={styles.container}>
-            <RecordDuetteModal bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} />
+            <RecordDuetteModal
+              bluetooth={bluetooth}
+              setShowRecordDuetteModal={setShowRecordDuetteModal}
+            />
           </View>
         ) : (
             // VIEW VIDEOS
-            <SafeAreaView style={{ flex: 1, backgroundColor: '#FFD12B' }}>
+            <SafeAreaView style={styles.listContainer}>
               {
                 props.displayUserInfo &&
                 <UserInfoMenu />
@@ -76,7 +79,7 @@ const DuetteScreen = (props) => {
               <Searchbar
                 placeholder="Title, composer or performer"
                 onChangeText={handleSearch}
-                style={{ borderRadius: 0, borderBottomColor: 'grey', borderBottomWidth: 2 }}
+                style={styles.searchbar}
               />
               {
                 props.videos.length > 0 ? (
@@ -100,13 +103,13 @@ const DuetteScreen = (props) => {
                     // VIDEOS HAVEN'T LOADED
                     !searchText ? (
                       <View>
-                        <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
+                        <Text style={styles.text}>
                           Loading...
                         </Text>
                       </View>
                     ) : (
                         <View>
-                          <Text style={{ marginTop: 10, alignSelf: 'center', fontSize: 20, fontWeight: 'bold', color: 'white' }}>
+                          <Text style={styles.text}>
                             No videos to display
                           </Text>
                         </View>
@@ -123,6 +126,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: Constants.statusBarHeight,
+  },
+  listContainer: {
+    flex: 1,
+    backgroundColor: '#FFD12B',
+  },
+  searchbar: {
+    borderRadius: 0,
+    borderBottomColor: 'grey',
+    borderBottomWidth: 2,
+  },
+  text: {
+    marginTop: 10,
+    alignSelf: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 
@@ -145,4 +164,3 @@ const mapDispatch = dispatch => {
 }
 
 export default connect(mapState, mapDispatch)(DuetteScreen);
-

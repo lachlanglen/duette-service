@@ -6,7 +6,6 @@ import { getAWSVideoUrl } from '../constants/urls';
 
 const DisplayMergedVideo = (props) => {
   const {
-    handleExit,
     combinedKey,
     savingToCameraRoll,
     handleSaveToCameraRoll,
@@ -24,7 +23,6 @@ const DisplayMergedVideo = (props) => {
 
   return (
     <Modal
-      onRequestClose={handleExit}
       supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
       onOrientationChange={e => handleModalOrientationChange(e)}>
       <View style={{

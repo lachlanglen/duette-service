@@ -8,7 +8,6 @@ router.post('/', (req, res, next) => {
       console.log('error: ', err)
       res.status(400).send(err)
     } else {
-      // console.log('success! data: ', data)
       res.status(200).send(data)
     }
   });
@@ -23,7 +22,6 @@ router.get('/getSignedUrl/:key', (req, res, next) => {
       console.log('error getting signed url: ', err);
       res.status(400).send(err);
     }
-    // console.log('Your generated pre-signed URL is', url);
     res.status(200).send(url)
   });
 });
@@ -46,7 +44,6 @@ router.delete('/:Key', (req, res, next) => {
       console.log('error deleting object: ', err);
       res.status(400).send(err);
     } else {
-      // console.log('object successfully deleted!');
       res.status(200).send(`Object deleted: Key ${Key}`)
     }
   });

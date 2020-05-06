@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Image, View, Button } from 'react-native';
+import { Image, View, Button, StyleSheet } from 'react-native';
 import { connect } from 'react-redux'
 import { Camera } from 'expo-camera';
 import DetailsModal from '../components/DetailsModal';
@@ -32,6 +32,7 @@ const AccompanimentScreen = (props) => {
         if (permissions.status === 'granted') {
           setHasPermission(true);
         } else {
+          // TODO: fix this to offer user a way to fix in settings
           setError(true);
         }
       }
@@ -101,7 +102,7 @@ const AccompanimentScreen = (props) => {
             // ==> YES
             !preview && hasPermission ? (
               // record video:
-              <View style={{ flex: 1 }}>
+              <View style={styles.container}>
                 {
                   record ? (
                     // user has clicked 'Record!' button
@@ -113,16 +114,24 @@ const AccompanimentScreen = (props) => {
                     />
                   ) : (
                       // landing page ('Record!' button not clicked)
-                      <View style={{ flex: 1, backgroundColor: 'white' }}>
+                      <View
+                        style={styles.landingPage}>
                         {
                           props.displayUserInfo &&
                           <UserInfoMenu />
                         }
-                        <View style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+                        <View style={styles.logoAndButtonsContainer}>
                           <Image
-                            source={require('../assets/images/duette-logo-HD.png')} style={{ width: 300, height: 300 }} />
-                          <Button title="Record a new base track" onPress={() => setRecord(true)} />
-                          <Button title="Record a Duette" onPress={() => props.navigation.navigate('Duette')} />
+                            source={require('../assets/images/duette-logo-HD.png')}
+                            style={styles.logo} />
+                          <Button
+                            title="Record a new base track"
+                            onPress={() => setRecord(true)}
+                          />
+                          <Button
+                            title="Record a Duette"
+                            onPress={() => props.navigation.navigate('Duette')}
+                          />
                         </View>
                       </View>
                     )
@@ -132,7 +141,12 @@ const AccompanimentScreen = (props) => {
                 // preview accompaniment:
                 showDetailsModal ? (
                   // add accompaniment details
-                  <DetailsModal setPreview={setPreview} setRecord={setRecord} setShowDetailsModal={setShowDetailsModal} handleDetailsExit={handleDetailsExit} dataUri={dataUri} />
+                  <DetailsModal
+                    setPreview={setPreview}
+                    setRecord={setRecord}
+                    setShowDetailsModal={setShowDetailsModal}
+                    handleDetailsExit={handleDetailsExit}
+                    dataUri={dataUri} />
                 ) : (
                     // preview accompaniment
                     <PreviewAccompaniment
@@ -145,13 +159,32 @@ const AccompanimentScreen = (props) => {
           )
       )
   );
-}
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  landingPage: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  logoAndButtonsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+  },
+  logo: {
+    width: 300,
+    height: 300,
+  }
+})
 
 const mapDispatch = dispatch => {
   return {
     fetchVideos: () => dispatch(fetchVideos())
   }
-}
+};
 
 const mapState = ({ user, videos, displayUserInfo }) => {
   return {
@@ -159,6 +192,6 @@ const mapState = ({ user, videos, displayUserInfo }) => {
     videos,
     displayUserInfo
   }
-}
+};
 
 export default connect(mapState, mapDispatch)(AccompanimentScreen);
