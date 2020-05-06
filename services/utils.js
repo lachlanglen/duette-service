@@ -13,7 +13,7 @@ export const handleLogin = async () => {
     try {
       const basicInfo = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
       const { id, name } = await basicInfo.json();
-      const moreInfo = await fetch(`https://graph.facebook.com/10158413653431177?fields=email,picture&access_token=${token}`);
+      const moreInfo = await fetch(`https://graph.facebook.com/${id}?fields=email,picture&access_token=${token}`);
       const { email, picture } = await moreInfo.json();
       // create or update user & store this user on state
       store.dispatch(createOrUpdateUser({ id, name, picture, email, expires }));
