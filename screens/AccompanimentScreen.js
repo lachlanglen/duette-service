@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Image, View, Button, StyleSheet } from 'react-native';
+import { Image, View, Button, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { connect } from 'react-redux'
 import { Camera } from 'expo-camera';
 import DetailsModal from '../components/DetailsModal';
@@ -10,6 +10,7 @@ import UserInfoMenu from '../components/UserInfoMenu';
 import Error from '../components/Error';
 import RecordAccompaniment from '../components/RecordAccompaniment';
 import PreviewAccompaniment from '../components/PreviewAccompaniment';
+import buttonStyles from '../styles/button';
 
 const AccompanimentScreen = (props) => {
 
@@ -124,14 +125,20 @@ const AccompanimentScreen = (props) => {
                           <Image
                             source={require('../assets/images/duette-logo-HD.png')}
                             style={styles.logo} />
-                          <Button
-                            title="Record a new base track"
-                            onPress={() => setRecord(true)}
-                          />
-                          <Button
-                            title="Record a Duette"
-                            onPress={() => props.navigation.navigate('Duette')}
-                          />
+                          <View>
+                            <TouchableOpacity
+                              style={buttonStyles.regularButton}
+                              onPress={() => setRecord(true)}
+                            >
+                              <Text style={buttonStyles.regularButtonText}>Record a new base track</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={buttonStyles.regularButton}
+                              onPress={() => props.navigation.navigate('Duette')}
+                            >
+                              <Text style={buttonStyles.regularButtonText}>Record a Duette</Text>
+                            </TouchableOpacity>
+                          </View>
                         </View>
                       </View>
                     )
@@ -167,12 +174,12 @@ const styles = StyleSheet.create({
   },
   landingPage: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
   },
   logoAndButtonsContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
   },
   logo: {
     width: 300,

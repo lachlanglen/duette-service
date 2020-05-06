@@ -9,7 +9,7 @@ const FacebookSignin = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Welcome to Duette!</Text>
+      <Text style={styles.text}>Welcome to Duette!</Text>
       <Button onPress={handleLogin} title="Login with Facebook" />
     </View>
   )
@@ -22,6 +22,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  text: {
+    marginBottom: 20,
+  }
 });
 
 const mapState = ({ user }) => {
