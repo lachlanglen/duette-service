@@ -44,6 +44,8 @@ const ReviewDuette = (props) => {
   let intervalId;
   let tempVidId;
 
+  let startTime;
+
   const jobs = [];
 
   const handleSave = () => {
@@ -79,6 +81,7 @@ const ReviewDuette = (props) => {
       if (!croppingDone) setCroppingDone(true);
       if (!savingDone) setSavingDone(true);
       clearInterval(intervalId)
+      console.log('speed: ', Date.now() - startTime)
       try {
         // TODO: change this to thunk
         await axios.post('https://duette.herokuapp.com/api/duette', { id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
@@ -97,6 +100,7 @@ const ReviewDuette = (props) => {
   };
 
   const handlePost = async () => {
+    startTime = Date.now();
     const id = uuid.v4();
     tempVidId = id;
     let uriParts = duetteUri.split('.');

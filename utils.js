@@ -29,9 +29,9 @@ const compare = (item, hash) => {
       return result;
     }
   });
-}
+};
 
 module.exports = {
   hasher,
-  compare
+  compare,
 };
