@@ -11,16 +11,17 @@ const buttonStyles = StyleSheet.create({
     marginBottom: 30,
     borderColor: 'darkblue',
     borderWidth: 2,
+    paddingHorizontal: 7
   },
   regularButtonText: {
-    // fontFamily: 'Gill Sans',
+    fontFamily: 'Gill Sans',
     fontSize: 20,
     alignSelf: 'center',
     textAlign: 'center',
     color: 'white',
     marginHorizontal: 7,
     marginVertical: 8,
-    fontWeight: 'normal'
+    fontWeight: 'bold'
   }
 });
 

@@ -1,16 +1,25 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
-
 import { createOrUpdateUser } from '../redux/user';
 import { handleLogin } from '../services/utils';
+import buttonStyles from '../styles/button';
+
 
 const FacebookSignin = () => {
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome to Duette!</Text>
-      <Button onPress={handleLogin} title="Login with Facebook" />
+      <TouchableOpacity
+        style={{
+          ...buttonStyles.regularButton,
+          width: '75%',
+        }}
+        onPress={handleLogin}
+      >
+        <Text style={buttonStyles.regularButtonText}>Login with Facebook</Text>
+      </TouchableOpacity>
     </View>
   )
 }
