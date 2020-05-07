@@ -135,7 +135,7 @@ const RecordDuetteModal = (props) => {
                         ref={ref => setCameraRef(ref)}>
                         <View>
                           <TouchableOpacity
-                            onPress={!recording && handleCancel}
+                            onPress={!recording ? handleCancel : () => { }}
                           >
                             <Text style={{
                               ...styles.overlayText,

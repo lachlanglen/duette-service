@@ -1,5 +1,6 @@
 /* eslint-disable complexity */
 import React from 'react';
+import { connect } from 'react-redux';
 import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
@@ -25,6 +26,8 @@ const PreviewAndSync = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
+
+  console.log('props: ', props);
 
   return (
     <View style={{
@@ -136,13 +139,13 @@ const PreviewAndSync = (props) => {
               type="material"
               color="white"
               size={60} />
-            {/* <Text
+            <Text
               style={{
                 fontSize: 30,
                 color: 'white',
                 alignSelf: 'center',
               }}>|
-            </Text> */}
+            </Text>
             <Icon
               onPress={handleSyncForward}
               name="fast-forward"
@@ -245,4 +248,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PreviewAndSync;
+const mapState = ({ selectedVideo }) => {
+  return {
+    selectedVideo,
+  }
+}
+
+export default connect(mapState)(PreviewAndSync);

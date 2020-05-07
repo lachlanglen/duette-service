@@ -11,7 +11,7 @@ import DisplayMergedVideo from './DisplayMergedVideo';
 import CatsGallery from './CatsGallery';
 import { getAWSVideoUrl } from '../constants/urls';
 import Error from './Error';
-import PreviewAndSync from './PreviewAccompaniment';
+import PreviewAndSync from './PreviewAndSync';
 
 const ReviewDuette = (props) => {
 
@@ -47,7 +47,7 @@ const ReviewDuette = (props) => {
   const jobs = [];
 
   const handleSave = () => {
-    setSaving(true);
+    // setSaving(true);
     handlePost();
   };
 

@@ -69,7 +69,7 @@ const CatsGallery = (props) => {
           style={{
             ...styles.progressText,
             color: croppingDone ? 'green' : 'darkgrey'
-          }}>Scaling/Croppin
+          }}>Scaling/Cropping
         </Text>
       </View>
       <View style={styles.progressBar}>
