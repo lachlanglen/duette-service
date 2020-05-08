@@ -98,11 +98,9 @@ function start() {
 
         job.progress({ percent: 20, currentStep: 'finished getting info' });
 
-        const command = `ffmpeg -i ${duetteUrl}${delay > 0 && ` -ss ${delay}ms -t ${file2Info.duration}`}${file1Info.height < file2Info.croppedHeight && ` scale=-2:${file2Info.croppedHeight}[left]`} -i ${accompanimentUrl} -i ${logoUrl} -filter_complex "[1]crop=${file2Info.orientation === 'portrait' ? 'iw' : file2Info.croppedWidth}:${file2Info.orientation === 'portrait' ? file2Info.croppedHeight : 'ih'}:${file2Info.orientation === 'portrait' ? 0 : file2Info.offset}:${file2Info.orientation === 'portrait' ? file2Info.offset : 0}${file2Info.croppedHeight < file1Info.height && `,scale=-2:${file1Info.height}[right]`};[0][${file1Info.height < file2Info.croppedHeight ? 'left' : 'right'}]hstack=inputs=2,fade=t=in:duration=1,fade=t=out:start_time=${file2Info.duration > file1Info.duration ? file2Info.duration - 1 : file1Info.duration - 1}:duration=1[bg];[bg][2]overlay=W-w-10:H-h-10:format=auto,format=yuv420p[v];[0:a][1:a]amix,afade=t=in:duration=1,afade=t=out:start_time=${file2Info.duration > file1Info.duration ? file2Info.duration - 1 : file1Info.duration - 1}:duration=1[a]" -map "[v]" -map "[a]" -c:v libx264 -preset ultrafast -c:a aac -ac 2 -movflags +faststart ${file1Info.originalName}${file2Info.originalName}overlay.mov`;
+        // const command = `ffmpeg -i ${duetteUrl}${delay > 0 && ` -ss ${delay}ms -t ${file2Info.duration}`}${file1Info.height < file2Info.croppedHeight && ` scale=-2:${file2Info.croppedHeight}[left]`} -i ${accompanimentUrl} -i ${logoUrl} -filter_complex "[1]crop=${file2Info.orientation === 'portrait' ? 'iw' : file2Info.croppedWidth}:${file2Info.orientation === 'portrait' ? file2Info.croppedHeight : 'ih'}:${file2Info.orientation === 'portrait' ? 0 : file2Info.offset}:${file2Info.orientation === 'portrait' ? file2Info.offset : 0}${file2Info.croppedHeight < file1Info.height && `,scale=-2:${file1Info.height}[right]`};[0][${file1Info.height < file2Info.croppedHeight ? 'left' : 'right'}]hstack=inputs=2,fade=t=in:duration=1,fade=t=out:start_time=${file2Info.duration > file1Info.duration ? file2Info.duration - 1 : file1Info.duration - 1}:duration=1[bg];[bg][2]overlay=W-w-10:H-h-10:format=auto,format=yuv420p[v];[0:a][1:a]amix,afade=t=in:duration=1,afade=t=out:start_time=${file2Info.duration > file1Info.duration ? file2Info.duration - 1 : file1Info.duration - 1}:duration=1[a]" -map "[v]" -map "[a]" -c:v libx264 -preset ultrafast -c:a aac -ac 2 -movflags +faststart ${file1Info.originalName}${file2Info.originalName}overlay.mov`;
 
-        await exec(command);
-
-        /*
+        // await exec(command);
 
         // crop & trim vid 2
         if (file2Info.orientation === 'portrait') await exec(`ffmpeg -i ${duetteUrl} ${delay ? `-ss ${delay} -t ${file2Info.duration} -async 1 ` : ''}-filter:v "crop=iw:${file2Info.croppedHeight}:0:${file2Info.offset}" -preset ultrafast -c:a copy ${file2Info.originalName}cropped.mov`)
@@ -129,8 +127,6 @@ function start() {
         // add overlay
         await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov -i ${logoUrl} -filter_complex overlay=W-w-10:H-h-10 -codec:a copy -preset ultrafast -async 1 ${file1Info.originalName}${file2Info.originalName}overlay.mov`)
         console.log('added overlay!')
-
-        */
 
         console.log('done!')
         // post video to AWS
