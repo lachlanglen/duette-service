@@ -28,7 +28,7 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('/:id?', (req, res, next) => {
-  const { id } = req.params
+  const { id } = req.params;
   if (id) {
     Video.findOne({
       where: {
@@ -52,6 +52,17 @@ router.get('/:id?', (req, res, next) => {
         res.status(404).send(e)
       })
   }
+});
+
+router.delete('/:id', (req, res, next) => {
+  const { id } = req.params;
+  Video.destroy({
+    where: {
+      id
+    }
+  })
+    .then(() => res.status(200).send('Video deleted!'))
+    .catch(e => res.status(400).send('error deleting video: ', e))
 })
 
 module.exports = router;
