@@ -62,7 +62,7 @@ router.delete('/:id', (req, res, next) => {
     }
   })
     .then(() => res.status(200).send('Video deleted!'))
-    .catch(e => res.status(400).send('error deleting video: ', e))
+    .catch(e => res.status(404).send('error deleting video: ', e))
 })
 
 module.exports = router;
