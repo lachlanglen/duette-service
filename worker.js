@@ -245,15 +245,11 @@ function start() {
           Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}cropped.mov`),
         }
 
-        console.log('line 248')
-
         const thumbnailParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: `${croppedVidId}thumbnail.png`,
           Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.png`),
         }
-
-        console.log('line 256')
 
         s3.upload(vidParams, (err, data) => {
           if (err) {

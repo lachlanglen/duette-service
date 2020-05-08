@@ -57,13 +57,4 @@ export const deleteVideo = id => {
   }
 };
 
-export const deleteAWSItem = key => {
-  return () => {
-    axios.delete(`https://duette.herokuapp.com/api/aws/${key}`)
-      .then(() => console.log('deleted AWS item!'))
-      .catch(e => {
-        throw new Error('error in deleteAWSItem thunk: ', e)
-      })
-  }
-};
 

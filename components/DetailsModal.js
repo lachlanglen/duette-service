@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
 import CatsGallery from './CatsGallery';
-import { postVideo, deleteAWSItem } from '../redux/videos';
+import { postVideo } from '../redux/videos';
 import Form from './Form';
 import Error from './Error';
 import buttonStyles from '../styles/button';
@@ -59,15 +59,20 @@ const DetailsModal = (props) => {
     } else {
       // job is completed
       // delete tempVid
-      deleteAWSItem(tempVidId);
-      if (!infoGettingDone) setInfoGettingDone(true);
-      if (!croppingDone) setCroppingDone(true);
-      if (!savingDone) setSavingDone(true);
-      clearInterval(intervalId)
-      props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
-      // TODO: what if there's an error posting video?
-      setSuccess(true);
-      setSaving(false);
+      try {
+        await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`)
+        if (!infoGettingDone) setInfoGettingDone(true);
+        if (!croppingDone) setCroppingDone(true);
+        if (!savingDone) setSavingDone(true);
+        clearInterval(intervalId)
+        props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
+        // TODO: handle error posting video
+        setSuccess(true);
+        setSaving(false);
+      } catch (e) {
+        setError(true);
+        throw new Error('error deleting aws temp vid: ', e)
+      }
     }
   }
 
