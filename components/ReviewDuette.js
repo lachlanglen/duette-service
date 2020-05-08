@@ -245,7 +245,7 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    if (customOffset === 75) return;
+    if (customOffset <= 75) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
     setCustomOffset(customOffset - 75);
