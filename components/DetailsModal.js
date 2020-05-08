@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
-import { Image, Text, View, Modal, Button, StyleSheet } from 'react-native';
+import { Image, Text, View, Modal, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
@@ -8,6 +8,7 @@ import CatsGallery from './CatsGallery';
 import { postVideo } from '../redux/videos';
 import Form from './Form';
 import Error from './Error';
+import buttonStyles from '../styles/button';
 
 const DetailsModal = (props) => {
   const {
@@ -135,12 +136,24 @@ const DetailsModal = (props) => {
               <View>
                 <Text style={styles.titleTextBlue}>Successfully saved!</Text>
                 <Image style={styles.successCat} source={require('../assets/images/happy_grumpy_cat.png')} />
-                <Button
-                  title="Exit"
-                  onPress={handleExit} />
-                <Button
-                  title="Record another video"
-                  onPress={handleRecordAnother} />
+                <TouchableOpacity
+                  onPress={handleExit}
+                  style={{
+                    ...buttonStyles.regularButton,
+                    width: '30%',
+                    marginTop: 5,
+                    marginBottom: 15
+                  }}>
+                  <Text style={buttonStyles.regularButtonText}>Exit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleRecordAnother}
+                  style={{
+                    ...buttonStyles.regularButton,
+                    width: '60%'
+                  }}>
+                  <Text style={buttonStyles.regularButtonText}>Record another accompaniment</Text>
+                </TouchableOpacity>
               </View>
             ) : (
                 <View style={styles.container}>
