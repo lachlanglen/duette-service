@@ -73,7 +73,7 @@ const AccompanimentScreen = (props) => {
       })
     }
     detectOrientation();
-  })
+  });
 
   const startRecording = async () => {
     try {
