@@ -11,7 +11,8 @@ import UserInfoMenu from '../components/UserInfoMenu';
 import Error from '../components/Error';
 import RecordAccompanimentAndroid from '../components/android/RecordAccompaniment';
 import RecordAccompanimentIos from '../components/ios/RecordAccompaniment';
-import PreviewAccompaniment from '../components/PreviewAccompaniment';
+import PreviewAccompanimentAndroid from '../components/android/PreviewAccompaniment';
+import PreviewAccompanimentIos from '../components/ios/PreviewAccompaniment';
 import buttonStyles from '../styles/button';
 
 const AccompanimentScreen = (props) => {
@@ -206,11 +207,20 @@ const AccompanimentScreen = (props) => {
                     dataUri={dataUri} />
                 ) : (
                     // preview accompaniment
-                    <PreviewAccompaniment
-                      dataUri={dataUri}
-                      handleSave={handleSave}
-                      handleRedo={handleRedo}
-                    />
+                    Platform.OS === 'android' ? (
+                      <PreviewAccompanimentAndroid
+                        dataUri={dataUri}
+                        handleSave={handleSave}
+                        handleRedo={handleRedo}
+                        screenOrientation={screenOrientation}
+                      />
+                    ) : (
+                        <PreviewAccompanimentIos
+                          dataUri={dataUri}
+                          handleSave={handleSave}
+                          handleRedo={handleRedo}
+                        />
+                      )
                   )
               )
           )
