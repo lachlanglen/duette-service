@@ -270,7 +270,7 @@ function start() {
                 console.log('success uploading thumbnail to s3! data: ', d);
                 // delete all files
                 await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`);
-                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`);
+                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.png`);
                 console.log('deleted cropped video and thumbnail');
                 job.progress({ percent: 95, currentStep: 'finished saving' });
               }
