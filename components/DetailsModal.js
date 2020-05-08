@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
 import CatsGallery from './CatsGallery';
-import { postVideo } from '../redux/videos';
+import { postVideo, deleteAWSItem } from '../redux/videos';
 import Form from './Form';
 import Error from './Error';
 import buttonStyles from '../styles/button';
@@ -33,6 +33,7 @@ const DetailsModal = (props) => {
   const jobs = [];
   let croppedVidId;
   let intervalId;
+  let tempVidId;
 
   const getJobStatus = async () => {
     const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
@@ -57,6 +58,9 @@ const DetailsModal = (props) => {
       throw new Error(`job #${jobs[0].id} failed: `, status.reason);
     } else {
       // job is completed
+      // delete tempVid
+      deleteAWSItem(tempVidId);
+      console.log('deleted AWS item')
       if (!infoGettingDone) setInfoGettingDone(true);
       if (!croppingDone) setCroppingDone(true);
       if (!savingDone) setSavingDone(true);
@@ -73,7 +77,7 @@ const DetailsModal = (props) => {
   };
 
   const handlePost = async () => {
-    const tempVidId = uuid.v4();
+    tempVidId = uuid.v4();
     let uriParts = dataUri.split('.');
     let fileType = uriParts[uriParts.length - 1];
     const vidFile = {
@@ -81,6 +85,7 @@ const DetailsModal = (props) => {
       name: `${tempVidId}.mov`,
       type: `video/${fileType}`
     }
+    console.log('tempVidId: ', tempVidId)
     try {
       const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
       const awsOptions = {

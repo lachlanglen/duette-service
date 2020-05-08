@@ -233,7 +233,7 @@ function start() {
 
         // create thumbnail
 
-        await exec(`ffmpeg -i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.jpg`);
+        await exec(`ffmpeg -i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.png`);
         console.log('created thumbnail!');
 
         job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
@@ -248,7 +248,7 @@ function start() {
         const thumbnailParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: `${croppedVidId}thumbnail.png`,
-          Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`),
+          Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.png`),
         }
 
         s3.upload(vidParams, (err, data) => {

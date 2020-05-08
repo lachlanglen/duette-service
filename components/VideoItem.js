@@ -1,8 +1,10 @@
 /* eslint-disable complexity */
 import React from 'react';
-import { Text, TouchableOpacity, View, Dimensions, StyleSheet, Image } from 'react-native';
+import { connect } from 'react-redux';
+import { Text, TouchableOpacity, View, Dimensions, StyleSheet, Image, Alert, Platform } from 'react-native';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
+import { deleteVideo } from '../redux/videos';
 
 const VideoItem = (props) => {
 
@@ -12,6 +14,7 @@ const VideoItem = (props) => {
     composer,
     theKey,
     performer,
+    userId,
     previewVid,
     setPreviewVid,
     handlePreview,
@@ -22,6 +25,18 @@ const VideoItem = (props) => {
 
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.didJustFinish) setPreviewVid('')
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Are you sure you want to delete this video?',
+      `This cannot be undone.${Platform.OS === 'ios' && ' 💀'}`,
+      [
+        { text: 'Yes, delete it!', onPress: () => props.deleteVideo(id) },
+        { text: 'Cancel', onPress: () => { } }
+      ],
+      { cancelable: false }
+    );
   }
 
   return (
@@ -96,6 +111,16 @@ const VideoItem = (props) => {
           Record Duette!
         </Text>
       </TouchableOpacity>
+      {
+        props.user.id === userId &&
+        <TouchableOpacity
+          onPress={handleDelete}>
+          <Text style={{
+            textAlign: 'center',
+            color: 'red',
+          }}>Delete</Text>
+        </TouchableOpacity>
+      }
     </View >
   )
 };
@@ -173,4 +198,16 @@ const styles = StyleSheet.create({
   }
 });
 
-export default VideoItem;
+const mapState = ({ user }) => {
+  return {
+    user,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    deleteVideo: id => dispatch(deleteVideo(id)),
+  }
+};
+
+export default connect(mapState, mapDispatch)(VideoItem);
