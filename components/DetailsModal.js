@@ -60,7 +60,6 @@ const DetailsModal = (props) => {
       // job is completed
       // delete tempVid
       deleteAWSItem(tempVidId);
-      console.log('deleted AWS item')
       if (!infoGettingDone) setInfoGettingDone(true);
       if (!croppingDone) setCroppingDone(true);
       if (!savingDone) setSavingDone(true);
