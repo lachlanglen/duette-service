@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
 import { connect } from 'react-redux'
-import { Camera } from 'expo-camera';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as Permissions from 'expo-permissions';
 import DetailsModal from '../components/DetailsModal';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
@@ -16,7 +16,8 @@ import buttonStyles from '../styles/button';
 
 const AccompanimentScreen = (props) => {
 
-  const [hasPermission, setHasPermission] = useState(null);
+  const [hasAudioPermission, setHasAudioPermission] = useState(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [record, setRecord] = useState(false);
   const [recording, setRecording] = useState(false);
   const [dataUri, setDataUri] = useState('');
@@ -31,16 +32,25 @@ const AccompanimentScreen = (props) => {
 
   useEffect(() => {
     async function getPermissions() {
-      const { status } = await Camera.getPermissionsAsync();
-      if (status === 'granted') {
-        setHasPermission(true);
+      const perms = await Permissions.getAsync(Permissions.CAMERA, Permissions.AUDIO_RECORDING);
+      if (perms.permissions.audioRecording.granted) {
+        setHasAudioPermission(true);
       } else {
-        const permissions = await Camera.requestPermissionsAsync();
-        if (permissions.status === 'granted') {
-          setHasPermission(true);
+        const { status } = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+        if (status === 'granted') {
+          setHasAudioPermission(true);
         } else {
-          // TODO: fix this to offer user a way to fix in settings
-          setError(true);
+          throw new Error('Audio permissions not granted');
+        }
+      }
+      if (perms.permissions.camera.granted) {
+        setHasCameraPermission(true);
+      } else {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        if (status === 'granted') {
+          setHasCameraPermission(true);
+        } else {
+          throw new Error('Camera permissions not granted');
         }
       }
     }
@@ -110,6 +120,7 @@ const AccompanimentScreen = (props) => {
   const handleError = () => {
     setPreview(false);
     setRecord(false);
+    setRecording(false);
     setError(false);
   };
 
@@ -124,7 +135,7 @@ const AccompanimentScreen = (props) => {
           <FacebookSignin />
         ) : (
             // ==> YES
-            !preview && hasPermission ? (
+            !preview && hasAudioPermission && hasCameraPermission ? (
               // record video:
               <View style={styles.container}>
                 {
