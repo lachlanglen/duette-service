@@ -79,8 +79,6 @@ const RecordDuetteModal = (props) => {
     setShowPreviewModal(false);
   };
 
-  console.log('video: ', getAWSVideoUrl(props.selectedVideo.id))
-
   return (
     error ? (
       <Error handleGoBack={handleError} />
@@ -103,10 +101,30 @@ const RecordDuetteModal = (props) => {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: 'pink',
-                    // paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                    backgroundColor: 'black',
                     height: '100%'
                   }}>
+                    <View style={{
+                      alignSelf: 'flex-start',
+                      justifyContent: 'center',
+                      // backgroundColor: 'black',
+                      height: '15%',
+                      width: '50%'
+                    }}>
+                      <TouchableOpacity
+                        onPress={!recording ? handleCancel : () => { }}
+                      >
+                        <Text style={{
+                          color: 'red',
+                          fontSize: recording ? 15 : 20,
+                          fontWeight: recording ? 'bold' : 'normal',
+                          textAlign: 'center',
+                        }}
+                        >
+                          {recording ? 'Recording' : 'Cancel'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                     <View
                       style={{
                         flexDirection: 'row',
@@ -117,7 +135,7 @@ const RecordDuetteModal = (props) => {
                       <View style={{
                         height: '100%',
                         width: '50%',
-                        backgroundColor: 'green'
+                        backgroundColor: 'black'
                       }}>
                         <View style={{
                           height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
@@ -142,7 +160,7 @@ const RecordDuetteModal = (props) => {
                       <View style={{
                         height: '100%',
                         width: '50%',
-                        backgroundColor: 'yellow'
+                        backgroundColor: 'black'
                       }}>
                         {/* TODO: add codec to camera input? (e.g. .mov) */}
                         <Camera
@@ -171,55 +189,47 @@ const RecordDuetteModal = (props) => {
                             }} />
                           </View>
                         </Camera>
-                        {/* <View>
-                          <TouchableOpacity
-                            onPress={!recording ? handleCancel : () => { }}
-                          >
-                            <Text style={{
-                              ...styles.overlayText,
-                              fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
-                            }}
-                            >
-                              {recording ? 'Recording' : 'Cancel'}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        {
-                          vidLoaded && vidDoneBuffering &&
-                          <View
-                            style={styles.recordButtonContainer}>
-                            <TouchableOpacity
-                              onPress={toggleRecord}
-                              style={{
-                                ...styles.recordButton,
-                                borderWidth: screenWidth / 100,
-                                width: screenWidth / 10,
-                                height: screenWidth / 10,
-                                backgroundColor: recording ? 'black' : 'red',
-                              }}
-                            />
-                          </View>
-                        }
-                        {
-                          screenOrientation === 'LANDSCAPE' &&
-                          <TouchableOpacity
-                            onPress={handleCancel}
-                            style={styles.problemContainerPortrait}
-                          >
-                            <Text style={{ color: 'red' }}>Having a problem? Touch here to try again.</Text>
-                          </TouchableOpacity>
-                        }
-                      </Camera> */}
                       </View>
                     </View>
-                    {/* {
-                      screenOrientation === 'PORTRAIT' &&
+                    <View style={{ backgroundColor: 'black', height: '15%', width: '50%' }}>
+                      <View style={{ backgroundColor: 'black', width: '100%', height: '18.3%', justifyContent: 'flex-end' }}>
+                        <TouchableOpacity
+                          onPress={toggleRecord}
+                        >
+                          <Text style={{
+                            color: 'red',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                            textTransform: 'uppercase',
+                          }}
+                          >
+                            {recording ? '' : 'record'}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <TouchableOpacity
+                        onPress={toggleRecord}
+                        style={{
+                          borderWidth: 5,
+                          borderColor: recording ? 'darkred' : 'darkred',
+                          alignSelf: 'center',
+                          width: 50,
+                          height: 50,
+                          backgroundColor: recording ? 'black' : 'red',
+                          borderRadius: 50,
+                          margin: 10,
+                        }}
+                      />
+                    </View>
+                    {
+                      recording &&
                       <TouchableOpacity
                         onPress={handleCancel}
                       >
-                        <Text style={{ color: 'red', marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
+                        <Text style={{ color: 'red', marginTop: 20, width: '100%' }}>Having a problem? Touch here to try again.</Text>
                       </TouchableOpacity>
-                    } */}
+                    }
                   </View>
                 </Modal >
               )
