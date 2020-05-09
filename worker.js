@@ -233,7 +233,7 @@ function start() {
 
         // create thumbnail
 
-        await exec(`ffmpeg -i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.jpg`);
+        await exec(`ffmpeg -i ${fileInfo.originalName}cropped.mov -vframes 1 -an -ss 3 ${fileInfo.originalName}thumbnail.png`);
         console.log('created thumbnail!');
 
         job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
@@ -248,7 +248,7 @@ function start() {
         const thumbnailParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: `${croppedVidId}thumbnail.png`,
-          Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`),
+          Body: fs.createReadStream(`${__dirname}/${fileInfo.originalName}thumbnail.png`),
         }
 
         s3.upload(vidParams, (err, data) => {
@@ -266,7 +266,7 @@ function start() {
                 console.log('success uploading thumbnail to s3! data: ', d);
                 // delete all files
                 await unlinkAsync(`${__dirname}/${fileInfo.originalName}cropped.mov`);
-                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.jpg`);
+                await unlinkAsync(`${__dirname}/${fileInfo.originalName}thumbnail.png`);
                 console.log('deleted cropped video and thumbnail');
                 job.progress({ percent: 95, currentStep: 'finished saving' });
               }

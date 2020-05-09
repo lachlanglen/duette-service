@@ -19,6 +19,7 @@ import { loadCats } from './redux/cats';
 import { fetchUser } from './redux/user';
 
 Sentry.init({
+  enableInExpoDevelopment: true,
   dsn: 'https://4f1d90283940486d93204bc6690934e2@o378963.ingest.sentry.io/5203127',
 });
 

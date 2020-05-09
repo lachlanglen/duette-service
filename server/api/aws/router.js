@@ -38,6 +38,7 @@ router.get('/:Key', (req, res, next) => {
 });
 
 router.delete('/:Key', (req, res, next) => {
+  console.log('in AWS delete route')
   const { Key } = req.params;
   s3.deleteObject({ Bucket: req.bucketName, Key }, (err, data) => {
     if (err) {

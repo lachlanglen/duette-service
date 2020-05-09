@@ -11,6 +11,7 @@ const CatsGallery = (props) => {
     infoGettingDone,
     croppingDone,
     savingDone,
+    type
   } = props;
 
   return (
@@ -22,13 +23,16 @@ const CatsGallery = (props) => {
         style={styles.titleTextBlue}>
         We're saving your video.
       </Text>
-      <Text
-        style={{
-          ...styles.titleTextBlue,
-          ...styles.dontClose
-        }}>
-        Please don't leave this screen!
-      </Text>
+      {
+        type === 'duette' &&
+        <Text
+          style={{
+            ...styles.titleTextBlue,
+            ...styles.dontClose
+          }}>
+          Once your video is saved, we'll email it to you at {props.user.email}
+        </Text>
+      }
       <View style={styles.progressBar}>
         {
           infoGettingDone ? (
@@ -159,9 +163,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapState = ({ cats }) => {
+const mapState = ({ cats, user }) => {
   return {
     cats,
+    user
   }
 }
 

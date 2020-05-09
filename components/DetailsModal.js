@@ -33,6 +33,7 @@ const DetailsModal = (props) => {
   const jobs = [];
   let croppedVidId;
   let intervalId;
+  let tempVidId;
 
   const getJobStatus = async () => {
     const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
@@ -57,14 +58,21 @@ const DetailsModal = (props) => {
       throw new Error(`job #${jobs[0].id} failed: `, status.reason);
     } else {
       // job is completed
-      if (!infoGettingDone) setInfoGettingDone(true);
-      if (!croppingDone) setCroppingDone(true);
-      if (!savingDone) setSavingDone(true);
-      clearInterval(intervalId)
-      props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
-      // TODO: what if there's an error posting video?
-      setSuccess(true);
-      setSaving(false);
+      // delete tempVid
+      try {
+        await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`)
+        if (!infoGettingDone) setInfoGettingDone(true);
+        if (!croppingDone) setCroppingDone(true);
+        if (!savingDone) setSavingDone(true);
+        clearInterval(intervalId)
+        props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
+        // TODO: handle error posting video
+        setSuccess(true);
+        setSaving(false);
+      } catch (e) {
+        setError(true);
+        throw new Error('error deleting aws temp vid: ', e)
+      }
     }
   }
 
@@ -73,7 +81,7 @@ const DetailsModal = (props) => {
   };
 
   const handlePost = async () => {
-    const tempVidId = uuid.v4();
+    tempVidId = uuid.v4();
     let uriParts = dataUri.split('.');
     let fileType = uriParts[uriParts.length - 1];
     const vidFile = {
@@ -81,6 +89,7 @@ const DetailsModal = (props) => {
       name: `${tempVidId}.mov`,
       type: `video/${fileType}`
     }
+    console.log('tempVidId: ', tempVidId)
     try {
       const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
       const awsOptions = {

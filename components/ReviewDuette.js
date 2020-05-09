@@ -295,6 +295,7 @@ const ReviewDuette = (props) => {
                         croppingDone={croppingDone}
                         savingDone={savingDone}
                         addPadding={10}
+                        type="duette"
                       />
                     ) : (
                         success ? (

@@ -118,16 +118,18 @@ const DuetteScreen = (props) => {
                 props.videos.length > 0 ? (
                   <FlatList
                     data={props.videos}
-                    renderItem={({ item }) => (<VideoItem
-                      id={item.id}
-                      title={item.title}
-                      performer={item.performer}
-                      composer={item.composer}
-                      theKey={item.key}
-                      previewVid={previewVid}
-                      setPreviewVid={setPreviewVid}
-                      handlePreview={handlePreview}
-                      handleUse={handleUse} />
+                    renderItem={({ item }) => (
+                      <VideoItem
+                        id={item.id}
+                        title={item.title}
+                        performer={item.performer}
+                        composer={item.composer}
+                        theKey={item.key}
+                        userId={item.userId}
+                        previewVid={previewVid}
+                        setPreviewVid={setPreviewVid}
+                        handlePreview={handlePreview}
+                        handleUse={handleUse} />
                     )}
                     keyExtractor={item => item.id}
                     viewabilityConfig={{}}
