@@ -10,11 +10,26 @@ router.post('/', (req, res, next) => {
       console.log('error creating new duette record: ', e)
       res.status(400).send(e)
     })
-})
+});
+
+router.get('/byUserId/:userId', (req, res, next) => {
+  const { userId } = req.params;
+  Duette.findOne({
+    where: {
+      userId
+    }
+  })
+    .then(duette => {
+      if (duette) {
+        res.status(200).send(duette)
+      } else {
+        res.status(404).send(`Video not found with userId ${userId}!`)
+      }
+    })
+});
 
 router.get('/:id?', (req, res, next) => {
-  console.log('in duette get!')
-  const { id } = req.params
+  const { id } = req.params;
   if (id) {
     Duette.findOne({
       where: {
@@ -37,6 +52,6 @@ router.get('/:id?', (req, res, next) => {
         res.status(404).send(e)
       })
   }
-})
+});
 
 module.exports = router;

@@ -2,6 +2,12 @@ const express = require('express')
 const router = express.Router();
 const { User } = require('../../db');
 
+router.get('/', (req, res, next) => {
+  User.findAll()
+    .then(users => res.status(200).send(users))
+    .catch(e => res.status(404).send('Could not GET all users: ', e))
+});
+
 router.get('/facebookId/:facebookId', async (req, res, next) => {
   const { facebookId } = req.params;
   User.findOne({
