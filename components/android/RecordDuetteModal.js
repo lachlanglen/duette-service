@@ -1,18 +1,13 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import { Video } from 'expo-av';
-import { Camera } from 'expo-camera';
-import { getAWSVideoUrl } from '../../constants/urls';
+import { View, Modal, StyleSheet } from 'react-native';
 import Error from '../Error';
 import ReviewDuette from '../ReviewDuette';
 import RecordDuettePortrait from './RecordDuettePortrait';
+import RecordDuetteLandscape from './RecordDuetteLandscape';
 
 const RecordDuetteModal = (props) => {
-
-  let screenWidth = Math.floor(Dimensions.get('window').width);
-  let screenHeight = Math.floor(Dimensions.get('window').height);
 
   const {
     setShowRecordDuetteModal,
@@ -80,6 +75,12 @@ const RecordDuetteModal = (props) => {
     setShowPreviewModal(false);
   };
 
+  const handleTryAgain = async () => {
+    await vidRef.stopAsync();
+    cameraRef.stopRecording();
+    setRecording(false);
+  };
+
   return (
     error ? (
       <Error handleGoBack={handleError} />
@@ -105,12 +106,20 @@ const RecordDuetteModal = (props) => {
                         handleCancel={handleCancel}
                         setVidRef={setVidRef}
                         handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
-                        screenOrientation={screenOrientation}
                         setCameraRef={setCameraRef}
                         toggleRecord={toggleRecord}
+                        handleTryAgain={handleTryAgain}
                       />
                     ) : (
-                        <RecordDuetteLandscape />
+                        <RecordDuetteLandscape
+                          recording={recording}
+                          handleCancel={handleCancel}
+                          setVidRef={setVidRef}
+                          handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
+                          setCameraRef={setCameraRef}
+                          toggleRecord={toggleRecord}
+                          handleTryAgain={handleTryAgain}
+                        />
                       )
                   }
                 </Modal >
@@ -128,39 +137,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#ffffff',
   },
-  overlay: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#DDDDDD',
-    padding: 10,
-    position: 'absolute',
-    opacity: 0.5,
-    alignSelf: 'center',
-    borderColor: 'black',
-  },
-  overlayText: {
-    paddingLeft: 20,
-    paddingTop: 20,
-    fontWeight: 'normal',
-    color: 'red',
-  },
-  problemContainerPortrait: {
-    alignItems: 'center',
-    paddingBottom: 10,
-    height: 30,
-  },
-  recordButtonContainer: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  recordButton: {
-    borderColor: 'darkred',
-    alignSelf: 'flex-end',
-    borderRadius: 50,
-    margin: 10,
-  }
 });
 
 const mapState = ({ selectedVideo }) => {

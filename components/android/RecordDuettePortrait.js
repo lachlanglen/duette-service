@@ -1,10 +1,13 @@
 /* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { View, TouchableOpacity, Text, Dimensions, StyleSheet } from 'react-native';
 import { Camera } from 'expo-camera';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../../constants/urls';
+
+let screenWidth = Math.floor(Dimensions.get('window').width);
+let screenHeight = Math.floor(Dimensions.get('window').height);
 
 const RecordDuettePortrait = (props) => {
   const {
@@ -12,29 +15,14 @@ const RecordDuettePortrait = (props) => {
     handleCancel,
     setVidRef,
     handlePlaybackStatusUpdate,
-    screenOrientation,
     setCameraRef,
     toggleRecord,
+    handleTryAgain,
   } = props;
 
-  let screenWidth = Math.floor(Dimensions.get('window').width);
-  let screenHeight = Math.floor(Dimensions.get('window').height);
-
   return (
-    <View style={{
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'black',
-      height: '100%'
-    }}>
-      <View style={{
-        alignSelf: 'flex-start',
-        justifyContent: 'center',
-        // backgroundColor: 'black',
-        height: '15%',
-        width: '50%'
-      }}>
+    <View style={styles.container}>
+      <View style={styles.recordingOrCancelContainer}>
         <TouchableOpacity
           onPress={!recording ? handleCancel : () => { }}
         >
@@ -50,22 +38,9 @@ const RecordDuettePortrait = (props) => {
         </TouchableOpacity>
       </View>
       <View
-        style={{
-          flexDirection: 'row',
-          backgroundColor: 'red',
-          height: screenWidth / 9 * 8,
-          width: '100%',
-        }}>
-        <View style={{
-          height: '100%',
-          width: '50%',
-          backgroundColor: 'black'
-        }}>
-          <View style={{
-            height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
-            width: '100%',
-            backgroundColor: 'black'
-          }} />
+        style={styles.mediaContainer}>
+        <View style={styles.videoContainer}>
+          <View style={styles.videoOffset} />
           <Video
             ref={ref => setVidRef(ref)}
             source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
@@ -75,59 +50,29 @@ const RecordDuettePortrait = (props) => {
             resizeMode="cover"
             progressUpdateIntervalMillis={50}
             onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-            style={{
-              width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-              height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-            }}
+            style={styles.video}
           />
         </View>
-        <View style={{
-          height: '100%',
-          width: '50%',
-          backgroundColor: 'black'
-        }}>
+        <View style={styles.cameraContainer}>
           {/* TODO: add codec to camera input? (e.g. .mov) */}
           <Camera
-            style={{
-              width: '100%',
-              height: '100%',
-              alignSelf: 'center',
-            }}
+            style={styles.camera}
             ratio="16:9"
             type={Camera.Constants.Type.front}
             ref={ref => setCameraRef(ref)} >
-            <View style={{
-              height: '100%',
-              width: '100%',
-              justifyContent: 'space-between'
-            }}>
-              <View style={{
-                height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
-                width: '100%',
-                backgroundColor: 'black'
-              }} />
-              <View style={{
-                height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
-                width: '100%',
-                backgroundColor: 'black'
-              }} />
+            <View style={styles.cameraOverlayContainer}>
+              <View style={styles.cameraOverlay} />
+              <View style={styles.cameraOverlay} />
             </View>
           </Camera>
         </View>
       </View>
-      <View style={{ backgroundColor: 'black', height: '15%', width: '50%' }}>
-        <View style={{ backgroundColor: 'black', width: '100%', height: '18.3%', justifyContent: 'flex-end' }}>
+      <View style={styles.recordButtonContainer}>
+        <View style={styles.recordTextContainer}>
           <TouchableOpacity
             onPress={toggleRecord}
           >
-            <Text style={{
-              color: 'red',
-              fontSize: 13,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              textTransform: 'uppercase',
-            }}
-            >
+            <Text style={styles.recordText}>
               {recording ? '' : 'record'}
             </Text>
           </TouchableOpacity>
@@ -135,28 +80,110 @@ const RecordDuettePortrait = (props) => {
         <TouchableOpacity
           onPress={toggleRecord}
           style={{
-            borderWidth: 5,
+            ...styles.recordButton,
             borderColor: recording ? 'darkred' : 'darkred',
-            alignSelf: 'center',
-            width: 50,
-            height: 50,
             backgroundColor: recording ? 'black' : 'red',
-            borderRadius: 50,
-            margin: 10,
           }}
         />
       </View>
       {
         recording &&
         <TouchableOpacity
-          onPress={handleCancel}
+          onPress={handleTryAgain}
         >
-          <Text style={{ color: 'red', marginTop: 20, width: '100%' }}>Having a problem? Touch here to try again.</Text>
+          <Text style={styles.problemText}>Having a problem? Touch here to try again.</Text>
         </TouchableOpacity>
       }
     </View>
   )
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+    height: '100%',
+  },
+  recordingOrCancelContainer: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    height: '15%',
+    width: '50%',
+  },
+  mediaContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'black',
+    height: screenWidth / 9 * 8,
+    width: '100%',
+  },
+  videoContainer: {
+    height: '100%',
+    width: '50%',
+    backgroundColor: 'black',
+  },
+  videoOffset: {
+    height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
+    width: '100%',
+    backgroundColor: 'black',
+  },
+  video: {
+    width: screenWidth / 2,
+    height: screenWidth / 16 * 9,
+  },
+  cameraContainer: {
+    height: '100%',
+    width: '50%',
+    backgroundColor: 'black',
+  },
+  camera: {
+    width: '100%',
+    height: '100%',
+    alignSelf: 'center',
+  },
+  cameraOverlayContainer: {
+    height: '100%',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  cameraOverlay: {
+    height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
+    width: '100%',
+    backgroundColor: 'black',
+  },
+  recordButtonContainer: {
+    backgroundColor: 'black',
+    height: '15%',
+    width: '50%',
+  },
+  recordTextContainer: {
+    backgroundColor: 'black',
+    width: '100%',
+    height: '18.3%',
+    justifyContent: 'flex-end',
+  },
+  recordText: {
+    color: 'red',
+    fontSize: 13,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  recordButton: {
+    borderRadius: 50,
+    margin: 10,
+    borderWidth: 5,
+    alignSelf: 'center',
+    width: 50,
+    height: 50,
+  },
+  problemText: {
+    color: 'red',
+    marginTop: 20,
+    width: '100%',
+  }
+})
 
 const mapState = ({ selectedVideo }) => {
   return {
