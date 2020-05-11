@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
-import { getAWSVideoUrl } from '../constants/urls';
-import Error from './Error';
-import ReviewDuette from './ReviewDuette';
+import { getAWSVideoUrl } from '../../constants/urls';
+import Error from '../Error';
+import ReviewDuette from '../ReviewDuette';
 
 const RecordDuetteModal = (props) => {
 
