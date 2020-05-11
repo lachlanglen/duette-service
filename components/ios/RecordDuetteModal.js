@@ -32,7 +32,6 @@ const RecordDuetteModal = (props) => {
     try {
       const vid = await cameraRef.recordAsync();
       setDuetteUri(vid.uri);
-      setShowPreviewModal(true);
     } catch (e) {
       console.log('error starting recording: ', e);
       setError(true);
@@ -52,6 +51,7 @@ const RecordDuetteModal = (props) => {
     if (recording) {
       setRecording(false);
       cameraRef.stopRecording();
+      setShowPreviewModal(true);
     } else {
       setRecording(true);
       record();
@@ -71,6 +71,12 @@ const RecordDuetteModal = (props) => {
     } catch (e) {
       console.log('error unloading video: ', e);
     }
+  };
+
+  const handleTryAgain = async () => {
+    await vidRef.stopAsync();
+    cameraRef.stopRecording();
+    setRecording(false);
   };
 
   const handlePlaybackStatusUpdate = (updateObj) => {
@@ -163,9 +169,9 @@ const RecordDuetteModal = (props) => {
                           </View>
                         }
                         {
-                          screenOrientation === 'LANDSCAPE' &&
+                          screenOrientation === 'LANDSCAPE' && recording &&
                           <TouchableOpacity
-                            onPress={handleCancel}
+                            onPress={handleTryAgain}
                             style={styles.problemContainerPortrait}
                           >
                             <Text style={{ color: 'red' }}>Having a problem? Touch here to try again.</Text>
@@ -174,9 +180,9 @@ const RecordDuetteModal = (props) => {
                       </Camera>
                     </View>
                     {
-                      screenOrientation === 'PORTRAIT' &&
+                      screenOrientation === 'PORTRAIT' && recording &&
                       <TouchableOpacity
-                        onPress={handleCancel}
+                        onPress={handleTryAgain}
                       >
                         <Text style={{ color: 'red', marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
                       </TouchableOpacity>

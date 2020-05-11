@@ -27,8 +27,6 @@ const PreviewAndSync = (props) => {
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  console.log('props: ', props);
-
   return (
     <View style={{
       ...styles.container,
@@ -180,9 +178,14 @@ const PreviewAndSync = (props) => {
               type="material"
               color="yellow" />
           </View>
-          <Button
-            title="Save"
-            onPress={handleSave} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+            <Button
+              title="Save"
+              onPress={handleSave} />
+            <Button
+              title="Re-record"
+              onPress={handleRedo} />
+          </View>
         </View>
       }
     </View>
