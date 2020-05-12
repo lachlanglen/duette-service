@@ -70,13 +70,17 @@ function start() {
         // get metadata on vid 1
         const metadata = await ffprobeAsync(accompanimentUrl)
 
+        console.log('metadata1: ', metadata)
+
         file1Info.orientation = metadata.streams[0].rotation === '-90' || metadata.streams[0].rotation === '90' ? 'portrait' : 'landscape';
         file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
         file1Info.duration = metadata.streams[0].duration;
 
         // get metadata on vid 2
-        const metadata2 = await ffprobeAsync(duetteUrl)
+        const metadata2 = await ffprobeAsync(duetteUrl);
+
+        console.log('metadata2: ', metadata2)
 
         file2Info.orientation = metadata2.streams[0].rotation === '-90' || metadata2.streams[0].rotation === '90' ? 'portrait' : 'landscape';
         file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
