@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     height: screenHeight,
   },
   video: {
-    width: '100%',
-    height: '100%',
+    width: screenWidth / 2,
+    height: screenHeight,
   },
   recordingOrCancelContainer: {
     position: 'absolute',

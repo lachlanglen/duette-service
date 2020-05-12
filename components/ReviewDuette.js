@@ -20,12 +20,13 @@ const ReviewDuette = (props) => {
     bluetooth,
     duetteUri,
     setShowPreviewModal,
-    setShowRecordDuetteModal
+    setShowRecordDuetteModal,
+    screenOrientation,
   } = props;
 
   const [displayMergedVideo, setDisplayMergedVideo] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [screenOrientation, setScreenOrientation] = useState('')
+  // const [screenOrientation, setScreenOrientation] = useState('')
   const [previewComplete, setPreviewComplete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [vidARef, setVidARef] = useState(null);
@@ -147,9 +148,9 @@ const ReviewDuette = (props) => {
     }
   };
 
-  const handleModalOrientationChange = (ev) => {
-    setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
-  };
+  // const handleModalOrientationChange = (ev) => {
+  //   setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
+  // };
 
   const handleView = () => {
     setDisplayMergedVideo(true);
@@ -245,7 +246,7 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    if (customOffset <= 75) return;
+    if (customOffset < 75) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
     setCustomOffset(customOffset - 75);
@@ -270,6 +271,8 @@ const ReviewDuette = (props) => {
     setSavingDone(false);
     setError(false);
   };
+
+  console.log('screenorientation in ReviewDuette: ', screenOrientation)
 
   return (
     error ? (

@@ -12,6 +12,7 @@ const mailjet = require('node-mailjet')
 
 const exec = promisify(require('child_process').exec)
 const writeFileAsync = promisify(fs.writeFile)
+const existsAsync = promisify(fs.access);
 const ffprobeAsync = promisify(ffmpeg.ffprobe)
 const unlinkAsync = promisify(fs.unlink)
 
@@ -187,9 +188,42 @@ function start() {
               .catch(e => console.log('error sending email: ', e))
           }
         })
-      } catch (e) {
-        console.log('error in duette worker: ', e)
-        throw new Error(e);
+      } catch (error) {
+        console.log('error in duette worker: ', error);
+        fs.access(`${__dirname}/${file2Info.originalName}cropped.mov`, fs.constants.F_OK, async err => {
+          if (err) {
+            throw new Error(error);
+          } else {
+            await unlinkAsync(`${__dirname}/${file2Info.originalName}cropped.mov`);
+            fs.access(`${__dirname}/${file1Info.height < file2Info.croppedHeight ? file1Info.originalName : file2Info.originalName}scaled.mov`, fs.constants.F_OK, async e => {
+              if (e) {
+                throw new Error(error);
+              } else {
+                await unlinkAsync(`${__dirname}/${file1Info.height < file2Info.croppedHeight ? file1Info.originalName : file2Info.originalName}scaled.mov`);
+                fs.access(`${__dirname}/${file2Info.originalName}scaled.mov`, fs.constants.F_OK, async er => {
+                  if (er) {
+                    try {
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
+                    } catch (E) {
+                      throw new Error(E);
+                    }
+                  } else {
+                    try {
+                      await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
+                    } catch (E) {
+                      throw new Error(E);
+                    }
+                  }
+                })
+              }
+            })
+          }
+        })
       }
     } else {
       // job.data.type === 'accompaniment'
