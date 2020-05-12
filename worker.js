@@ -70,7 +70,7 @@ function start() {
         // get metadata on vid 1
         const metadata = await ffprobeAsync(accompanimentUrl)
 
-        file1Info.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
+        file1Info.orientation = metadata.streams[0].rotation === '-90' || metadata.streams[0].rotation === '90' ? 'portrait' : 'landscape';
         file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
         file1Info.duration = metadata.streams[0].duration;
@@ -78,7 +78,7 @@ function start() {
         // get metadata on vid 2
         const metadata2 = await ffprobeAsync(duetteUrl)
 
-        file2Info.orientation = metadata2.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
+        file2Info.orientation = metadata2.streams[0].rotation === '-90' || metadata2.streams[0].rotation === '90' ? 'portrait' : 'landscape';
         file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
         file2Info.trueHeight = file2Info.orientation === 'portrait' ? metadata2.streams[0].width : metadata2.streams[0].height;
         file2Info.croppedHeight = file2Info.orientation === 'portrait' ? (file2Info.trueWidth / 8) * 9 : file2Info.trueHeight;
@@ -247,7 +247,7 @@ function start() {
 
         console.log('metadata: ', metadata)
 
-        fileInfo.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
+        fileInfo.orientation = metadata.streams[0].rotation === '-90' || metadata.streams[0].rotation === '90' ? 'portrait' : 'landscape';
         fileInfo.trueWidth = fileInfo.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         fileInfo.trueHeight = fileInfo.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
         fileInfo.croppedHeight = fileInfo.orientation === 'portrait' ? (fileInfo.trueWidth / 8) * 9 : fileInfo.trueHeight;

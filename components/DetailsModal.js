@@ -89,7 +89,6 @@ const DetailsModal = (props) => {
       name: `${tempVidId}.mov`,
       type: `video/${fileType}`
     }
-    console.log('tempVidId: ', tempVidId)
     try {
       const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
       const awsOptions = {
