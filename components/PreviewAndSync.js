@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
-import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../constants/urls';
@@ -213,7 +213,8 @@ const PreviewAndSync = (props) => {
               <Text
                 style={{
                   ...buttonStyles.regularButtonText,
-                  fontSize: 17
+                  fontSize: Platform.OS === 'ios' ? 20 : 17,
+                  fontWeight: Platform.OS === 'ios' ? 'normal' : 'bold',
                 }}>Save
               </Text>
             </TouchableOpacity>
@@ -227,7 +228,8 @@ const PreviewAndSync = (props) => {
               <Text
                 style={{
                   ...buttonStyles.regularButtonText,
-                  fontSize: 17
+                  fontSize: Platform.OS === 'ios' ? 20 : 17,
+                  fontWeight: Platform.OS === 'ios' ? 'normal' : 'bold',
                 }}>Re-record
               </Text>
             </TouchableOpacity>
