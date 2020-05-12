@@ -34,6 +34,8 @@ function start() {
   // Connect to the named work queue
   let videoQueue = new Queue('video processing', REDIS_URL);
 
+  const landscapeRotations = ['-90', '90', -90, 90]
+
   videoQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
@@ -72,7 +74,7 @@ function start() {
 
         console.log('metadata1: ', metadata)
 
-        file1Info.orientation = metadata.streams[0].rotation === '-90' || metadata.streams[0].rotation === '90' ? 'portrait' : 'landscape';
+        file1Info.orientation = landscapeRotations.includes(metadata.streams[0].rotation) === '90' ? 'portrait' : 'landscape';
         file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         file1Info.height = file1Info.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
         file1Info.duration = metadata.streams[0].duration;
@@ -80,9 +82,9 @@ function start() {
         // get metadata on vid 2
         const metadata2 = await ffprobeAsync(duetteUrl);
 
-        console.log('metadata2: ', metadata2)
+        console.log('metadata2: ', metadata2);
 
-        file2Info.orientation = metadata2.streams[0].rotation === '-90' || metadata2.streams[0].rotation === '90' ? 'portrait' : 'landscape';
+        file2Info.orientation = landscapeRotations.includes(metadata2.streams[0].rotation) ? 'portrait' : 'landscape';
         file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
         file2Info.trueHeight = file2Info.orientation === 'portrait' ? metadata2.streams[0].width : metadata2.streams[0].height;
         file2Info.croppedHeight = file2Info.orientation === 'portrait' ? (file2Info.trueWidth / 8) * 9 : file2Info.trueHeight;
