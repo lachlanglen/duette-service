@@ -10,6 +10,7 @@ export default function (containerRef) {
         screens: {
           Accompaniment: 'accompaniment',
           Duette: 'duette',
+          // MyDuettes: 'myDuettes',
           Settings: 'settings',
         },
       },

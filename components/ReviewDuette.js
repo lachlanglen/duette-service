@@ -10,8 +10,9 @@ import uuid from 'react-native-uuid';
 import DisplayMergedVideo from './DisplayMergedVideo';
 import CatsGallery from './CatsGallery';
 import { getAWSVideoUrl } from '../constants/urls';
-import Error from './Error';
+import ErrorView from './Error';
 import PreviewAndSync from './PreviewAndSync';
+import { postDuette } from '../redux/duettes';
 
 const ReviewDuette = (props) => {
 
@@ -83,8 +84,7 @@ const ReviewDuette = (props) => {
       clearInterval(intervalId)
       console.log('speed: ', Date.now() - startTime)
       try {
-        // TODO: change this to thunk
-        await axios.post('https://duette.herokuapp.com/api/duette', { id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
+        props.postDuette({ id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
         await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
         setSuccess(true);
         setSaving(false);
@@ -191,12 +191,12 @@ const ReviewDuette = (props) => {
           { cancelable: false }
         );
       } catch (e) {
-        console.log('error saving to camera roll: ', e);
         setError(true);
+        throw new Error('error saving to camera roll: ', e);
       }
     } catch (e) {
-      console.log('error downloading to local file: ', e);
       setError(true);
+      throw new Error('error downloading to local file: ', e);
     }
   };
 
@@ -273,7 +273,7 @@ const ReviewDuette = (props) => {
 
   return (
     error ? (
-      <Error handleGoBack={handleError} />
+      <ErrorView handleGoBack={handleError} />
     ) : (
         <View style={styles.container}>
           {
@@ -366,6 +366,12 @@ const mapState = ({ selectedVideo, user }) => {
     selectedVideo,
     user,
   }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    postDuette: details => dispatch(postDuette(details)),
+  }
 }
 
-export default connect(mapState)(ReviewDuette);
+export default connect(mapState, mapDispatch)(ReviewDuette);

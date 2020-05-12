@@ -4,6 +4,7 @@ import { catsReducer } from './cats';
 import { videosReducer } from './videos';
 import { userReducer } from './user';
 import { displayUserInfoReducer } from './userInfo';
+import { userDuettesReducer } from './duettes';
 
 const appReducer = combineReducers({
   videos: videosReducer,
@@ -11,6 +12,7 @@ const appReducer = combineReducers({
   cats: catsReducer,
   user: userReducer,
   displayUserInfo: displayUserInfoReducer,
+  userDuettes: userDuettesReducer,
 })
 
 export default appReducer;
