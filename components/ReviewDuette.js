@@ -73,7 +73,6 @@ const ReviewDuette = (props) => {
       }
     }
     if (status.state === 'failed') {
-      console.log('job failed');
       clearInterval(intervalId);
       setError(true);
       throw new Error(`job #${jobs[0].id} failed: `, status.reason);
@@ -83,15 +82,15 @@ const ReviewDuette = (props) => {
       if (!croppingDone) setCroppingDone(true);
       if (!savingDone) setSavingDone(true);
       clearInterval(intervalId)
-      console.log('speed: ', Date.now() - startTime)
+      // console.log('speed: ', Date.now() - startTime)
       try {
         props.postDuette({ id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
         await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
         setSuccess(true);
         setSaving(false);
       } catch (e) {
-        console.log('error downloading from s3: ', e);
         setError(true);
+        throw new Error('error downloading from s3: ', e);
       }
     }
   };
@@ -134,17 +133,17 @@ const ReviewDuette = (props) => {
           setCombinedKey(combinedVidKey);
           poll(500);
         } catch (e) {
-          console.log('error posting job: ', e);
           setError(true);
+          throw new Error('error posting job: ', e);
         }
       }
       catch (e) {
-        console.log('error posting to s3: ', e);
         setError(true);
+        throw new Error('error posting to s3: ', e);
       }
     } catch (e) {
-      console.log('error getting signedUrl: ', e);
       setError(true);
+      throw new Error('error getting signedUrl: ', e);
     }
   };
 
@@ -182,7 +181,6 @@ const ReviewDuette = (props) => {
       )
       try {
         await MediaLibrary.saveToLibraryAsync(uri);
-        console.log('saved to library!');
         Alert.alert(
           'Saved',
           'Your video has been saved to your Camera Roll!',
@@ -271,8 +269,6 @@ const ReviewDuette = (props) => {
     setSavingDone(false);
     setError(false);
   };
-
-  console.log('screenorientation in ReviewDuette: ', screenOrientation)
 
   return (
     error ? (

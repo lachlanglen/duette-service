@@ -34,11 +34,9 @@ function start() {
   // Connect to the named work queue
   let videoQueue = new Queue('video processing', REDIS_URL);
 
-  const landscapeRotations = ['-90', '90', -90, 90]
-
   videoQueue.process(maxJobsPerWorker, async (job) => {
-    // This is an example job that just slowly reports on progress
-    // while doing no work. Replace this with your own job logic.
+    const landscapeRotations = ['-90', '90', -90, 90];
+
     if (job.data.type === 'duette') {
 
       const { duetteKey, accompanimentKey, combinedKey, delay, userName, userEmail } = job.data;

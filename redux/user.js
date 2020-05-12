@@ -43,7 +43,9 @@ export const createOrUpdateUser = body => {
         lastLogin: Date.now(),
       })
       .then(user => dispatch(setUser(user.data)))
-      .catch(e => console.log('error in setUser thunk: ', e))
+      .catch(e => {
+        throw new Error('error in setUser thunk: ', e)
+      });
   };
 };
 
@@ -51,7 +53,9 @@ export const fetchUser = facebookId => {
   return dispatch => {
     axios.get(`https://duette.herokuapp.com/api/user/facebookId/${facebookId}`)
       .then(user => dispatch(setUser(user.data)))
-      .catch(e => console.log('error in fetchUser thunk: ', e))
+      .catch(e => {
+        throw new Error('error in fetchUser thunk: ', e)
+      });
   };
 };
 

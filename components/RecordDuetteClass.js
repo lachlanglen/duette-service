@@ -54,7 +54,6 @@ class RecordDuetteClassModal extends Component {
     this.cameraRef.stopRecording();
     this.vidRef.unloadAsync()
       .then(() => {
-        console.log('successfully unloaded video');
         this.props.setShowRecordDuetteModal(false);
       })
       .catch((e) => {

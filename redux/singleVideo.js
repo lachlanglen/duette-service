@@ -33,7 +33,9 @@ export const setVideo = id => {
   return dispatch => {
     axios.get(`https://duette.herokuapp.com/api/video/${id}`)
       .then(video => dispatch(setSelectedVideo(video.data)))
-      .catch(e => console.log('error in setVideo thunk: ', e))
+      .catch(e => {
+        throw new Error('error in setVideo thunk: ', e)
+      })
   }
 }
 

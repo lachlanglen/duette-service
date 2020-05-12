@@ -5,7 +5,7 @@ import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'rea
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
 import { getAWSVideoUrl } from '../../constants/urls';
-import Error from '../Error';
+import ErrorView from '../Error';
 import ReviewDuette from '../ReviewDuette';
 
 const RecordDuetteModal = (props) => {
@@ -33,8 +33,8 @@ const RecordDuetteModal = (props) => {
       const vid = await cameraRef.recordAsync();
       setDuetteUri(vid.uri);
     } catch (e) {
-      console.log('error starting recording: ', e);
       setError(true);
+      throw new Error('error starting recording: ', e);
     }
   };
 
@@ -42,8 +42,8 @@ const RecordDuetteModal = (props) => {
     try {
       await vidRef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     } catch (e) {
-      console.log('error playing video: ', e);
       setError(true);
+      throw new Error('error playing video: ', e);
     }
   };
 
@@ -69,7 +69,7 @@ const RecordDuetteModal = (props) => {
       cameraRef.stopRecording();
       setShowRecordDuetteModal(false);
     } catch (e) {
-      console.log('error unloading video: ', e);
+      throw new Error('error unloading video: ', e);
     }
   };
 
@@ -91,7 +91,7 @@ const RecordDuetteModal = (props) => {
 
   return (
     error ? (
-      <Error handleGoBack={handleError} />
+      <ErrorView handleGoBack={handleError} />
     ) : (
         <View style={styles.container}>
           {

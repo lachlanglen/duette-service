@@ -58,7 +58,6 @@ export default function App(props) {
         if (accessToken) {
           // check for expires
           const expires = await SecureStore.getItemAsync('expires');
-          // console.log('Date.now(): ', Date.now().toString().slice(0, 10));
           // if token is still valid
           if (parseInt(expires) > parseInt(Date.now().toString().slice(0, 10))) {
             // user is current

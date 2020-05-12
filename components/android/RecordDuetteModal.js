@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { View, Modal, StyleSheet } from 'react-native';
-import Error from '../Error';
+import ErrorView from '../Error';
 import ReviewDuette from '../ReviewDuette';
 import RecordDuettePortrait from './RecordDuettePortrait';
 import RecordDuetteLandscape from './RecordDuetteLandscape';
@@ -30,8 +30,8 @@ const RecordDuetteModal = (props) => {
       setDuetteUri(vid.uri);
       setShowPreviewModal(true);
     } catch (e) {
-      console.log('error starting recording: ', e);
       setError(true);
+      throw new Error('error starting recording: ', e)
     }
   };
 
@@ -39,8 +39,8 @@ const RecordDuetteModal = (props) => {
     try {
       await vidRef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     } catch (e) {
-      console.log('error playing video: ', e);
       setError(true);
+      throw new Error('error playing video: ', e)
     }
   };
 
@@ -61,7 +61,7 @@ const RecordDuetteModal = (props) => {
       cameraRef.stopRecording();
       setShowRecordDuetteModal(false);
     } catch (e) {
-      console.log('error unloading video: ', e);
+      throw new Error('error unloading video: ', e);
     }
   };
 
@@ -83,7 +83,7 @@ const RecordDuetteModal = (props) => {
 
   return (
     error ? (
-      <Error handleGoBack={handleError} />
+      <ErrorView handleGoBack={handleError} />
     ) : (
         <View style={styles.container}>
           {

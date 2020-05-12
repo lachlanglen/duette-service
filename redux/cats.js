@@ -32,7 +32,9 @@ export const loadCats = () => {
         ))
       })
       .then(data => dispatch(setCats(data)))
-      .catch(e => console.log('error in cats thunk: ', e))
+      .catch(e => {
+        throw new Error('error in cats thunk: ', e)
+      })
   };
 };
 

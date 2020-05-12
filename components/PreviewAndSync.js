@@ -28,8 +28,6 @@ const PreviewAndSync = (props) => {
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  console.log('screenOrientation in PreviewAndSync: ', screenOrientation)
-
   return (
     <View style={{
       ...styles.container,

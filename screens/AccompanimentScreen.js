@@ -8,7 +8,7 @@ import DetailsModal from '../components/DetailsModal';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
 import UserInfoMenu from '../components/UserInfoMenu';
-import Error from '../components/Error';
+import ErrorView from '../components/Error';
 import RecordAccompanimentAndroid from '../components/android/RecordAccompaniment';
 import RecordAccompanimentIos from '../components/ios/RecordAccompaniment';
 import PreviewAccompanimentAndroid from '../components/android/PreviewAccompaniment';
@@ -82,8 +82,8 @@ const AccompanimentScreen = (props) => {
       setDataUri(vid.uri)
       setPreview(true);
     } catch (e) {
-      console.log('error in recordAsync: ', e);
       setError(true);
+      throw new Error('error in recordAsync: ', e);
     }
   };
 
@@ -127,7 +127,7 @@ const AccompanimentScreen = (props) => {
 
   return (
     error ? (
-      <Error handleGoBack={handleError} />
+      <ErrorView handleGoBack={handleError} />
     ) : (
         // is user currently signed in?
         // ==> NO

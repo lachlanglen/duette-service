@@ -7,7 +7,7 @@ import axios from 'axios';
 import CatsGallery from './CatsGallery';
 import { postVideo } from '../redux/videos';
 import Form from './Form';
-import Error from './Error';
+import ErrorView from './Error';
 import buttonStyles from '../styles/button';
 
 const DetailsModal = (props) => {
@@ -52,7 +52,6 @@ const DetailsModal = (props) => {
         setSavingDone(true);
       }
     } else if (status.state === 'failed') {
-      console.log('job failed')
       clearInterval(intervalId);
       setError(true);
       throw new Error(`job #${jobs[0].id} failed: `, status.reason);
@@ -105,8 +104,8 @@ const DetailsModal = (props) => {
       jobs.push(job);
       poll(500);
     } catch (e) {
-      console.log('error in handlePost: ', e);
       setError(true);
+      throw new Error('error in handlePost: ', e)
     }
   };
 
@@ -131,7 +130,7 @@ const DetailsModal = (props) => {
 
   return (
     error ? (
-      <Error handleGoBack={handleError} />
+      <ErrorView handleGoBack={handleError} />
     ) : (
         saving ? (
           <CatsGallery

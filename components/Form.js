@@ -18,8 +18,6 @@ const Form = (props) => {
     handleSave
   } = props;
 
-  // console.log('title: ', title, 'composer: ', composer, 'key: ', songKey, 'performer: ', performer)
-
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>Please enter the following details:</Text>

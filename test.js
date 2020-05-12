@@ -4,11 +4,19 @@ const { promisify } = require('util');
 const ffprobeAsync = promisify(ffmpeg.ffprobe)
 const exec = promisify(require('child_process').exec)
 
+const duetteUrl = 'https://duette.s3.us-east-2.amazonaws.com/081b9087-4dad-49ac-b7d4-84b86599fb1a.mov';
+const accompanimentUrl = 'https://duette.s3.us-east-2.amazonaws.com/588d56de-cf7a-4f9c-9457-c8485793da14.mov';
+
 const execute = async () => {
   try {
-    // await exec(`ffmpeg -i https://duette.s3.us-east-2.amazonaws.com/081b9087-4dad-49ac-b7d4-84b86599fb1a.mov -filter:v "crop=iw:1214:0:352.5" -preset ultrafast -c:a copy 081b9087-4dad-49ac-b7d4-84b86599fb1acropped.mov`);
 
-    // console.log('cropped!')
+    const metadata1 = await ffprobeAsync(accompanimentUrl);
+    const metadata2 = await ffprobeAsync(duetteUrl);
+    console.log('metadata1: ', metadata1);
+    console.log('metadata2: ', metadata2);
+    await exec(`ffmpeg -i https://duette.s3.us-east-2.amazonaws.com/081b9087-4dad-49ac-b7d4-84b86599fb1a.mov -filter:v "crop=iw:1214:0:352.5" -preset ultrafast -c:a copy 081b9087-4dad-49ac-b7d4-84b86599fb1acropped.mov`);
+    console.log('cropped!')
+
     await exec(`ffmpeg -i https://duette.s3.us-east-2.amazonaws.com/588d56de-cf7a-4f9c-9457-c8485793da14.mov -i 081b9087-4dad-49ac-b7d4-84b86599fb1acropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 588d56de-cf7a-4f9c-9457-c8485793da14081b9087-4dad-49ac-b7d4-84b86599fb1acombined.mov`);
     console.log('combined!')
   } catch (e) {
