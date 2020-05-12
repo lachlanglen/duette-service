@@ -122,11 +122,17 @@ function start() {
 
         job.progress({ percent: 60, currentStep: "finished cropping and trimming" });
 
+        const command1 = `ffmpeg -i ${accompanimentUrl} -i ${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`;
+        const command2 = `ffmpeg -i ${file1Info.isTallest ? `${accompanimentUrl}` : `${file1Info.originalName}scaled.mov`} -i ${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`;
+
+        console.log('command1: ', command1);
+        console.log('command2: ', command2);
         // if they are already the same height, no need to scale, just merge!
         if (!file1Info.isTallest && !file2Info.isTallest) await exec(`ffmpeg -i ${accompanimentUrl} -i ${file2Info.originalName}cropped.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
+        console.log('combined vids1!')
         // if the smaller vid has been scaled:
         if (file1Info.isTallest || file2Info.isTallest) await exec(`ffmpeg -i ${file1Info.isTallest ? `${accompanimentUrl}` : `${file1Info.originalName}scaled.mov`} -i ${file2Info.isTallest ? `${file2Info.originalName}cropped` : `${file2Info.originalName}scaled`}.mov -filter_complex "[0:v][1:v] hstack=inputs=2[v]; [0:a][1:a]amix[a]" -map "[v]" -map "[a]" -preset ultrafast -ac 2 ${file1Info.originalName}${file2Info.originalName}combined.mov`)
-        console.log('combined vids!')
+        console.log('combined vids2!')
 
         // add fade in & fade out
         await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}combined.mov -sseof -1 -copyts -i ${file1Info.originalName}${file2Info.originalName}combined.mov -filter_complex "[1]fade=out:0:30[t];[0][t]overlay,fade=in:0:30[v]; anullsrc,atrim=0:1[at];[0][at]acrossfade=d=1,afade=d=1[a]" -map "[v]" -map "[a]" -c:v libx264 -crf 22 -preset ultrafast -shortest ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`)
