@@ -245,6 +245,8 @@ function start() {
         // get metadata on vid file
         const metadata = await ffprobeAsync(vidUrl)
 
+        console.log('metadata: ', metadata)
+
         fileInfo.orientation = metadata.streams[0].rotation === '-90' ? 'portrait' : 'landscape';
         fileInfo.trueWidth = fileInfo.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
         fileInfo.trueHeight = fileInfo.orientation === 'portrait' ? metadata.streams[0].width : metadata.streams[0].height;
