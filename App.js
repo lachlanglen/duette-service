@@ -10,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Sentry from 'sentry-expo';
+import axios from 'axios';
 import Constants from 'expo-constants';
 import ErrorBoundary from './ErrorBoundary';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
@@ -17,6 +18,8 @@ import useLinking from './navigation/useLinking';
 import { fetchVideos } from './redux/videos';
 import { loadCats } from './redux/cats';
 import { fetchUser } from './redux/user';
+import { fetchDuettes } from './redux/duettes';
+import MyDuettes from './components/MyDuettes';
 
 Sentry.init({
   enableInExpoDevelopment: true,
@@ -62,6 +65,8 @@ export default function App(props) {
             // fetch and set user with facebookId
             const facebookId = await SecureStore.getItemAsync('facebookId');
             store.dispatch(fetchUser(facebookId));
+            const { id } = (await axios.get(`https://duette.herokuapp.com/api/user/facebookId/${facebookId}`)).data;
+            store.dispatch(fetchDuettes(id));
           }
         }
         store.dispatch(fetchVideos());
@@ -88,6 +93,7 @@ export default function App(props) {
             <Provider store={store}>
               <Stack.Navigator>
                 <Stack.Screen name="Root" component={BottomTabNavigator} />
+                <Stack.Screen name="My Duettes" component={MyDuettes} />
               </Stack.Navigator>
             </Provider>
           </ErrorBoundary>

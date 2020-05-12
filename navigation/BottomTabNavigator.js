@@ -63,7 +63,6 @@ const BottomTabNavigator = (props) => {
 
 function getHeaderTitle(route, user) {
   const routeName = route.state ?.routes[route.state.index] ?.name ?? INITIAL_ROUTE_NAME;
-
   switch (routeName) {
     case 'Accompaniment':
       return `Welcome${user.name ? `, ${user.name.split(' ')[0]}` : ' to Duette'}!`;
