@@ -5,6 +5,7 @@ import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet } from 're
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../constants/urls';
+import buttonStyles from '../styles/button';
 
 const PreviewAndSync = (props) => {
   const {
@@ -26,6 +27,8 @@ const PreviewAndSync = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
+
+  console.log('screenOrientation in PreviewAndSync: ', screenOrientation)
 
   return (
     <View style={{
@@ -91,31 +94,52 @@ const PreviewAndSync = (props) => {
                 style={{
                   ...styles.overlay,
                   opacity: 0.8,
-                  flexDirection: 'row',
+                  flexDirection: 'column',
                   width: screenWidth,
                   height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
                 }}>
                 <TouchableOpacity
-                  style={styles.button}
+                  style={{
+                    ...buttonStyles.regularButton,
+                    width: 200,
+                    marginBottom: 10
+                  }}
                   onPress={handleShowPreview}>
                   <Text
-                    style={styles.overlayText}>
+                    style={{
+                      ...buttonStyles.regularButtonText,
+                      fontSize: 17,
+                    }}>
                     View again
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.button}
+                  style={{
+                    ...buttonStyles.regularButton,
+                    width: 100,
+                    marginBottom: 10,
+                  }}
                   onPress={handleSave}>
                   <Text
-                    style={styles.overlayText}>
+                    style={{
+                      ...buttonStyles.regularButtonText,
+                      fontSize: 17
+                    }}>
                     Save
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.button}
+                  style={{
+                    ...buttonStyles.regularButton,
+                    width: 100,
+                    marginBottom: 10,
+                  }}
                   onPress={handleRedo}>
                   <Text
-                    style={styles.overlayText}>
+                    style={{
+                      ...buttonStyles.regularButtonText,
+                      fontSize: 17
+                    }}>
                     Redo
                   </Text>
                 </TouchableOpacity>
@@ -179,12 +203,34 @@ const PreviewAndSync = (props) => {
               color="yellow" />
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
-            <Button
-              title="Save"
-              onPress={handleSave} />
-            <Button
-              title="Re-record"
-              onPress={handleRedo} />
+            <TouchableOpacity
+              style={{
+                ...buttonStyles.regularButton,
+                width: 100,
+                marginBottom: 10,
+              }}
+              onPress={handleSave} >
+              <Text
+                style={{
+                  ...buttonStyles.regularButtonText,
+                  fontSize: 17
+                }}>Save
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                ...buttonStyles.regularButton,
+                width: 120,
+                marginBottom: 10,
+              }}
+              onPress={handleRedo} >
+              <Text
+                style={{
+                  ...buttonStyles.regularButtonText,
+                  fontSize: 17
+                }}>Re-record
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       }

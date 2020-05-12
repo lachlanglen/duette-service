@@ -93,6 +93,7 @@ const RecordDuetteModal = (props) => {
                 setShowRecordDuetteModal={setShowRecordDuetteModal}
                 duetteUri={duetteUri}
                 setShowPreviewModal={setShowPreviewModal}
+                screenOrientation={screenOrientation}
               />
             ) : (
                 <Modal
