@@ -20,6 +20,7 @@ import { loadCats } from './redux/cats';
 import { fetchUser } from './redux/user';
 import { fetchDuettes } from './redux/duettes';
 import MyDuettes from './components/MyDuettes';
+import DuetteScreen from './screens/DuetteScreen';
 
 Sentry.init({
   enableInExpoDevelopment: true,

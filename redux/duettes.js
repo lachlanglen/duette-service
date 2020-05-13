@@ -22,7 +22,7 @@ export const userDuettesReducer = (state = [], action) => {
 export const fetchDuettes = (userId) => {
   return dispatch => {
     axios.get(`https://duette.herokuapp.com/api/duette/byUserId/${userId}`)
-      .then(duettes => dispatch(setDuettes([duettes.data])))
+      .then(duettes => dispatch(setDuettes(duettes.data)))
       .catch(e => {
         throw new Error('error in fetchDuettes thunk: ', e)
       })

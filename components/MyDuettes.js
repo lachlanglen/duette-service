@@ -1,129 +1,50 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import { Text, View, SafeAreaView, FlatList, Alert, TouchableOpacity } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
-import * as FileSystem from 'expo-file-system';
-import { Video } from 'expo-av';
-import { getAWSVideoUrl } from '../constants/urls';
-import buttonStyles from '../styles/button';
+import { Text, View, SafeAreaView, FlatList, StyleSheet } from 'react-native';
+import MyDuettesItem from './MyDuettesItem';
 
 const MyDuettes = (props) => {
-
-  const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
-
-  const saveVideo = async (key) => {
-    try {
-      const { uri } = await FileSystem.downloadAsync(
-        getAWSVideoUrl(key),
-        FileSystem.documentDirectory + `${key}.mov`
-      )
-      try {
-        await MediaLibrary.saveToLibraryAsync(uri);
-        Alert.alert(
-          'Saved!',
-          'This Duette has been saved to your Camera Roll',
-          [
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-          ],
-          { cancelable: false }
-        );
-      } catch (e) {
-        setSavingToCameraRoll(false);
-        Alert.alert(
-          `We're sorry`,
-          'This video could not be saved to your camera roll at this time.',
-          [
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-          ],
-          { cancelable: false }
-        )
-        throw new Error('error saving to camera roll: ', e);
-      }
-    } catch (e) {
-      setSavingToCameraRoll(false);
-      Alert.alert(
-        `We're sorry`,
-        'This video could not be saved to your camera roll at this time.',
-        [
-          { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-        ],
-        { cancelable: false }
-      )
-      throw new Error('error downloading to local file: ', e);
-    }
-  };
-
-  const handleSaveToCameraRoll = async (combinedKey) => {
-    setSavingToCameraRoll(true);
-    const permission = await MediaLibrary.getPermissionsAsync();
-    if (permission.status !== 'granted') {
-      const newPermission = await MediaLibrary.requestPermissionsAsync();
-      if (newPermission.status === 'granted') {
-        saveVideo(combinedKey);
-      } else {
-        Alert.alert(
-          'Camera Roll',
-          'We need your permission to save to your Camera Roll!',
-          [
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-          ],
-          { cancelable: false }
-        );
-      }
-    } else {
-      saveVideo(combinedKey);
-    }
-  };
-
-  const ListItem = ({ duetteId, videoId }) => {
-    const combinedKey = `${videoId}${duetteId}`;
-    return (
-      // TODO: fix styling (too much vertical padding)
-      <View style={{
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Video
-          source={{ uri: getAWSVideoUrl(combinedKey) }}
-          style={{ width: 180, height: 320 }} />
-        <TouchableOpacity
-          onPress={() => handleSaveToCameraRoll(combinedKey)}
-          disabled={savingToCameraRoll}
-          style={{
-            ...buttonStyles.regularButton,
-            width: 100,
-            marginLeft: 20,
-            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#0047B9',
-            borderColor: savingToCameraRoll ? 'white' : 'darkblue',
-          }}>
-          <Text style={{
-            ...buttonStyles.regularButtonText,
-            fontWeight: 'normal',
-          }}>Save
-          </Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <FlatList
-        data={props.userDuettes}
-        renderItem={({ item }) => (
-          <ListItem
-            duetteId={item.id}
-            videoId={item.videoId}
+    <SafeAreaView
+      style={styles.container}>
+      {
+        props.userDuettes.length > 0 ? (
+          <FlatList
+            data={props.userDuettes}
+            renderItem={({ item }) => (
+              <MyDuettesItem
+                videoId={item.videoId}
+                duetteId={item.id}
+              />
+            )}
+            keyExtractor={item => item.id}
+            viewabilityConfig={{}}
           />
-        )}
-        keyExtractor={item => item.id}
-        viewabilityConfig={{}}
-      />
+        ) : (
+            <View>
+              <Text style={styles.text}>
+                No videos to display
+              </Text>
+            </View>
+          )
+      }
     </SafeAreaView>
   )
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFD12B',
+  },
+  text: {
+    marginTop: 10,
+    alignSelf: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+});
 
 const mapState = ({ userDuettes }) => {
   return {
