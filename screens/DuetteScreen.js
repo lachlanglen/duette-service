@@ -11,6 +11,7 @@ import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
 import UserInfoMenu from '../components/UserInfoMenu';
 import VideoItem from '../components/VideoItem';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const DuetteScreen = (props) => {
 
@@ -81,8 +82,11 @@ const DuetteScreen = (props) => {
 
   return (
     !props.user.id ? (
-      // send to facebook signin & store accessToken, expires & facebookId on secure store
-      <FacebookSignin />
+      !props.dataLoaded ? (
+        <LoadingSpinner />
+      ) : (
+          <FacebookSignin />
+        )
     ) : (
         showRecordDuetteModal ? (
           // RECORD A DUETTE
@@ -181,13 +185,14 @@ const styles = StyleSheet.create({
 });
 
 
-const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user }) => {
+const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user, dataLoaded }) => {
   return {
     videos,
     cats,
     selectedVideo,
     user,
-    displayUserInfo
+    displayUserInfo,
+    dataLoaded,
   }
 }
 
