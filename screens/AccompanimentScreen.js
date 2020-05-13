@@ -127,16 +127,6 @@ const AccompanimentScreen = (props) => {
     setError(false);
   };
 
-  // console.log('error: ', error);
-  // console.log('props: ', props);
-  // console.log('props.user.id: ', props.user.id);
-  // console.log('preview: ', preview);
-  // console.log('hasAudioPermission: ', hasAudioPermission);
-  // console.log('hasCameraPermission: ', hasCameraPermission);
-  // console.log('record: ', record);
-  // console.log('showDetailsModal: ', showDetailsModal);
-  // console.log('///////////////');
-
   return (
     error ? (
       <ErrorView handleGoBack={handleError} />

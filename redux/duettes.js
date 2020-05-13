@@ -20,6 +20,7 @@ export const userDuettesReducer = (state = [], action) => {
 }
 
 export const fetchDuettes = (userId) => {
+  console.log('in fetchDuettes thunk')
   return dispatch => {
     axios.get(`https://duette.herokuapp.com/api/duette/byUserId/${userId}`)
       .then(duettes => dispatch(setDuettes([duettes.data])))
@@ -30,9 +31,13 @@ export const fetchDuettes = (userId) => {
 };
 
 export const postDuette = (details) => {
+  console.log('in postDuette thunk')
   return dispatch => {
     axios.post('https://duette.herokuapp.com/api/duette', details)
-      .then(() => dispatch(fetchDuettes(details.userId)))
+      .then(duette => {
+        console.log('new duette: ', duette.data)
+        dispatch(fetchDuettes(details.userId))
+      })
       .catch(e => {
         throw new Error('error in postDuette thunk: ', e)
       })
