@@ -2,7 +2,7 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Alert, Image, View, Modal, Button, StyleSheet, Text } from 'react-native';
+import { Alert, Image, View, Modal, Button, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import axios from 'axios';
@@ -35,7 +35,7 @@ const ReviewDuette = (props) => {
   const [vid2Ready, setVid2Ready] = useState(false);
   const [bothVidsReady, setBothVidsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [customOffset, setCustomOffset] = useState(0);
+  const [customOffset, setCustomOffset] = useState(bluetooth ? 200 : 0);
   const [infoGettingDone, setInfoGettingDone] = useState(false);
   const [croppingDone, setCroppingDone] = useState(false);
   const [savingDone, setSavingDone] = useState(false);
@@ -157,7 +157,7 @@ const ReviewDuette = (props) => {
 
   const handleShowPreview = async () => {
     setPreviewComplete(false);
-    await vidBRef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidBRef.playFromPositionAsync(customOffset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     setIsPlaying(true);
   };
@@ -244,19 +244,19 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    if (customOffset < 75) return;
+    if (customOffset < 50) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    setCustomOffset(customOffset - 75);
-    await vidBRef.playFromPositionAsync(customOffset - 75, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    setCustomOffset(customOffset - 50);
+    await vidBRef.playFromPositionAsync(customOffset - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
   };
 
   const handleSyncForward = async () => {
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    setCustomOffset(customOffset + 75);
-    await vidBRef.playFromPositionAsync(customOffset + 75, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    setCustomOffset(customOffset + 50);
+    await vidBRef.playFromPositionAsync(customOffset + 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
     await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
   };
 
@@ -269,6 +269,8 @@ const ReviewDuette = (props) => {
     setSavingDone(false);
     setError(false);
   };
+
+  console.log('customOffset: ', customOffset)
 
   return (
     error ? (
@@ -311,6 +313,10 @@ const ReviewDuette = (props) => {
                               title={savingToCameraRoll ? 'Saving to Camera Roll...' : 'Save to Camera Roll'}
                               onPress={handleSaveToCameraRoll}
                             />
+                            {
+                              savingToCameraRoll &&
+                              <ActivityIndicator size="small" color="#0047B9" />
+                            }
                           </View>
                         ) : (
                             // video hasn't been merged yet

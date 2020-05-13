@@ -1,6 +1,7 @@
+/* eslint-disable max-statements */
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
+import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator } from 'react-native';
 import { connect } from 'react-redux'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Permissions from 'expo-permissions';
@@ -14,6 +15,7 @@ import RecordAccompanimentIos from '../components/ios/RecordAccompaniment';
 import PreviewAccompanimentAndroid from '../components/android/PreviewAccompaniment';
 import PreviewAccompanimentIos from '../components/ios/PreviewAccompaniment';
 import buttonStyles from '../styles/button';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const AccompanimentScreen = (props) => {
 
@@ -129,14 +131,15 @@ const AccompanimentScreen = (props) => {
     error ? (
       <ErrorView handleGoBack={handleError} />
     ) : (
-        // is user currently signed in?
-        // ==> NO
         !props.user.id ? (
-          // send to facebook signin & store accessToken, expires & facebookId on secure store
-          <FacebookSignin />
+          !props.dataLoaded ? (
+            <LoadingSpinner />
+          ) : (
+              <FacebookSignin />
+            )
         ) : (
             // ==> YES
-            !preview && hasAudioPermission && hasCameraPermission ? (
+            !preview ? (
               // record video:
               <View style={styles.container}>
                 {
@@ -253,11 +256,12 @@ const mapDispatch = dispatch => {
   }
 };
 
-const mapState = ({ user, videos, displayUserInfo }) => {
+const mapState = ({ user, videos, displayUserInfo, dataLoaded }) => {
   return {
     user,
     videos,
-    displayUserInfo
+    displayUserInfo,
+    dataLoaded,
   }
 };
 

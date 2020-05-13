@@ -30,7 +30,7 @@ const CatsGallery = (props) => {
             ...styles.titleTextBlue,
             ...styles.dontClose
           }}>
-          Once your video is saved, we'll email it to you at {props.user.email}
+          Once your video is saved, we'll email it to you at {props.user.email}. It will also be available at Profile => My Duettes
         </Text>
       }
       <View style={styles.progressBar}>
@@ -105,7 +105,7 @@ const CatsGallery = (props) => {
       </Text>
       <Text
         style={styles.titleTextSeaweed}>
-        Have fun swiping through these cat pics while you're waiting! 😸
+        You can leave this page if you want. Or if you want to hang around, have fun swiping through these cat pics while you're waiting! 😸
       </Text>
       <Gallery
         images={props.cats}

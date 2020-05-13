@@ -69,7 +69,7 @@ export default function App(props) {
           }
         }
         store.dispatch(fetchVideos());
-        store.dispatch(loadCats());
+        store.dispatch(loadCats('final'));
       } catch (e) {
         console.warn(e);
       } finally {

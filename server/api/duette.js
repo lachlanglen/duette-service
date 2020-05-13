@@ -14,17 +14,15 @@ router.post('/', (req, res, next) => {
 
 router.get('/byUserId/:userId', (req, res, next) => {
   const { userId } = req.params;
-  Duette.findOne({
+  Duette.findAll({
     where: {
       userId
     }
   })
-    .then(duette => {
-      if (duette) {
-        res.status(200).send(duette)
-      } else {
-        res.status(404).send(`Video not found with userId ${userId}!`)
-      }
+    .then(duettes => res.status(200).send(duettes))
+    .catch(e => {
+      res.status(400).send(e);
+      throw new Error('error finding all duettes: ', e);
     })
 });
 

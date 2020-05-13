@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { setLoaded } from './dataLoaded';
 
 const SET_CATS = 'SET_CATS';
 
@@ -19,7 +20,7 @@ export const catsReducer = (state = {}, action) => {
   }
 }
 
-export const loadCats = () => {
+export const loadCats = (isFinal) => {
   return dispatch => {
     axios.get('https://api.thecatapi.com/v1/images/search', { headers: { 'x-api-key': '80e64f48-d071-46c7-8fea-96cdf578c1de' }, params: { limit: 100, size: 'full' } })
       .then(cats => {
@@ -31,7 +32,10 @@ export const loadCats = () => {
           }
         ))
       })
-      .then(data => dispatch(setCats(data)))
+      .then(data => {
+        dispatch(setCats(data));
+        if (isFinal) dispatch(setLoaded(true));
+      })
       .catch(e => {
         throw new Error('error in cats thunk: ', e)
       })

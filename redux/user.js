@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { setLoaded } from './dataLoaded';
 
 const SET_USER = 'SET_USER';
 const CLEAR_USER = 'CLEAR_USER'
