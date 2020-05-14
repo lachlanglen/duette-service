@@ -1,25 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, SafeAreaView, FlatList, StyleSheet } from 'react-native';
 import MyDuettesItem from './MyDuettesItem';
 
 const MyDuettes = (props) => {
+  const [selectedDuette, setSelectedDuette] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+
   return (
     <SafeAreaView
       style={styles.container}>
       {
         props.userDuettes.length > 0 ? (
-          <FlatList
-            data={props.userDuettes}
-            renderItem={({ item }) => (
-              <MyDuettesItem
-                videoId={item.videoId}
-                duetteId={item.id}
-              />
-            )}
-            keyExtractor={item => item.id}
-            viewabilityConfig={{}}
-          />
+          <View>
+            <Text style={{
+              color: 'white',
+              fontSize: 20,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              paddingVertical: 10,
+              fontStyle: 'italic',
+              // borderColor: 'black',
+              // borderWidth: 1,
+            }}>Showing all from the last month:</Text>
+            <FlatList
+              data={props.userDuettes.filter(duette => duette.videoId)}
+              renderItem={({ item }) => (
+                <MyDuettesItem
+                  videoId={item.videoId}
+                  duetteId={item.id}
+                  videoTitle={item.videoTitle}
+                  selectedDuette={selectedDuette}
+                  setSelectedDuette={setSelectedDuette}
+                  showPreview={showPreview}
+                  setShowPreview={setShowPreview}
+                />
+              )}
+              keyExtractor={item => item.id}
+              viewabilityConfig={{}}
+            />
+          </View>
         ) : (
             <View>
               <Text style={styles.text}>

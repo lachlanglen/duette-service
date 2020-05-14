@@ -3,8 +3,8 @@ const router = express.Router();
 const { Duette } = require('../../db');
 
 router.post('/', (req, res, next) => {
-  const { id, userId, videoId } = req.body;
-  Duette.create({ id, userId, videoId })
+  const { id, userId, videoId, videoTitle } = req.body;
+  Duette.create({ id, userId, videoId, videoTitle })
     .then(duette => res.status(201).send(duette))
     .catch(e => {
       res.status(400).send(e);

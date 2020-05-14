@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { Alert, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
@@ -11,10 +12,17 @@ let screenWidth = Math.round(Dimensions.get('window').width);
 let screenHeight = Math.round(Dimensions.get('window').height);
 
 const MyDuettesItem = props => {
-  const { videoId, duetteId } = props;
+  const {
+    videoId,
+    duetteId,
+    videoTitle,
+    selectedDuette,
+    setSelectedDuette,
+    showPreview,
+    setShowPreview,
+  } = props;
 
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
-  const [selectedDuette, setSelectedDuette] = useState('');
 
   const combinedKey = `${videoId}${duetteId}`;
 
@@ -86,55 +94,94 @@ const MyDuettesItem = props => {
     }
   };
 
+  const handlePreview = () => {
+    setSelectedDuette(duetteId);
+    setShowPreview(true);
+  };
+
+  const handlePlaybackStatusUpdate = (updateObj) => {
+    if (updateObj.didJustFinish) {
+      setShowPreview(false);
+      setSelectedDuette('');
+    }
+  };
+
   return (
-    // TODO: fix styling (too much vertical padding)
     <View
-      key={duetteId}
       style={{
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'space-between',
-        justifyContent: 'space-between',
-        width: '100%',
-        height: screenWidth / 32 * 9 + 20,
-        backgroundColor: 'pink',
+        backgroundColor: 'white',
+        marginVertical: 10,
+        marginHorizontal: 15,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'black',
+        borderColor: 'darkgrey',
+        paddingVertical: 10,
+        height: screenWidth / 16 * 9 + 50,
+        width: screenWidth - 30,
+        alignItems: 'center',
       }}>
-      <View style={{
-        width: screenWidth / 2,
-        height: screenWidth / 32 * 9,
-        backgroundColor: 'red',
-      }}>
-        {/* <Video
-          source={{ uri: getAWSVideoUrl(combinedKey) }}
-          shouldPlay={selectedDuette === duetteId}
-          style={{ width: '100%', height: '100%' }} /> */}
-        <TouchableOpacity style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'orange'
+      <Video
+        source={{ uri: getAWSVideoUrl(combinedKey) }}
+        shouldPlay={selectedDuette === duetteId && showPreview}
+        onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+        style={{
+          width: screenWidth * 0.85,
+          height: screenWidth * 0.85 / 16 * 9,
+          borderRadius: 10,
         }} />
-      </View>
-      <View style={{
-        justifyContent: 'center',
-        height: '100%',
-        width: screenWidth / 2,
-      }}>
+      {
+        duetteId !== selectedDuette &&
+        <TouchableOpacity
+          onPress={handlePreview}
+          style={{
+            marginTop: 10,
+            width: screenWidth * 0.85,
+            height: screenWidth * 0.85 / 16 * 9,
+            backgroundColor: 'white',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.5,
+            position: 'absolute',
+            borderRadius: 10,
+          }} >
+          {videoTitle &&
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: 'black',
+              }}>{videoTitle}
+            </Text>
+          }
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: 'darkgrey',
+            }}
+          >Touch to preview
+            </Text>
+        </TouchableOpacity>
+      }
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <TouchableOpacity
           onPress={() => handleSaveToCameraRoll(duetteId, combinedKey)}
           disabled={savingToCameraRoll}
           style={{
             ...buttonStyles.regularButton,
-            width: 100,
-            marginBottom: 0,
-            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#0047B9',
+            width: screenWidth * 0.85,
+            marginTop: 10,
+            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#187795',
             borderColor: savingToCameraRoll ? 'white' : 'darkblue',
           }}>
           <Text style={{
             ...buttonStyles.regularButtonText,
             fontWeight: 'normal',
-          }}>Save
+          }}>Save to Camera Roll
             </Text>
         </TouchableOpacity>
       </View>
@@ -142,4 +189,10 @@ const MyDuettesItem = props => {
   )
 };
 
-export default MyDuettesItem;
+const mapState = ({ videos }) => {
+  return {
+    videos,
+  }
+}
+
+export default connect(mapState)(MyDuettesItem);
