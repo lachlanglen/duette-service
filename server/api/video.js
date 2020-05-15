@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const { Video } = require('../../db');
+const { Op } = require('sequelize');
 
 router.post('/', (req, res, next) => {
   const {
@@ -27,8 +28,9 @@ router.post('/', (req, res, next) => {
     })
 });
 
-router.get('/:id?', (req, res, next) => {
+router.get('/:id', (req, res, next) => {
   const { id } = req.params;
+  const { val } = req.query;
   if (id) {
     Video.findOne({
       where: {
@@ -41,6 +43,28 @@ router.get('/:id?', (req, res, next) => {
         } else {
           res.status(404).send('video not found!')
         }
+      })
+  }
+});
+
+router.get('/', (req, res, next) => {
+  const { val } = req.query;
+  if (val) {
+    Video.findAll({
+      where: {
+        [Op.or]: [
+          { title: { [Op.iLike]: `%${val}%` } },
+          { composer: { [Op.iLike]: `%${val}%` } },
+          { key: { [Op.iLike]: `%${val}%` } },
+          { performer: { [Op.iLike]: `%${val}%` } },
+          // TODO: add Id
+        ],
+      },
+    })
+      .then(videos => res.status(200).send(videos))
+      .catch(e => {
+        console.log("error: ", e)
+        // res.send('error finding videos by search value: ', e);
       })
   } else {
     Video.findAll()

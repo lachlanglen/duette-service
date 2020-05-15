@@ -21,16 +21,8 @@ export const videosReducer = (state = {}, action) => {
 
 export const fetchVideos = (text) => {
   return dispatch => {
-    axios.get('https://duette.herokuapp.com/api/video')
-      .then(vids => {
-        if (text) {
-          const filteredVids = vids.data.filter(vid => vid.title.includes(text) || vid.composer.includes(text) || vid.key.includes(text) || vid.performer.includes(text));
-          dispatch(setVideos(filteredVids))
-        }
-        else {
-          dispatch(setVideos(vids.data))
-        }
-      })
+    axios.get(`https://duette.herokuapp.com/api/video${text ? `/?val=${text}` : ''}`)
+      .then(vids => dispatch(setVideos(vids.data)))
       .catch(e => {
         throw new Error('error in setVideos thunk: ', e)
       })

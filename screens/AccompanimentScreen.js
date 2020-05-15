@@ -256,10 +256,9 @@ const mapDispatch = dispatch => {
   }
 };
 
-const mapState = ({ user, videos, displayUserInfo, dataLoaded }) => {
+const mapState = ({ user, displayUserInfo, dataLoaded }) => {
   return {
     user,
-    videos,
     displayUserInfo,
     dataLoaded,
   }

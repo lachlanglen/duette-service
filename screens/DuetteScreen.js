@@ -131,40 +131,40 @@ const DuetteScreen = (props) => {
                     style={styles.searchbar}
                   />
                   {
-                    props.videos.length > 0 ? (
-                      <FlatList
-                        data={props.videos}
-                        renderItem={({ item }) => (
-                          <VideoItem
-                            id={item.id}
-                            title={item.title}
-                            performer={item.performer}
-                            composer={item.composer}
-                            theKey={item.key}
-                            userId={item.userId}
-                            previewVid={previewVid}
-                            setPreviewVid={setPreviewVid}
-                            handlePreview={handlePreview}
-                            handleUse={handleUse}
-                            setShowEditDetailsModal={setShowEditDetailsModal}
-                            showEditDetailsModal={showEditDetailsModal} />
-                        )}
-                        keyExtractor={item => item.id}
-                        viewabilityConfig={{}}
-                      />
-                    ) : (
-                        // VIDEOS HAVEN'T LOADED
-                        !searchText ? (
-                          <View>
-                            <Text style={styles.text}>
-                              Loading...
+                    !searchText ? (
+                      <View>
+                        <Text style={styles.text}>
+                          {"Search for a base track by title, composer, performer &/or key!"}
                         </Text>
-                          </View>
+                      </View>
+                    ) : (
+                        // SEARCH YIELDED NO RESULTS
+                        props.videos.length > 0 ? (
+                          < FlatList
+                            data={props.videos}
+                            renderItem={({ item }) => (
+                              <VideoItem
+                                id={item.id}
+                                title={item.title}
+                                performer={item.performer}
+                                composer={item.composer}
+                                theKey={item.key}
+                                userId={item.userId}
+                                previewVid={previewVid}
+                                setPreviewVid={setPreviewVid}
+                                handlePreview={handlePreview}
+                                handleUse={handleUse}
+                                setShowEditDetailsModal={setShowEditDetailsModal}
+                                showEditDetailsModal={showEditDetailsModal} />
+                            )}
+                            keyExtractor={item => item.id}
+                            viewabilityConfig={{}}
+                          />
                         ) : (
                             <View>
                               <Text style={styles.text}>
-                                No videos to display
-                          </Text>
+                                No base tracks found matching "{searchText}" 😿
+                              </Text>
                             </View>
                           )
                       )

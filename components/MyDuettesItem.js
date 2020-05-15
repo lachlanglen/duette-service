@@ -143,10 +143,4 @@ const MyDuettesItem = props => {
   )
 };
 
-const mapState = ({ videos }) => {
-  return {
-    videos,
-  }
-}
-
-export default connect(mapState)(MyDuettesItem);
+export default MyDuettesItem;
