@@ -2,6 +2,7 @@ import React, { createRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Image, Text, View, Modal, Button, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { Input } from 'react-native-elements';
+import { clearVideo } from '../redux/singleVideo';
 
 const Form = (props) => {
 
@@ -15,12 +16,40 @@ const Form = (props) => {
     performer,
     setPerformer,
     setShowDetailsModal,
-    handleSave
+    setShowEditDetailsModal,
+    handleSave,
+    handleUpdate,
+    type
   } = props;
+
+  const handleExitEdit = () => {
+    props.clearVideo();
+    setShowEditDetailsModal(false);
+  };
+
+  const handleBack = () => {
+    if (type === 'initial') {
+      setShowDetailsModal(false);
+    } else {
+      handleConfirmExitEdit();
+    }
+  };
+
+  const handleConfirmExitEdit = () => {
+    Alert.alert(
+      'Are you sure?',
+      "If you go back now your changes won't be saved.",
+      [
+        { text: 'Yes, go back', onPress: () => handleExitEdit() },
+        { text: 'Keep editing', onPress: () => { } }
+      ],
+      { cancelable: false }
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titleText}>Please enter the following details:</Text>
+      <Text style={styles.titleText}>{type === 'initial' ? 'Please enter the following details:' : 'Update details:'}</Text>
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
@@ -53,10 +82,10 @@ const Form = (props) => {
         onPress={handleSave}
         disabled={!title || !composer || !songKey || !performer}
         style={{ ...styles.button, backgroundColor: !title || !composer || !songKey || !performer ? 'grey' : '#0047B9' }}>
-        <Text style={styles.buttonText}>Submit!</Text>
+        <Text style={styles.buttonText}>{type === 'initial' ? 'Submit!' : 'Update!'}</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => setShowDetailsModal(false)}
+        onPress={handleBack}
         style={styles.button}>
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity>
@@ -98,10 +127,17 @@ const styles = StyleSheet.create({
   }
 })
 
-const mapState = ({ user }) => {
+const mapState = ({ user, selectedVideo }) => {
   return {
-    user
+    user,
+    selectedVideo,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    clearVideo: () => dispatch(clearVideo()),
   }
 }
 
-export default connect(mapState)(Form);
+export default connect(mapState, mapDispatch)(Form);
