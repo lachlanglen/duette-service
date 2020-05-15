@@ -79,7 +79,7 @@ const Form = (props) => {
         label="Performer"
         placeholder="Enter your name here!" />
       <TouchableOpacity
-        onPress={handleSave}
+        onPress={type === 'initial' ? handleSave : handleUpdate}
         disabled={!title || !composer || !songKey || !performer}
         style={{ ...styles.button, backgroundColor: !title || !composer || !songKey || !performer ? 'grey' : '#0047B9' }}>
         <Text style={styles.buttonText}>{type === 'initial' ? 'Submit!' : 'Update!'}</Text>
