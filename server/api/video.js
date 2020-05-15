@@ -54,6 +54,39 @@ router.get('/:id?', (req, res, next) => {
   }
 });
 
+router.put('/:id', (req, res, next) => {
+  const { id } = req.params;
+  const {
+    title,
+    composer,
+    key,
+    performer,
+  } = req.body;
+  if (!title || !composer || !key || !performer) {
+    throw new Error('Title, composer, key & performer fields must all be valid to update video!')
+  } else {
+    Video.update(
+      {
+        title,
+        composer,
+        key,
+        performer,
+      },
+      {
+        where: {
+          id,
+        },
+        returning: true,
+      }
+    )
+      .then(updated => res.status(200).send(updated))
+      .catch(e => {
+        res.status(404).send(e);
+        throw new Error('error updating video: ', e)
+      })
+  }
+})
+
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
   Video.destroy({

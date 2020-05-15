@@ -5,6 +5,7 @@ import { Text, TouchableOpacity, View, Dimensions, StyleSheet, Image, Alert, Pla
 import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import { deleteVideo } from '../redux/videos';
+import { setVideo } from '../redux/singleVideo';
 
 const VideoItem = (props) => {
 
@@ -18,7 +19,8 @@ const VideoItem = (props) => {
     previewVid,
     setPreviewVid,
     handlePreview,
-    handleUse
+    handleUse,
+    setShowEditDetailsModal,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -37,7 +39,12 @@ const VideoItem = (props) => {
       ],
       { cancelable: false }
     );
-  }
+  };
+
+  const handleEdit = () => {
+    props.setVideo(id);
+    setShowEditDetailsModal(true);
+  };
 
   return (
     <View style={styles.item}>
@@ -113,13 +120,25 @@ const VideoItem = (props) => {
       </TouchableOpacity>
       {
         props.user.id === userId &&
-        <TouchableOpacity
-          onPress={handleDelete}>
-          <Text style={{
-            textAlign: 'center',
-            color: 'red',
-          }}>Delete</Text>
-        </TouchableOpacity>
+        <View style={{
+          flexDirection: 'row',
+          justifyContent: 'space-evenly',
+        }}>
+          <TouchableOpacity
+            onPress={handleDelete}>
+            <Text style={{
+              textAlign: 'center',
+              color: 'red',
+            }}>Delete</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleEdit}>
+            <Text style={{
+              textAlign: 'center',
+              color: '#0047B9',
+            }}>Edit Details</Text>
+          </TouchableOpacity>
+        </View>
       }
     </View >
   )
@@ -207,6 +226,7 @@ const mapState = ({ user }) => {
 const mapDispatch = dispatch => {
   return {
     deleteVideo: id => dispatch(deleteVideo(id)),
+    setVideo: id => dispatch(setVideo(id)),
   }
 };
 

@@ -12,10 +12,12 @@ import FacebookSignin from '../components/FacebookSignin';
 import UserInfoMenu from '../components/UserInfoMenu';
 import VideoItem from '../components/VideoItem';
 import LoadingSpinner from '../components/LoadingSpinner';
+import EditDetailsModal from '../components/EditDetailsModal';
 
 const DuetteScreen = (props) => {
 
   const [showRecordDuetteModal, setShowRecordDuetteModal] = useState(false);
+  const [showEditDetailsModal, setShowEditDetailsModal] = useState(false);
   const [previewVid, setPreviewVid] = useState('');
   const [bluetooth, setBluetooth] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -88,74 +90,87 @@ const DuetteScreen = (props) => {
           <FacebookSignin />
         )
     ) : (
-        showRecordDuetteModal ? (
-          // RECORD A DUETTE
-          <View style={styles.container}>
-            {
-              Platform.OS === 'android' ? (
-                <RecordDuetteModalAndroid
-                  bluetooth={bluetooth}
-                  setShowRecordDuetteModal={setShowRecordDuetteModal}
-                  screenOrientation={screenOrientation}
-                />
-              ) : (
-                  <RecordDuetteModalIos
-                    bluetooth={bluetooth}
-                    setShowRecordDuetteModal={setShowRecordDuetteModal}
-                  />
-                )
-            }
-          </View>
+        showEditDetailsModal && props.selectedVideo.id ? (
+          <EditDetailsModal
+            id={props.selectedVideo.id}
+            setShowEditDetailsModal={setShowEditDetailsModal}
+            origTitle={props.selectedVideo.title}
+            origComposer={props.selectedVideo.composer}
+            origSongKey={props.selectedVideo.key}
+            origPerformer={props.selectedVideo.performer}
+          />
         ) : (
-            // VIEW VIDEOS
-            <SafeAreaView style={styles.listContainer}>
-              {
-                props.displayUserInfo &&
-                <UserInfoMenu />
-              }
-              <Searchbar
-                placeholder="Title, composer or performer"
-                onChangeText={handleSearch}
-                style={styles.searchbar}
-              />
-              {
-                props.videos.length > 0 ? (
-                  <FlatList
-                    data={props.videos}
-                    renderItem={({ item }) => (
-                      <VideoItem
-                        id={item.id}
-                        title={item.title}
-                        performer={item.performer}
-                        composer={item.composer}
-                        theKey={item.key}
-                        userId={item.userId}
-                        previewVid={previewVid}
-                        setPreviewVid={setPreviewVid}
-                        handlePreview={handlePreview}
-                        handleUse={handleUse} />
-                    )}
-                    keyExtractor={item => item.id}
-                    viewabilityConfig={{}}
+            showRecordDuetteModal ? (
+              // RECORD A DUETTE
+              <View style={styles.container}>
+                {
+                  Platform.OS === 'android' ? (
+                    <RecordDuetteModalAndroid
+                      bluetooth={bluetooth}
+                      setShowRecordDuetteModal={setShowRecordDuetteModal}
+                      screenOrientation={screenOrientation}
+                    />
+                  ) : (
+                      <RecordDuetteModalIos
+                        bluetooth={bluetooth}
+                        setShowRecordDuetteModal={setShowRecordDuetteModal}
+                      />
+                    )
+                }
+              </View>
+            ) : (
+                // VIEW VIDEOS
+                <SafeAreaView style={styles.listContainer}>
+                  {
+                    props.displayUserInfo &&
+                    <UserInfoMenu />
+                  }
+                  <Searchbar
+                    placeholder="Title, composer or performer"
+                    onChangeText={handleSearch}
+                    style={styles.searchbar}
                   />
-                ) : (
-                    // VIDEOS HAVEN'T LOADED
-                    !searchText ? (
-                      <View>
-                        <Text style={styles.text}>
-                          Loading...
-                        </Text>
-                      </View>
+                  {
+                    props.videos.length > 0 ? (
+                      <FlatList
+                        data={props.videos}
+                        renderItem={({ item }) => (
+                          <VideoItem
+                            id={item.id}
+                            title={item.title}
+                            performer={item.performer}
+                            composer={item.composer}
+                            theKey={item.key}
+                            userId={item.userId}
+                            previewVid={previewVid}
+                            setPreviewVid={setPreviewVid}
+                            handlePreview={handlePreview}
+                            handleUse={handleUse}
+                            setShowEditDetailsModal={setShowEditDetailsModal}
+                            showEditDetailsModal={showEditDetailsModal} />
+                        )}
+                        keyExtractor={item => item.id}
+                        viewabilityConfig={{}}
+                      />
                     ) : (
-                        <View>
-                          <Text style={styles.text}>
-                            No videos to display
+                        // VIDEOS HAVEN'T LOADED
+                        !searchText ? (
+                          <View>
+                            <Text style={styles.text}>
+                              Loading...
+                        </Text>
+                          </View>
+                        ) : (
+                            <View>
+                              <Text style={styles.text}>
+                                No videos to display
                           </Text>
-                        </View>
+                            </View>
+                          )
                       )
-                  )
-              }
-            </SafeAreaView>
+                  }
+                </SafeAreaView>
+              )
           )
       )
   )

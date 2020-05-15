@@ -178,7 +178,8 @@ const DetailsModal = (props) => {
                       setSongKey={setSongKey}
                       performer={performer}
                       setPerformer={setPerformer}
-                      setShowDetailsModal={setShowDetailsModal} />
+                      setShowDetailsModal={setShowDetailsModal}
+                      type="initial" />
                   </Modal>
                 </View >
               )
