@@ -6,9 +6,6 @@ import { Camera } from 'expo-camera';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../../constants/urls';
 
-let screenWidth = Math.floor(Dimensions.get('window').width);
-let screenHeight = Math.floor(Dimensions.get('window').height);
-
 const RecordDuettePortrait = (props) => {
   const {
     recording,
@@ -19,6 +16,9 @@ const RecordDuettePortrait = (props) => {
     toggleRecord,
     handleTryAgain,
   } = props;
+
+  let screenWidth = Math.floor(Dimensions.get('window').width);
+  let screenHeight = Math.floor(Dimensions.get('window').height);
 
   return (
     <View style={styles.container}>
@@ -38,9 +38,15 @@ const RecordDuettePortrait = (props) => {
         </TouchableOpacity>
       </View>
       <View
-        style={styles.mediaContainer}>
+        style={{
+          ...styles.mediaContainer,
+          height: screenWidth / 9 * 8,
+        }}>
         <View style={styles.videoContainer}>
-          <View style={styles.videoOffset} />
+          <View style={{
+            ...styles.videoOffset,
+            height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
+          }} />
           <Video
             ref={ref => setVidRef(ref)}
             source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
@@ -50,7 +56,10 @@ const RecordDuettePortrait = (props) => {
             resizeMode="cover"
             progressUpdateIntervalMillis={50}
             onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-            style={styles.video}
+            style={{
+              width: screenWidth / 2,
+              height: screenWidth / 16 * 9,
+            }}
           />
         </View>
         <View style={styles.cameraContainer}>
@@ -61,8 +70,14 @@ const RecordDuettePortrait = (props) => {
             type={Camera.Constants.Type.front}
             ref={ref => setCameraRef(ref)} >
             <View style={styles.cameraOverlayContainer}>
-              <View style={styles.cameraOverlay} />
-              <View style={styles.cameraOverlay} />
+              <View style={{
+                ...styles.cameraOverlay,
+                height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
+              }} />
+              <View style={{
+                ...styles.cameraOverlay,
+                height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
+              }} />
             </View>
           </Camera>
         </View>
@@ -115,7 +130,6 @@ const styles = StyleSheet.create({
   mediaContainer: {
     flexDirection: 'row',
     backgroundColor: 'black',
-    height: screenWidth / 9 * 8,
     width: '100%',
   },
   videoContainer: {
@@ -124,13 +138,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   videoOffset: {
-    height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
     width: '100%',
     backgroundColor: 'black',
-  },
-  video: {
-    width: screenWidth / 2,
-    height: screenWidth / 16 * 9,
   },
   cameraContainer: {
     height: '100%',
@@ -148,7 +157,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cameraOverlay: {
-    height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
     width: '100%',
     backgroundColor: 'black',
   },

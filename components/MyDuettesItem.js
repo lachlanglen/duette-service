@@ -8,19 +8,19 @@ import { getAWSVideoUrl } from '../constants/urls';
 import buttonStyles from '../styles/button';
 import { setAdvertiserIDCollectionEnabledAsync } from 'expo-facebook';
 
-let screenWidth = Math.round(Dimensions.get('window').width);
-let screenHeight = Math.round(Dimensions.get('window').height);
-
 const MyDuettesItem = props => {
   const {
     videoId,
     duetteId,
-    videoTitle,
     selectedDuette,
     setSelectedDuette,
-    showPreview,
-    setShowPreview,
+    screenOrientation,
+    screenWidth,
+    screenHeight
   } = props;
+
+  // let screenWidth = Math.round(Dimensions.get('window').width);
+  // let screenHeight = Math.round(Dimensions.get('window').height);
 
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
 
@@ -94,18 +94,6 @@ const MyDuettesItem = props => {
     }
   };
 
-  const handlePreview = () => {
-    setSelectedDuette(duetteId);
-    setShowPreview(true);
-  };
-
-  const handlePlaybackStatusUpdate = (updateObj) => {
-    if (updateObj.didJustFinish) {
-      setShowPreview(false);
-      setSelectedDuette('');
-    }
-  };
-
   return (
     <View
       style={{
@@ -123,46 +111,12 @@ const MyDuettesItem = props => {
       <Video
         source={{ uri: getAWSVideoUrl(combinedKey) }}
         shouldPlay={selectedDuette === duetteId && showPreview}
-        onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+        useNativeControls={true}
         style={{
           width: screenWidth * 0.85,
           height: screenWidth * 0.85 / 16 * 9,
           borderRadius: 10,
         }} />
-      {
-        duetteId !== selectedDuette &&
-        <TouchableOpacity
-          onPress={handlePreview}
-          style={{
-            marginTop: 10,
-            width: screenWidth * 0.85,
-            height: screenWidth * 0.85 / 16 * 9,
-            backgroundColor: 'white',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.5,
-            position: 'absolute',
-            borderRadius: 10,
-          }} >
-          {videoTitle &&
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: 'black',
-              }}>{videoTitle}
-            </Text>
-          }
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: 'bold',
-              color: 'darkgrey',
-            }}
-          >Touch to preview
-            </Text>
-        </TouchableOpacity>
-      }
       <View
         style={{
           alignItems: 'center',
@@ -175,7 +129,7 @@ const MyDuettesItem = props => {
             ...buttonStyles.regularButton,
             width: screenWidth * 0.85,
             marginTop: 10,
-            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#187795',
+            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#0047B9',
             borderColor: savingToCameraRoll ? 'white' : 'darkblue',
           }}>
           <Text style={{
@@ -185,7 +139,7 @@ const MyDuettesItem = props => {
             </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </View >
   )
 };
 

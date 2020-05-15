@@ -84,7 +84,7 @@ const ReviewDuette = (props) => {
       clearInterval(intervalId)
       // console.log('speed: ', Date.now() - startTime)
       try {
-        props.postDuette({ id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id, videoTitle: props.selectedVideo.title });
+        props.postDuette({ id: tempVidId, userId: props.user.id, videoId: props.selectedVideo.id });
         await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`);
         setSuccess(true);
         setSaving(false);

@@ -1,11 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, SafeAreaView, FlatList, StyleSheet } from 'react-native';
+import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import MyDuettesItem from './MyDuettesItem';
 
 const MyDuettes = (props) => {
   const [selectedDuette, setSelectedDuette] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
+  const [screenOrientation, setScreenOrientation] = useState('');
+
+  let screenWidth = Math.round(Dimensions.get('window').width);
+  let screenHeight = Math.round(Dimensions.get('window').height);
+
+  useEffect(() => {
+    const detectOrientation = () => {
+      if (screenWidth > screenHeight) setScreenOrientation('LANDSCAPE');
+      if (screenWidth < screenHeight) setScreenOrientation('PORTRAIT');
+      ScreenOrientation.addOrientationChangeListener(info => {
+        if (info.orientationInfo.orientation === 'UNKNOWN') {
+          if (screenWidth > screenHeight) setScreenOrientation('LANDSCAPE');
+          if (screenWidth < screenHeight) setScreenOrientation('PORTRAIT');
+        } else {
+          if (info.orientationInfo.orientation === 1 || info.orientationInfo.orientation === 2) setScreenOrientation('PORTRAIT');
+          if (info.orientationInfo.orientation === 3 || info.orientationInfo.orientation === 4) setScreenOrientation('LANDSCAPE');
+        }
+      })
+    }
+    detectOrientation();
+  });
+
+  console.log('screenheight: ', screenHeight)
 
   return (
     <SafeAreaView
@@ -14,7 +37,7 @@ const MyDuettes = (props) => {
         props.userDuettes.length > 0 ? (
           <View>
             <Text style={{
-              color: 'white',
+              color: '#0047B9',
               fontSize: 20,
               fontWeight: 'bold',
               textAlign: 'center',
@@ -22,18 +45,18 @@ const MyDuettes = (props) => {
               fontStyle: 'italic',
               // borderColor: 'black',
               // borderWidth: 1,
-            }}>Showing all from the last month:</Text>
+            }}>Duettes available for one month</Text>
             <FlatList
               data={props.userDuettes.filter(duette => duette.videoId)}
               renderItem={({ item }) => (
                 <MyDuettesItem
                   videoId={item.videoId}
                   duetteId={item.id}
-                  videoTitle={item.videoTitle}
                   selectedDuette={selectedDuette}
                   setSelectedDuette={setSelectedDuette}
-                  showPreview={showPreview}
-                  setShowPreview={setShowPreview}
+                  screenOrientation={screenOrientation}
+                  screenWidth={screenWidth}
+                  screenHeight={screenHeight}
                 />
               )}
               keyExtractor={item => item.id}
