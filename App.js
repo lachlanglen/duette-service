@@ -69,7 +69,7 @@ export default function App(props) {
             store.dispatch(fetchDuettes(id));
           }
         }
-        store.dispatch(fetchVideos());
+        // store.dispatch(fetchVideos());
         store.dispatch(loadCats('final'));
       } catch (e) {
         console.warn(e);
