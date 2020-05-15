@@ -6,9 +6,6 @@ import { Camera } from 'expo-camera';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../../constants/urls';
 
-let screenWidth = Math.floor(Dimensions.get('window').width);
-let screenHeight = Math.floor(Dimensions.get('window').height);
-
 const RecordDuetteLandscape = (props) => {
   const {
     recording,
@@ -20,15 +17,29 @@ const RecordDuetteLandscape = (props) => {
     handleTryAgain,
   } = props;
 
+  let screenWidth = Math.floor(Dimensions.get('window').width);
+  let screenHeight = Math.floor(Dimensions.get('window').height);
+
   return (
-    <View style={styles.container}>
+    <View style={{
+      ...styles.container,
+      width: screenHeight / 9 * 16,
+      height: screenHeight,
+    }}>
       {/* TODO: add codec to camera input? (e.g. .mov) */}
       <Camera
-        style={styles.camera}
+        style={{
+          ...styles.camera,
+          marginLeft: screenWidth - screenHeight / 9 * 8,
+        }}
         ratio="16:9"
         type={Camera.Constants.Type.front}
         ref={ref => setCameraRef(ref)} >
-        <View style={styles.recordButtonContainer}>
+        <View style={{
+          ...styles.recordButtonContainer,
+          width: screenWidth,
+          height: screenHeight,
+        }}>
           <TouchableOpacity
             onPress={toggleRecord}
           >
@@ -47,7 +58,11 @@ const RecordDuetteLandscape = (props) => {
           />
         </View>
       </Camera>
-      <View style={styles.videoContainer}>
+      <View style={{
+        ...styles.videoContainer,
+        width: screenHeight / 9 * 8,
+        height: screenHeight,
+      }}>
         <Video
           ref={ref => setVidRef(ref)}
           source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
@@ -57,10 +72,16 @@ const RecordDuetteLandscape = (props) => {
           resizeMode="cover"
           progressUpdateIntervalMillis={50}
           onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-          style={styles.video}
+          style={{
+            width: screenWidth / 2,
+            height: screenHeight,
+          }}
         />
       </View>
-      <View style={styles.recordingOrCancelContainer}>
+      <View style={{
+        ...styles.recordingOrCancelContainer,
+        height: screenHeight * 0.95,
+      }}>
         <TouchableOpacity
           onPress={!recording ? handleCancel : () => { }}
           style={styles.recordingOrCancelButton}
@@ -93,19 +114,14 @@ const RecordDuetteLandscape = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: screenHeight / 9 * 16,
-    height: screenHeight,
     backgroundColor: 'black',
   },
   camera: {
-    marginLeft: screenWidth - screenHeight / 9 * 8,
     width: '100%',
     height: '100%',
     alignSelf: 'center',
   },
   recordButtonContainer: {
-    width: screenWidth,
-    height: screenHeight,
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
@@ -126,16 +142,9 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     position: 'absolute',
-    width: screenHeight / 9 * 8,
-    height: screenHeight,
-  },
-  video: {
-    width: screenWidth / 2,
-    height: screenHeight,
   },
   recordingOrCancelContainer: {
     position: 'absolute',
-    height: screenHeight * 0.95,
     justifyContent: 'space-between',
   },
   recordingOrCancelButton: {

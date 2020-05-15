@@ -1,129 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, SafeAreaView, FlatList, Alert, TouchableOpacity } from 'react-native';
-import * as MediaLibrary from 'expo-media-library';
-import * as FileSystem from 'expo-file-system';
-import { Video } from 'expo-av';
-import { getAWSVideoUrl } from '../constants/urls';
-import buttonStyles from '../styles/button';
+import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import MyDuettesItem from './MyDuettesItem';
 
 const MyDuettes = (props) => {
+  const [selectedDuette, setSelectedDuette] = useState('');
+  const [screenOrientation, setScreenOrientation] = useState('');
 
-  const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
+  let screenWidth = Math.round(Dimensions.get('window').width);
+  let screenHeight = Math.round(Dimensions.get('window').height);
 
-  const saveVideo = async (key) => {
-    try {
-      const { uri } = await FileSystem.downloadAsync(
-        getAWSVideoUrl(key),
-        FileSystem.documentDirectory + `${key}.mov`
-      )
-      try {
-        await MediaLibrary.saveToLibraryAsync(uri);
-        Alert.alert(
-          'Saved!',
-          'This Duette has been saved to your Camera Roll',
-          [
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-          ],
-          { cancelable: false }
-        );
-      } catch (e) {
-        setSavingToCameraRoll(false);
-        Alert.alert(
-          `We're sorry`,
-          'This video could not be saved to your camera roll at this time.',
-          [
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-          ],
-          { cancelable: false }
-        )
-        throw new Error('error saving to camera roll: ', e);
-      }
-    } catch (e) {
-      setSavingToCameraRoll(false);
-      Alert.alert(
-        `We're sorry`,
-        'This video could not be saved to your camera roll at this time.',
-        [
-          { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-        ],
-        { cancelable: false }
-      )
-      throw new Error('error downloading to local file: ', e);
+  useEffect(() => {
+    const detectOrientation = () => {
+      if (screenWidth > screenHeight) setScreenOrientation('LANDSCAPE');
+      if (screenWidth < screenHeight) setScreenOrientation('PORTRAIT');
+      ScreenOrientation.addOrientationChangeListener(info => {
+        if (info.orientationInfo.orientation === 'UNKNOWN') {
+          if (screenWidth > screenHeight) setScreenOrientation('LANDSCAPE');
+          if (screenWidth < screenHeight) setScreenOrientation('PORTRAIT');
+        } else {
+          if (info.orientationInfo.orientation === 1 || info.orientationInfo.orientation === 2) setScreenOrientation('PORTRAIT');
+          if (info.orientationInfo.orientation === 3 || info.orientationInfo.orientation === 4) setScreenOrientation('LANDSCAPE');
+        }
+      })
     }
-  };
+    detectOrientation();
+  });
 
-  const handleSaveToCameraRoll = async (combinedKey) => {
-    setSavingToCameraRoll(true);
-    const permission = await MediaLibrary.getPermissionsAsync();
-    if (permission.status !== 'granted') {
-      const newPermission = await MediaLibrary.requestPermissionsAsync();
-      if (newPermission.status === 'granted') {
-        saveVideo(combinedKey);
-      } else {
-        Alert.alert(
-          'Camera Roll',
-          'We need your permission to save to your Camera Roll!',
-          [
-            { text: 'OK', onPress: () => setSavingToCameraRoll(false) },
-          ],
-          { cancelable: false }
-        );
-      }
-    } else {
-      saveVideo(combinedKey);
-    }
-  };
-
-  const ListItem = ({ duetteId, videoId }) => {
-    const combinedKey = `${videoId}${duetteId}`;
-    return (
-      // TODO: fix styling (too much vertical padding)
-      <View style={{
-        padding: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Video
-          source={{ uri: getAWSVideoUrl(combinedKey) }}
-          style={{ width: 180, height: 320 }} />
-        <TouchableOpacity
-          onPress={() => handleSaveToCameraRoll(combinedKey)}
-          disabled={savingToCameraRoll}
-          style={{
-            ...buttonStyles.regularButton,
-            width: 100,
-            marginLeft: 20,
-            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#0047B9',
-            borderColor: savingToCameraRoll ? 'white' : 'darkblue',
-          }}>
-          <Text style={{
-            ...buttonStyles.regularButtonText,
-            fontWeight: 'normal',
-          }}>Save
-          </Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
+  console.log('screenheight: ', screenHeight)
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <FlatList
-        data={props.userDuettes}
-        renderItem={({ item }) => (
-          <ListItem
-            duetteId={item.id}
-            videoId={item.videoId}
-          />
-        )}
-        keyExtractor={item => item.id}
-        viewabilityConfig={{}}
-      />
+    <SafeAreaView
+      style={styles.container}>
+      {
+        props.userDuettes.length > 0 ? (
+          <View>
+            <Text style={{
+              color: '#0047B9',
+              fontSize: 20,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              paddingVertical: 10,
+              fontStyle: 'italic',
+              // borderColor: 'black',
+              // borderWidth: 1,
+            }}>Duettes available for one month</Text>
+            <FlatList
+              data={props.userDuettes.filter(duette => duette.videoId)}
+              renderItem={({ item }) => (
+                <MyDuettesItem
+                  videoId={item.videoId}
+                  duetteId={item.id}
+                  selectedDuette={selectedDuette}
+                  setSelectedDuette={setSelectedDuette}
+                  screenOrientation={screenOrientation}
+                  screenWidth={screenWidth}
+                  screenHeight={screenHeight}
+                />
+              )}
+              keyExtractor={item => item.id}
+              viewabilityConfig={{}}
+            />
+          </View>
+        ) : (
+            <View>
+              <Text style={styles.text}>
+                No videos to display
+              </Text>
+            </View>
+          )
+      }
     </SafeAreaView>
   )
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFD12B',
+  },
+  text: {
+    marginTop: 10,
+    alignSelf: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+});
 
 const mapState = ({ userDuettes }) => {
   return {
