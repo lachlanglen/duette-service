@@ -109,7 +109,7 @@ const mapDispatch = dispatch => {
   return {
     postVideo: details => dispatch(postVideo(details)),
     updateVideoDetails: (id, newDetails) => dispatch(updateVideo(id, newDetails)),
-    clearvideo: () => dispatch(clearVideo()),
+    clearVideo: () => dispatch(clearVideo()),
   }
 }
 
