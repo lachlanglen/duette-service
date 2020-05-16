@@ -133,10 +133,10 @@ function start() {
         console.log('combined vids2!')
 
         // add fade in & fade out
-        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}combined.mov -sseof -1 -copyts -i ${file1Info.originalName}${file2Info.originalName}combined.mov -filter_complex "[1]fade=out:0:30[t];[0][t]overlay,fade=in:0:30[v]; anullsrc,atrim=0:1[at];[0][at]acrossfade=d=1,afade=d=1[a]" -map "[v]" -map "[a]" -c:v libx264 -crf 22 -preset ultrafast -shortest ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`)
-
+        // await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}combined.mov -sseof -1 -copyts -i ${file1Info.originalName}${file2Info.originalName}combined.mov -filter_complex "[1]fade=out:0:30[t];[0][t]overlay,fade=in:0:30[v]; anullsrc,atrim=0:1[at];[0][at]acrossfade=d=1,afade=d=1[a]" -map "[v]" -map "[a]" -c:v libx264 -crf 22 -preset ultrafast -shortest ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`)
+        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}combined.mov -filter_complex "[0:v]fade=type=out:duration=1:start_time=${file1Info.duration < file2Info.duration ? file1Info.duration - 1 : file2Info.duration - 1}[v];[0:a]afade=type=out:duration=1:start_time=${file1Info.duration < file2Info.duration ? file1Info.duration - 1 : file2Info.duration - 1}[a]" -map "[v]" -map "[a]" -c:v libx264 -crf 22 -preset ultrafast -shortest fadeOut.mov`)
         // add overlay
-        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}fadeInOut.mov -i ${logoUrl} -filter_complex overlay=W-w-10:H-h-10 -codec:a copy -preset ultrafast -async 1 ${file1Info.originalName}${file2Info.originalName}overlay.mov`)
+        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}fadeOut.mov -i ${logoUrl} -filter_complex overlay=W-w-10:H-h-10 -codec:a copy -preset ultrafast -async 1 ${file1Info.originalName}${file2Info.originalName}overlay.mov`)
         console.log('added overlay!')
 
         console.log('done!')
@@ -165,7 +165,7 @@ function start() {
             }
             await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
             await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
-            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
+            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
             console.log('deleted combined video, overlay & fade in/out');
             job.progress({ percent: 95, currentStep: 'finished saving' });
             // send email to user
@@ -215,7 +215,7 @@ function start() {
                     try {
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
-                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
                     } catch (E) {
                       throw new Error(E);
                     }
@@ -224,7 +224,7 @@ function start() {
                       await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
-                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeInOut.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
                     } catch (E) {
                       throw new Error(E);
                     }
