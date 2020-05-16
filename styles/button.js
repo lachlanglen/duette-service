@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 const buttonStyles = StyleSheet.create({
   regularButton: {
@@ -27,13 +27,13 @@ const buttonStyles = StyleSheet.create({
   },
   regularButtonText: {
     fontFamily: 'Gill Sans',
-    fontSize: 20,
+    fontSize: Platform.OS === 'android' ? 20 : 22,
     alignSelf: 'center',
     textAlign: 'center',
     color: 'white',
     marginHorizontal: 7,
     marginVertical: 8,
-    fontWeight: 'bold'
+    fontWeight: Platform.OS === 'android' ? 'bold' : 'normal',
   }
 });
 
