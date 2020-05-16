@@ -165,10 +165,6 @@ const AccompanimentScreen = (props) => {
                       // landing page ('Record!' button not clicked)
                       <View
                         style={styles.landingPage}>
-                        {
-                          props.displayUserInfo &&
-                          <UserInfoMenu />
-                        }
                         <View style={styles.logoAndButtonsContainer}>
                           <Image
                             source={require('../assets/images/duette-logo-HD.png')}
@@ -194,6 +190,10 @@ const AccompanimentScreen = (props) => {
                             </TouchableOpacity>
                           </View>
                         </View>
+                        {
+                          props.displayUserInfo &&
+                          <UserInfoMenu />
+                        }
                       </View>
                     )
                 }
@@ -245,8 +245,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   logo: {
-    width: 300,
-    height: 300,
+    width: 250,
+    height: 250,
+    margin: 30,
   }
 })
 

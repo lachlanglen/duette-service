@@ -121,10 +121,6 @@ const DuetteScreen = (props) => {
             ) : (
                 // VIEW VIDEOS
                 <SafeAreaView style={styles.listContainer}>
-                  {
-                    props.displayUserInfo &&
-                    <UserInfoMenu />
-                  }
                   <Searchbar
                     placeholder="Title, composer or performer"
                     onChangeText={handleSearch}
@@ -134,7 +130,7 @@ const DuetteScreen = (props) => {
                     !searchText ? (
                       <View>
                         <Text style={styles.text}>
-                          {"Search for a base track by title, composer, performer &/or key!"}
+                          {"Search for a base track by title, composer, performer or key!"}
                         </Text>
                       </View>
                     ) : (
@@ -169,6 +165,10 @@ const DuetteScreen = (props) => {
                           )
                       )
                   }
+                  {
+                    props.displayUserInfo &&
+                    <UserInfoMenu />
+                  }
                 </SafeAreaView>
               )
           )
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    backgroundColor: '#FFD12B',
+    backgroundColor: '#ffd12b',
   },
   searchbar: {
     borderRadius: 0,
@@ -193,9 +193,10 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 10,
     alignSelf: 'center',
+    textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#0047b9',
   },
 });
 

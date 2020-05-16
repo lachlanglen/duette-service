@@ -28,8 +28,6 @@ const MyDuettes = (props) => {
     detectOrientation();
   });
 
-  console.log('screenheight: ', screenHeight)
-
   return (
     <SafeAreaView
       style={styles.container}>

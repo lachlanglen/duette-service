@@ -4,35 +4,56 @@ import { useNavigation } from '@react-navigation/native';
 import { connect } from 'react-redux'
 import { handleLogout } from '../services/utils';
 import { toggleUserInfo } from '../redux/userInfo';
+import buttonStyles from '../styles/button';
 
 const UserInfoMenu = (props) => {
 
   const navigation = useNavigation();
 
-  const handlePress = () => {
-    navigation.navigate('My Duettes');
+  const handlePress = (type) => {
+    navigation.navigate(type === 'duettes' ? 'My Duettes' : 'Support');
     props.toggleUserInfo(!props.displayUserInfo);
   }
 
   return (
-    <View>
-      <Text style={{
-        // backgroundColor: 'pink',
-        alignSelf: 'flex-end',
-        padding: 5,
-      }}>Logged in as {props.user.name}
-      </Text>
+    <View style={{ position: 'absolute', alignSelf: 'flex-end' }}>
+      <View style={{
+        ...styles.optionContainer,
+        backgroundColor: 'white',
+        borderTopWidth: 4,
+      }}>
+        <Text style={{
+          ...styles.optionText,
+          color: '#0047B9',
+        }}>Logged in as {props.user.name}
+        </Text>
+      </View>
       <TouchableOpacity
-        onPress={handlePress}
+        style={styles.optionContainer}
+        onPress={() => handlePress('duettes')}
       >
         <Text
-          style={styles.logoutText}>My Duettes
+          style={styles.optionText}>My Duettes
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
+        style={styles.optionContainer}
+        onPress={() => handlePress('support')}
+      >
+        <Text
+          style={styles.optionText}>Help
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          ...styles.optionContainer,
+          borderBottomWidth: 4,
+        }}
         onPress={() => handleLogout(props.displayUserInfo)}>
         <Text
-          style={styles.logoutText}>Logout
+          style={{
+            ...styles.optionText,
+          }}>Logout
         </Text>
       </TouchableOpacity>
     </View>
@@ -40,16 +61,21 @@ const UserInfoMenu = (props) => {
 };
 
 const styles = StyleSheet.create({
-  logoutText: {
-    height: 30,
-    width: 100,
+  optionContainer: {
+    ...buttonStyles.regularButton,
+    marginBottom: 0,
+    paddingHorizontal: 0,
     alignSelf: 'flex-end',
-    textAlign: 'center',
-    paddingTop: 5,
-    backgroundColor: 'lightgrey',
-    borderWidth: 1,
-    borderColor: '#0047B9',
-    fontWeight: 'bold',
+    borderRadius: 0,
+    width: '100%',
+    backgroundColor: '#ffd12b',
+    borderTopWidth: 2,
+    borderBottomWidth: 0,
+    borderLeftWidth: 4,
+  },
+  optionText: {
+    ...buttonStyles.regularButtonText,
+    color: '#0047b9'
   }
 })
 
