@@ -27,9 +27,15 @@ const RecordDuetteModal = (props) => {
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
   const [error, setError] = useState(false);
+  const [playDelay, setPlayDelay] = useState(0);
+
+  let time1;
+  let time2;
+  let time3;
 
   const record = async () => {
     try {
+      time1 = Date.now();
       const vid = await cameraRef.recordAsync();
       setDuetteUri(vid.uri);
     } catch (e) {
@@ -40,7 +46,14 @@ const RecordDuetteModal = (props) => {
 
   const play = async () => {
     try {
-      await vidRef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      time2 = Date.now();
+      // console.log('time2: ', time2)
+      console.log('time2 - time1: ', time2 - time1)
+      await vidRef.playFromPositionAsync(time2 - time1, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      time3 = Date.now();
+      // console.log('time3: ', time3);
+      console.log('time3 - time2: ', time3 - time2);
+      setPlayDelay(time3 - time2);
     } catch (e) {
       setError(true);
       throw new Error('error playing video: ', e);
@@ -102,6 +115,7 @@ const RecordDuetteModal = (props) => {
                 duetteUri={duetteUri}
                 setShowPreviewModal={setShowPreviewModal}
                 screenOrientation={screenOrientation}
+                playDelay={playDelay}
               />
             ) : (
                 <Modal
