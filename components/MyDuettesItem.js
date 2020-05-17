@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Alert, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import { Image, Alert, Text, View, Dimensions, TouchableOpacity } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import { Video } from 'expo-av';
-import { getAWSVideoUrl } from '../constants/urls';
+import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import buttonStyles from '../styles/button';
-import { setAdvertiserIDCollectionEnabledAsync } from 'expo-facebook';
 
 const MyDuettesItem = props => {
   const {
     videoId,
     duetteId,
+    videoTitle,
     selectedDuette,
     setSelectedDuette,
     screenOrientation,
     screenWidth,
-    screenHeight
+    screenHeight,
+    showPreview,
+    setShowPreview,
   } = props;
 
   // let screenWidth = Math.round(Dimensions.get('window').width);
@@ -71,6 +73,11 @@ const MyDuettesItem = props => {
     }
   };
 
+  const playPreview = () => {
+    setSelectedDuette(duetteId);
+    setShowPreview(true);
+  }
+
   const handleSaveToCameraRoll = async (duetteId, combinedKey) => {
     setSavingToCameraRoll(true);
     setSelectedDuette(duetteId);
@@ -94,6 +101,13 @@ const MyDuettesItem = props => {
     }
   };
 
+  const handlePlaybackStatusUpdate = (updateObj) => {
+    if (updateObj.didJustFinish) {
+      setSelectedDuette('');
+      setShowPreview(false);
+    }
+  };
+
   return (
     <View
       style={{
@@ -108,15 +122,58 @@ const MyDuettesItem = props => {
         width: screenWidth - 30,
         alignItems: 'center',
       }}>
-      <Video
-        source={{ uri: getAWSVideoUrl(combinedKey) }}
-        shouldPlay={selectedDuette === duetteId && showPreview}
-        useNativeControls={true}
-        style={{
-          width: screenWidth * 0.85,
-          height: screenWidth * 0.85 / 16 * 9,
-          borderRadius: 10,
-        }} />
+      {
+        selectedDuette === duetteId && showPreview ? (
+          <Video
+            source={{ uri: getAWSVideoUrl(combinedKey) }}
+            shouldPlay={true}
+            useNativeControls={true}
+            onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+            style={{
+              width: screenWidth * 0.85,
+              height: screenWidth * 0.85 / 16 * 9,
+              borderRadius: 10,
+            }} />
+        ) : (
+            <View>
+              <Image
+                style={{
+                  width: screenWidth * 0.85,
+                  height: screenWidth * 0.85 / 16 * 9,
+                  borderRadius: 10,
+                }}
+                source={{ uri: getAWSThumbnailUrl(combinedKey) }} />
+              <TouchableOpacity
+                onPress={playPreview}
+                style={{
+                  width: screenWidth * 0.85,
+                  height: screenWidth * 0.85 / 16 * 9,
+                  borderRadius: 10,
+                  backgroundColor: 'white',
+                  opacity: 0.5,
+                  position: 'absolute',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text style={{
+                  fontSize: 30,
+                  alignSelf: 'center',
+                  fontFamily: 'Gill Sans',
+                  fontWeight: '600',
+                  color: '#0047B9',
+                }}>"{videoTitle}"</Text>
+                <Text style={{
+                  fontSize: 20,
+                  alignSelf: 'center',
+                  fontFamily: 'Gill Sans',
+                  fontWeight: '600',
+                  color: 'black',
+                  marginTop: 20,
+                }}>Touch to view</Text>
+              </TouchableOpacity>
+            </View>
+          )
+      }
       <View
         style={{
           alignItems: 'center',
