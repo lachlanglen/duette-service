@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { Duette } = require('../../db');
+const { Duette, Video } = require('../../db');
 
 router.post('/', (req, res, next) => {
   const { id, userId, videoId } = req.body;
@@ -16,8 +16,16 @@ router.get('/byUserId/:userId', (req, res, next) => {
   const { userId } = req.params;
   Duette.findAll({
     where: {
-      userId
-    }
+      userId,
+    },
+    include: [
+      {
+        model: Video,
+      }
+    ],
+    order: [
+      ['createdAt', 'DESC']
+    ],
   })
     .then(duettes => res.status(200).send(duettes))
     .catch(e => {
@@ -42,7 +50,11 @@ router.get('/:id?', (req, res, next) => {
         }
       })
   } else {
-    Duette.findAll()
+    Duette.findAll({
+      order: [
+        ['createdAt', 'DESC']
+      ]
+    })
       .then(duettes => res.status(200).send(duettes))
       .catch(e => {
         res.status(404).send(e);

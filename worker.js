@@ -183,7 +183,7 @@ function start() {
                 await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                 await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
                 await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
-                await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.mov`);
+                await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.png`);
                 console.log('deleted combined video, overlay & fade in/out');
                 job.progress({ percent: 95, currentStep: 'finished saving' });
                 // send email to user
@@ -236,7 +236,7 @@ function start() {
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
-                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.png`);
                     } catch (E) {
                       throw new Error(E);
                     }
@@ -246,7 +246,7 @@ function start() {
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
-                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.png`);
                     } catch (E) {
                       throw new Error(E);
                     }
