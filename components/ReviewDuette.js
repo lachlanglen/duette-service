@@ -14,6 +14,9 @@ import ErrorView from './Error';
 import PreviewAndSync from './PreviewAndSync';
 import { postDuette } from '../redux/duettes';
 
+let date1;
+let date2;
+
 const ReviewDuette = (props) => {
 
   const {
@@ -22,6 +25,7 @@ const ReviewDuette = (props) => {
     setShowPreviewModal,
     setShowRecordDuetteModal,
     screenOrientation,
+    playDelay,
   } = props;
 
   const [displayMergedVideo, setDisplayMergedVideo] = useState(false);
@@ -42,13 +46,18 @@ const ReviewDuette = (props) => {
   const [error, setError] = useState(false);
   const [combinedKey, setCombinedKey] = useState('');
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
+  // const [date1, setDate1] = useState(0);
+  // const [date2, setDate2] = useState(0);
+  // const [latency, setLatency] = useState(0);
 
   let intervalId;
   let tempVidId;
 
-  let startTime;
+  // let startTime;
 
   const jobs = [];
+
+  console.log("playDelay: ", playDelay);
 
   const handleSave = () => {
     setSaving(true);
@@ -100,7 +109,7 @@ const ReviewDuette = (props) => {
   };
 
   const handlePost = async () => {
-    startTime = Date.now();
+    // startTime = Date.now();
     const id = uuid.v4();
     tempVidId = id;
     let uriParts = duetteUri.split('.');
@@ -128,7 +137,10 @@ const ReviewDuette = (props) => {
         const accompanimentKey = props.selectedVideo.id;
         const combinedVidKey = `${accompanimentKey}${duetteKey}`;
         try {
-          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${bluetooth ? (customOffset + 200) / 1000 : customOffset / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
+          // console.log('latency line 134: ', latency)
+          // console.log('Date2 - Date1: ', date2 - date1);
+          // console.log('extraDelay: ', date2 - date1)
+          const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/duette/${duetteKey}/${accompanimentKey}/${(customOffset + playDelay + (date2 - date1)) / 1000}`, { userName: props.user.name.split(' ')[0], userEmail: props.user.email })).data;
           jobs.push(job);
           setCombinedKey(combinedVidKey);
           poll(500);
@@ -155,10 +167,23 @@ const ReviewDuette = (props) => {
     setDisplayMergedVideo(true);
   };
 
+  // console.log('date1: ', date1)
+  // console.log('date2: ', date2)
+
   const handleShowPreview = async () => {
     setPreviewComplete(false);
-    await vidBRef.playFromPositionAsync(customOffset, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // date1 = Date.now();
+    await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // date2 = Date.now();
+    // console.log("date2 - date1: ", date2 - date1);
+    // setLatency(date2 - date1);
+    // console.log('vidB started playing: ', Date.now());
+    date1 = Date.now();
+    // setDate1(Date.now());
     await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // console.log('vidA started playig: ', Date.now());
+    // setDate2(Date.now());
+    date2 = Date.now();
     setIsPlaying(true);
   };
 
@@ -244,20 +269,32 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    if (customOffset < 50) return;
+    if (customOffset < (50 - playDelay)) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
+
     setCustomOffset(customOffset - 50);
-    await vidBRef.playFromPositionAsync(customOffset - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidBRef.playFromPositionAsync(customOffset + playDelay - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // console.log('Date.now line 265: ', Date.now())
+    // setDate1(Date.now());
+    date1 = Date.now();
     await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // console.log('Date.now line 267: ', Date.now())
+    // setDate2(Date.now());
+    date2 = Date.now();
   };
 
   const handleSyncForward = async () => {
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
     setCustomOffset(customOffset + 50);
-    await vidBRef.playFromPositionAsync(customOffset + 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidBRef.playFromPositionAsync(customOffset + playDelay + 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // setDate1(Date.now());
+    date1 = Date.now();
     await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // console.log('Date.now line 277: ', Date.now())
+    date2 = Date.now();
+    // setDate2(Date.now());
   };
 
   const handleError = () => {
@@ -334,7 +371,8 @@ const ReviewDuette = (props) => {
                               handleSave={handleSave}
                               handleRedo={handleRedo}
                               handleSyncBack={handleSyncBack}
-                              handleSyncForward={handleSyncForward} />
+                              handleSyncForward={handleSyncForward}
+                            />
                           )
                       )
                   }
