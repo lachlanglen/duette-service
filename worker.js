@@ -70,7 +70,7 @@ function start() {
         // get metadata on vid 1
         const metadata = await ffprobeAsync(accompanimentUrl)
 
-        console.log('metadata1: ', metadata)
+        // console.log('metadata1: ', metadata)
 
         file1Info.orientation = landscapeRotations.includes(metadata.streams[0].rotation) === '90' ? 'portrait' : 'landscape';
         file1Info.width = file1Info.orientation === 'portrait' ? metadata.streams[0].height : metadata.streams[0].width;
@@ -80,7 +80,7 @@ function start() {
         // get metadata on vid 2
         const metadata2 = await ffprobeAsync(duetteUrl);
 
-        console.log('metadata2: ', metadata2);
+        // console.log('metadata2: ', metadata2);
 
         file2Info.orientation = landscapeRotations.includes(metadata2.streams[0].rotation) ? 'portrait' : 'landscape';
         file2Info.trueWidth = file2Info.orientation === 'portrait' ? metadata2.streams[0].height : metadata2.streams[0].width;
@@ -139,63 +139,83 @@ function start() {
         await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}fadeOut.mov -i ${logoUrl} -filter_complex overlay=W-w-10:H-h-10 -codec:a copy -preset ultrafast -async 1 ${file1Info.originalName}${file2Info.originalName}overlay.mov`)
         console.log('added overlay!')
 
+        // create thumbnail
+
+        await exec(`ffmpeg -i ${file1Info.originalName}${file2Info.originalName}overlay.mov -vframes 1 -an -ss 3 ${file1Info.originalName}${file2Info.originalName}thumbnail.png`);
+
         console.log('done!')
         // post video to AWS
-        const params = {
+        const vidParams = {
           Bucket: process.env.AWS_BUCKET_NAME,
           Key: `${combinedKey}.mov`,
           Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`),
+        };
+
+        const thumbnailParams = {
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: `${file1Info.originalName}${file2Info.originalName}thumbnail.png`,
+          Body: fs.createReadStream(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.png`),
         }
-        s3.upload(params, async (err, data) => {
+
+        s3.upload(vidParams, async (err, data) => {
           if (err) {
             console.log('error uploading to s3: ', err)
             throw new Error(err);
           } else {
-            console.log('success uploading to s3! data: ', data);
-            // delete all vids
-            await unlinkAsync(`${__dirname}/${file2Info.originalName}cropped.mov`)
-            console.log('deleted cropped video 2')
-            if (file1Info.height < file2Info.croppedHeight) {
-              await unlinkAsync(`${__dirname}/${file1Info.originalName}scaled.mov`)
-              console.log('deleted video 1 scaled')
-            }
-            if (file2Info.croppedHeight < file1Info.height) {
-              await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`)
-              console.log('deleted video 2 scaled')
-            }
-            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
-            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
-            await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
-            console.log('deleted combined video, overlay & fade in/out');
-            job.progress({ percent: 95, currentStep: 'finished saving' });
-            // send email to user
-            mailjet
-              .post('send', { version: 'v3.1' })
-              .request({
-                Messages: [
-                  {
-                    From: {
-                      Email: 'support@duette.app',
-                      Name: 'Duette'
-                    },
-                    To: [
+            console.log('success uploading video to s3! data: ', data);
+            s3.upload(thumbnailParams, async (error, d) => {
+              if (error) {
+                console.log('error uploading thumbnail to s3: ', error)
+                throw new Error(err);
+              } else {
+                console.log('success uploading thumbnail to s3! data: ', d);
+                // delete all vids
+                await unlinkAsync(`${__dirname}/${file2Info.originalName}cropped.mov`)
+                console.log('deleted cropped video 2')
+                if (file1Info.height < file2Info.croppedHeight) {
+                  await unlinkAsync(`${__dirname}/${file1Info.originalName}scaled.mov`)
+                  console.log('deleted video 1 scaled')
+                }
+                if (file2Info.croppedHeight < file1Info.height) {
+                  await unlinkAsync(`${__dirname}/${file2Info.originalName}scaled.mov`)
+                  console.log('deleted video 2 scaled')
+                }
+                await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
+                await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
+                await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
+                await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.mov`);
+                console.log('deleted combined video, overlay & fade in/out');
+                job.progress({ percent: 95, currentStep: 'finished saving' });
+                // send email to user
+                mailjet
+                  .post('send', { version: 'v3.1' })
+                  .request({
+                    Messages: [
                       {
-                        Email: userEmail,
-                        Name: userName
+                        From: {
+                          Email: 'support@duette.app',
+                          Name: 'Duette'
+                        },
+                        To: [
+                          {
+                            Email: userEmail,
+                            Name: userName
+                          }
+                        ],
+                        Subject: 'Your video is ready!',
+                        // TextPart: 'My first Mailjet email',
+                        HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>Thanks for using Duette. See you next time!</div><div>- Team Duette</div>`,
+                        CustomID: duetteKey
                       }
-                    ],
-                    Subject: 'Your video is ready!',
-                    // TextPart: 'My first Mailjet email',
-                    HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>Thanks for using Duette. See you next time!</div><div>- Team Duette</div>`,
-                    CustomID: duetteKey
-                  }
-                ]
-              })
-              .then(res => {
-                console.log('success sending email! response: ', res.body);
-                return { combinedKey };
-              })
-              .catch(e => console.log('error sending email: ', e))
+                    ]
+                  })
+                  .then(res => {
+                    console.log('success sending email! response: ', res.body);
+                    return { combinedKey };
+                  })
+                  .catch(e => console.log('error sending email: ', e))
+              }
+            })
           }
         })
       } catch (error) {
@@ -216,6 +236,7 @@ function start() {
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.mov`);
                     } catch (E) {
                       throw new Error(E);
                     }
@@ -225,6 +246,7 @@ function start() {
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}combined.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}overlay.mov`);
                       await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}fadeOut.mov`);
+                      await unlinkAsync(`${__dirname}/${file1Info.originalName}${file2Info.originalName}thumbnail.mov`);
                     } catch (E) {
                       throw new Error(E);
                     }
