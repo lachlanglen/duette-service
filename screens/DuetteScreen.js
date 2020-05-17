@@ -136,26 +136,28 @@ const DuetteScreen = (props) => {
                     ) : (
                         // SEARCH YIELDED NO RESULTS
                         props.videos.length > 0 ? (
-                          < FlatList
-                            data={props.videos}
-                            renderItem={({ item }) => (
-                              <VideoItem
-                                id={item.id}
-                                title={item.title}
-                                performer={item.performer}
-                                composer={item.composer}
-                                theKey={item.key}
-                                userId={item.userId}
-                                previewVid={previewVid}
-                                setPreviewVid={setPreviewVid}
-                                handlePreview={handlePreview}
-                                handleUse={handleUse}
-                                setShowEditDetailsModal={setShowEditDetailsModal}
-                                showEditDetailsModal={showEditDetailsModal} />
-                            )}
-                            keyExtractor={item => item.id}
-                            viewabilityConfig={{}}
-                          />
+                          <View style={{ flex: 1, paddingBottom: 10 }}>
+                            <FlatList
+                              data={props.videos}
+                              renderItem={({ item }) => (
+                                <VideoItem
+                                  id={item.id}
+                                  title={item.title}
+                                  performer={item.performer}
+                                  composer={item.composer}
+                                  theKey={item.key}
+                                  userId={item.userId}
+                                  previewVid={previewVid}
+                                  setPreviewVid={setPreviewVid}
+                                  handlePreview={handlePreview}
+                                  handleUse={handleUse}
+                                  setShowEditDetailsModal={setShowEditDetailsModal}
+                                  showEditDetailsModal={showEditDetailsModal} />
+                              )}
+                              keyExtractor={item => item.id}
+                              viewabilityConfig={{}}
+                            />
+                          </View>
                         ) : (
                             <View>
                               <Text style={styles.text}>

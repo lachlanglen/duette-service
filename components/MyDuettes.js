@@ -6,6 +6,7 @@ import MyDuettesItem from './MyDuettesItem';
 
 const MyDuettes = (props) => {
   const [selectedDuette, setSelectedDuette] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
 
   let screenWidth = Math.round(Dimensions.get('window').width);
@@ -33,7 +34,7 @@ const MyDuettes = (props) => {
       style={styles.container}>
       {
         props.userDuettes.length > 0 ? (
-          <View>
+          <View style={{ flex: 1, paddingBottom: 10 }}>
             <Text style={{
               color: '#0047B9',
               fontSize: 20,
@@ -49,12 +50,15 @@ const MyDuettes = (props) => {
               renderItem={({ item }) => (
                 <MyDuettesItem
                   videoId={item.videoId}
+                  videoTitle={item.video.title}
                   duetteId={item.id}
                   selectedDuette={selectedDuette}
                   setSelectedDuette={setSelectedDuette}
                   screenOrientation={screenOrientation}
                   screenWidth={screenWidth}
                   screenHeight={screenHeight}
+                  showPreview={showPreview}
+                  setShowPreview={setShowPreview}
                 />
               )}
               keyExtractor={item => item.id}
