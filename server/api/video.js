@@ -60,6 +60,9 @@ router.get('/', (req, res, next) => {
           // TODO: add Id
         ],
       },
+      order: [
+        ['createdAt', 'DESC']
+      ]
     })
       .then(videos => res.status(200).send(videos))
       .catch(e => {
@@ -67,7 +70,11 @@ router.get('/', (req, res, next) => {
         // res.send('error finding videos by search value: ', e);
       })
   } else {
-    Video.findAll()
+    Video.findAll({
+      order: [
+        ['createdAt', 'DESC']
+      ]
+    })
       .then(videos => {
         res.status(200).send(videos)
       })
