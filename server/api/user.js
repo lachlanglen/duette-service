@@ -62,7 +62,6 @@ router.post('/', async (req, res, next) => {
             console.log('error updating user: ', e);
             res.status(400).send(e);
           })
-        res.status(200).send(user)
       } else {
         // user doesn't exist
         // create user
