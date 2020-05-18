@@ -48,6 +48,9 @@ const DuetteScreen = (props) => {
   });
 
   const loadVideo = async (bluetooth, id) => {
+    const freeDiskStorage = await FileSystem.getFreeDiskStorageAsync();
+    console.log('freeDiskStorage mb: ', freeDiskStorage / 1000000);
+    // TODO: show error if not enough storage available?
     setLoading({ isLoading: true, id });
     if (previewVid) setPreviewVid('');
     if (bluetooth) {

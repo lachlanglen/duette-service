@@ -21,6 +21,10 @@ const UserInfoMenu = (props) => {
         ...styles.optionContainer,
         backgroundColor: 'white',
         borderTopWidth: 4,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
       }}>
         <Text style={{
           ...styles.optionText,
@@ -29,7 +33,10 @@ const UserInfoMenu = (props) => {
         </Text>
       </View>
       <TouchableOpacity
-        style={styles.optionContainer}
+        style={{
+          ...styles.optionContainer,
+          borderRadius: 0,
+        }}
         onPress={() => handlePress('duettes')}
       >
         <Text
@@ -37,7 +44,10 @@ const UserInfoMenu = (props) => {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={styles.optionContainer}
+        style={{
+          ...styles.optionContainer,
+          borderRadius: 0,
+        }}
         onPress={() => handlePress('support')}
       >
         <Text
@@ -48,6 +58,10 @@ const UserInfoMenu = (props) => {
         style={{
           ...styles.optionContainer,
           borderBottomWidth: 4,
+          borderBottomLeftRadius: 5,
+          borderBottomRightRadius: 5,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
         }}
         onPress={() => handleLogout(props.displayUserInfo)}>
         <Text
@@ -66,7 +80,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     paddingHorizontal: 0,
     alignSelf: 'flex-end',
-    borderRadius: 0,
+    // borderRadius: 0,
     width: '100%',
     backgroundColor: '#ffd12b',
     borderTopWidth: 2,
