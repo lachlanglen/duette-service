@@ -13,6 +13,7 @@ import { getAWSVideoUrl } from '../constants/urls';
 import ErrorView from './Error';
 import PreviewAndSync from './PreviewAndSync';
 import { postDuette } from '../redux/duettes';
+import { deleteLocalFile } from '../services/utils';
 
 let date1;
 let date2;
@@ -26,6 +27,7 @@ const ReviewDuette = (props) => {
     setShowRecordDuetteModal,
     screenOrientation,
     playDelay,
+    baseTrackUri,
   } = props;
 
   const [displayMergedVideo, setDisplayMergedVideo] = useState(false);
@@ -195,6 +197,7 @@ const ReviewDuette = (props) => {
     setSavingToCameraRoll(false);
     setShowPreviewModal(false);
     setShowRecordDuetteModal(false);
+    deleteLocalFile(baseTrackUri);
   };
 
   const saveVideo = async () => {
@@ -372,6 +375,7 @@ const ReviewDuette = (props) => {
                               handleRedo={handleRedo}
                               handleSyncBack={handleSyncBack}
                               handleSyncForward={handleSyncForward}
+                              baseTrackUri={baseTrackUri}
                             />
                           )
                       )

@@ -23,6 +23,7 @@ const PreviewAndSync = (props) => {
     handleRedo,
     handleSyncBack,
     handleSyncForward,
+    baseTrackUri,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -37,7 +38,7 @@ const PreviewAndSync = (props) => {
         <Video
           ref={ref => setVidARef(ref)}
           source={{
-            uri: getAWSVideoUrl(props.selectedVideo.id),
+            uri: baseTrackUri,
           }}
           rate={1.0}
           volume={1.0}

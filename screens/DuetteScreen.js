@@ -7,12 +7,14 @@ import RecordDuetteModalIos from '../components/ios/RecordDuetteModal';
 import RecordDuetteModalAndroid from '../components/android/RecordDuetteModal';
 import Constants from 'expo-constants';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as FileSystem from 'expo-file-system';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
 import UserInfoMenu from '../components/UserInfoMenu';
 import VideoItem from '../components/VideoItem';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EditDetailsModal from '../components/EditDetailsModal';
+import { getAWSVideoUrl } from '../constants/urls';
 
 const DuetteScreen = (props) => {
 
@@ -22,6 +24,8 @@ const DuetteScreen = (props) => {
   const [bluetooth, setBluetooth] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [screenOrientation, setScreenOrientation] = useState('');
+  const [baseTrackUri, setBaseTrackUri] = useState('');
+  const [loading, setLoading] = useState({ isLoading: false, id: '' });
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -43,27 +47,31 @@ const DuetteScreen = (props) => {
     detectOrientation();
   });
 
-  const handleBluetooth = (id) => {
-    setBluetooth(true);
+  const loadVideo = async (bluetooth, id) => {
+    setLoading({ isLoading: true, id });
     if (previewVid) setPreviewVid('');
+    if (bluetooth) {
+      setBluetooth(true);
+    } else {
+      setBluetooth(false);
+    }
     props.setVideo(id);
+    const { uri } = await FileSystem.downloadAsync(
+      getAWSVideoUrl(id),
+      FileSystem.documentDirectory + `${id}.mov`
+    );
+    setBaseTrackUri(uri);
+    setLoading({ isLoading: false, id: '' });
     setShowRecordDuetteModal(true);
-  };
-
-  const handleWired = (id) => {
-    setBluetooth(false);
-    if (previewVid) setPreviewVid('');
-    props.setVideo(id);
-    setShowRecordDuetteModal(true);
-  };
+  }
 
   const handleUse = (id) => {
     Alert.alert(
       'Are you using bluetooth or wired headphones?',
       `This helps us sync your video perfectly${Platform.OS === 'ios' ? ` 🥰` : `!`}`,
       [
-        { text: 'Bluetooth', onPress: () => handleBluetooth(id) },
-        { text: 'Wired', onPress: () => handleWired(id) },
+        { text: 'Bluetooth', onPress: () => loadVideo(true, id) },
+        { text: 'Wired', onPress: () => loadVideo(false, id) },
       ],
       { cancelable: false }
     );
@@ -114,6 +122,7 @@ const DuetteScreen = (props) => {
                       <RecordDuetteModalIos
                         bluetooth={bluetooth}
                         setShowRecordDuetteModal={setShowRecordDuetteModal}
+                        baseTrackUri={baseTrackUri}
                       />
                     )
                 }
@@ -152,7 +161,8 @@ const DuetteScreen = (props) => {
                                   handlePreview={handlePreview}
                                   handleUse={handleUse}
                                   setShowEditDetailsModal={setShowEditDetailsModal}
-                                  showEditDetailsModal={showEditDetailsModal} />
+                                  showEditDetailsModal={showEditDetailsModal}
+                                  loading={loading} />
                               )}
                               keyExtractor={item => item.id}
                               viewabilityConfig={{}}

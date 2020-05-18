@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import store from '../redux/store';
+import * as FileSystem from 'expo-file-system';
 import { clearCurrentUser, createOrUpdateUser } from '../redux/user';
 import { toggleUserInfo } from '../redux/userInfo';
 import AuthService from './Auth';
@@ -44,3 +45,7 @@ export const handleLogout = async (displayUserInfo) => {
     console.log('error deleting items from secure store: ', e)
   }
 };
+
+export const deleteLocalFile = async fileName => {
+  await FileSystem.deleteAsync(fileName, { idempotent: true });
+}

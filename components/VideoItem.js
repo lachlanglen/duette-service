@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
-import { Text, TouchableOpacity, View, Dimensions, StyleSheet, Image, Alert, Platform } from 'react-native';
+import { Text, TouchableOpacity, View, Dimensions, StyleSheet, Image, Alert, Platform, ActivityIndicator } from 'react-native';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import { deleteVideo } from '../redux/videos';
@@ -21,6 +21,7 @@ const VideoItem = (props) => {
     handlePreview,
     handleUse,
     setShowEditDetailsModal,
+    loading,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -113,9 +114,19 @@ const VideoItem = (props) => {
       </Text>
       <TouchableOpacity
         onPress={() => handleUse(id)}
-        style={styles.button}>
-        <Text style={styles.buttonText}>
-          Record Duette!
+        style={{
+          ...styles.button,
+          width: loading.isLoading && loading.id === id ? '85%' : '70%',
+        }}>
+        <Text style={{
+          ...styles.buttonText,
+          fontSize: loading.isLoading && loading.id === id ? 25 : 30,
+        }}>
+          {loading.isLoading && loading.id === id ? 'Loading, please wait...' : 'Record Duette!'}
+          {
+            loading.isLoading && loading.id === id &&
+            <ActivityIndicator style={{ marginLeft: 20 }} />
+          }
         </Text>
       </TouchableOpacity>
       {

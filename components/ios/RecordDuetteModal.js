@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
-import { getAWSVideoUrl } from '../../constants/urls';
 import ErrorView from '../Error';
 import ReviewDuette from '../ReviewDuette';
+import { deleteLocalFile } from '../../services/utils';
 
 const RecordDuetteModal = (props) => {
 
@@ -16,6 +16,7 @@ const RecordDuetteModal = (props) => {
   const {
     setShowRecordDuetteModal,
     bluetooth,
+    baseTrackUri,
   } = props;
 
   const [recording, setRecording] = useState(false);
@@ -81,7 +82,9 @@ const RecordDuetteModal = (props) => {
       await vidRef.unloadAsync();
       cameraRef.stopRecording();
       setShowRecordDuetteModal(false);
+      deleteLocalFile(baseTrackUri);
     } catch (e) {
+      deleteLocalFile(baseTrackUri);
       throw new Error('error unloading video: ', e);
     }
   };
@@ -99,6 +102,7 @@ const RecordDuetteModal = (props) => {
 
   const handleError = () => {
     setRecording(false);
+    deleteLocalFile(baseTrackUri);
     setShowPreviewModal(false);
   };
 
@@ -116,6 +120,7 @@ const RecordDuetteModal = (props) => {
                 setShowPreviewModal={setShowPreviewModal}
                 screenOrientation={screenOrientation}
                 playDelay={playDelay}
+                baseTrackUri={baseTrackUri}
               />
             ) : (
                 <Modal
@@ -134,7 +139,7 @@ const RecordDuetteModal = (props) => {
                     <View style={{ flexDirection: 'row' }}>
                       <Video
                         ref={ref => setVidRef(ref)}
-                        source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
+                        source={{ uri: baseTrackUri }}
                         rate={1.0}
                         volume={1.0}
                         isMuted={false}
