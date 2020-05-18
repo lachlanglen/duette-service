@@ -187,33 +187,35 @@ function start() {
                 console.log('deleted combined video, overlay & fade in/out');
                 job.progress({ percent: 95, currentStep: 'finished saving' });
                 // send email to user
-                mailjet
-                  .post('send', { version: 'v3.1' })
-                  .request({
-                    Messages: [
-                      {
-                        From: {
-                          Email: 'support@duette.app',
-                          Name: 'Duette'
-                        },
-                        To: [
-                          {
-                            Email: userEmail,
-                            Name: userName
-                          }
-                        ],
-                        Subject: 'Your video is ready!',
-                        // TextPart: 'My first Mailjet email',
-                        HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>Thanks for using Duette. See you next time!</div><div>- Team Duette</div>`,
-                        CustomID: duetteKey
-                      }
-                    ]
-                  })
-                  .then(res => {
-                    console.log('success sending email! response: ', res.body);
-                    return { combinedKey };
-                  })
-                  .catch(e => console.log('error sending email: ', e))
+                if (userEmail) {
+                  mailjet
+                    .post('send', { version: 'v3.1' })
+                    .request({
+                      Messages: [
+                        {
+                          From: {
+                            Email: 'support@duette.app',
+                            Name: 'Duette'
+                          },
+                          To: [
+                            {
+                              Email: userEmail,
+                              Name: userName
+                            }
+                          ],
+                          Subject: 'Your video is ready!',
+                          // TextPart: 'My first Mailjet email',
+                          HTMLPart: `<h4>Hi ${userName},</h4><div>Your Duette has finished processing!</div><h4><a href=${data.Location}>Click here</a> to download your video.</h4><div>Thanks for using Duette. See you next time!</div><div>- Team Duette</div>`,
+                          CustomID: duetteKey
+                        }
+                      ]
+                    })
+                    .then(res => {
+                      console.log('success sending email! response: ', res.body);
+                      return { combinedKey };
+                    })
+                    .catch(e => console.log('error sending email: ', e))
+                }
               }
             })
           }

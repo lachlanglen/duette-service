@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import buttonStyles from '../styles/button';
+import { deleteLocalFile } from '../services/utils';
 
 const MyDuettesItem = props => {
   const {
@@ -49,6 +50,7 @@ const MyDuettesItem = props => {
           ],
           { cancelable: false }
         );
+        deleteLocalFile(uri);
       } catch (e) {
         Alert.alert(
           `We're sorry`,

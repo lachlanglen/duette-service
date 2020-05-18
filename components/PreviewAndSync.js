@@ -24,6 +24,7 @@ const PreviewAndSync = (props) => {
     handleSyncBack,
     handleSyncForward,
     baseTrackUri,
+    handleRestart,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -233,6 +234,12 @@ const PreviewAndSync = (props) => {
               </Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            onPress={handleRestart}
+            style={styles.problemContainer}
+          >
+            <Text style={{ color: 'red' }}>Video frozen? Touch here to refresh.</Text>
+          </TouchableOpacity>
         </View>
       }
     </View>
@@ -295,6 +302,12 @@ const styles = StyleSheet.create({
     marginTop: 30,
     color: 'white',
     textAlign: 'center',
+  },
+  problemContainer: {
+    alignItems: 'center',
+    paddingBottom: 10,
+    marginTop: 15,
+    height: 30,
   },
 });
 

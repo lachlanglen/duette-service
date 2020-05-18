@@ -217,6 +217,7 @@ const ReviewDuette = (props) => {
           ],
           { cancelable: false }
         );
+        deleteLocalFile(uri);
       } catch (e) {
         setError(true);
         throw new Error('error saving to camera roll: ', e);
@@ -300,6 +301,15 @@ const ReviewDuette = (props) => {
     // setDate2(Date.now());
   };
 
+  const handleRestart = async () => {
+    await vidARef.stopAsync();
+    await vidBRef.stopAsync();
+    await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    date1 = Date.now();
+    await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    date2 = Date.now();
+  };
+
   const handleError = () => {
     setDisplayMergedVideo(false);
     setPreviewComplete(false);
@@ -376,6 +386,7 @@ const ReviewDuette = (props) => {
                               handleSyncBack={handleSyncBack}
                               handleSyncForward={handleSyncForward}
                               baseTrackUri={baseTrackUri}
+                              handleRestart={handleRestart}
                             />
                           )
                       )

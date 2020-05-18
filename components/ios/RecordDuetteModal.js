@@ -101,8 +101,9 @@ const RecordDuetteModal = (props) => {
   };
 
   const handleError = () => {
+    setError(false);
     setRecording(false);
-    deleteLocalFile(baseTrackUri);
+    // deleteLocalFile(baseTrackUri);
     setShowPreviewModal(false);
   };
 
