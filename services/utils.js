@@ -4,6 +4,8 @@ import * as FileSystem from 'expo-file-system';
 import { clearCurrentUser, createOrUpdateUser } from '../redux/user';
 import { toggleUserInfo } from '../redux/userInfo';
 import AuthService from './Auth';
+import axios from 'axios';
+import { fetchDuettes } from '../redux/duettes';
 
 const Auth = new AuthService;
 
@@ -23,6 +25,8 @@ export const handleLogin = async () => {
         await SecureStore.setItemAsync('accessToken', token);
         await SecureStore.setItemAsync('expires', expires.toString());
         await SecureStore.setItemAsync('facebookId', id);
+        const user = (await axios.get(`https://duette.herokuapp.com/api/user/facebookId/${id}`)).data;
+        store.dispatch(fetchDuettes(user.id));
       } catch (e) {
         console.log('error setting access token, expires or facebookId keys on secure store: ', e);
       }

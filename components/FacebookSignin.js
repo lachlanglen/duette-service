@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
-import { createOrUpdateUser } from '../redux/user';
 import { handleLogin } from '../services/utils';
 import buttonStyles from '../styles/button';
+import { setDuettes } from '../redux/duettes';
 
 
-const FacebookSignin = () => {
+const FacebookSignin = (props) => {
 
   return (
     <View style={styles.container}>
@@ -22,7 +22,7 @@ const FacebookSignin = () => {
       </TouchableOpacity>
     </View>
   )
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -47,7 +47,7 @@ const mapState = ({ user }) => {
 
 const mapDispatch = dispatch => {
   return {
-    createOrUpdateUser: info => dispatch(createOrUpdateUser(info))
+    setDuettes: (id) => dispatch(setDuettes(id)),
   }
 }
 
