@@ -159,7 +159,7 @@ const DetailsModal = (props) => {
                     ...buttonStyles.regularButton,
                     width: '60%'
                   }}>
-                  <Text style={buttonStyles.regularButtonText}>Record another accompaniment</Text>
+                  <Text style={buttonStyles.regularButtonText}>Record another base track</Text>
                 </TouchableOpacity>
               </View>
             ) : (

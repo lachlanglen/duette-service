@@ -180,7 +180,7 @@ const PreviewAndSync = (props) => {
           <View
             style={styles.hintContainer}>
             <Text
-              style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the accompaniment, press
+              style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the base track, press
             </Text>
             <Icon
               name="fast-forward"
@@ -194,7 +194,7 @@ const PreviewAndSync = (props) => {
 
             }}>
             <Text
-              style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the accompaniment, press
+              style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the base track, press
             </Text>
             <Icon
               name="fast-rewind"
