@@ -2,10 +2,25 @@ const express = require('express')
 const router = express.Router();
 const { User } = require('../../db');
 
-router.get('/', (req, res, next) => {
-  User.findAll()
-    .then(users => res.status(200).send(users))
-    .catch(e => res.status(404).send('Could not GET all users: ', e))
+router.get('/:id?', (req, res, next) => {
+  if (req.params.id) {
+    User.findOne({
+      where: {
+        id,
+      }
+    })
+      .then(user => {
+        if (user) {
+          res.status(200).send(user);
+        } else {
+          res.status(404).send(`user not found with id #${id}`)
+        }
+      })
+  } else {
+    User.findAll()
+      .then(users => res.status(200).send(users))
+      .catch(e => res.status(404).send('Could not GET all users: ', e))
+  }
 });
 
 router.get('/facebookId/:facebookId', async (req, res, next) => {

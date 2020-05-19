@@ -238,7 +238,7 @@ const PreviewAndSync = (props) => {
             onPress={handleRestart}
             style={styles.problemContainer}
           >
-            <Text style={{ color: 'red' }}>Video frozen? Touch here to refresh.</Text>
+            <Text style={{ color: 'red' }}>Having a problem? Touch here to refresh.</Text>
           </TouchableOpacity>
         </View>
       }
