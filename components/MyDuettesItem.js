@@ -194,8 +194,8 @@ const MyDuettesItem = props => {
           <Text style={{
             ...buttonStyles.regularButtonText,
             fontWeight: 'normal',
-          }}>Save to Camera Roll
-            </Text>
+          }}>{savingToCameraRoll ? 'Saving to Camera Roll...' : 'Save to Camera Roll'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View >

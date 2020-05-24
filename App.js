@@ -1,7 +1,7 @@
 /* eslint-disable radix */
 import React from 'react';
 import { Provider } from 'react-redux'
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { Text, TextInput, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import store from './redux/store';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
@@ -29,6 +29,12 @@ Sentry.init({
 });
 
 Sentry.setRelease(Constants.manifest.revisionId);
+
+Text.defaultProps = Text.defaultProps || {};
+Text.defaultProps.allowFontScaling = false;
+
+TextInput.defaultProps = TextInput.defaultProps || {};
+TextInput.defaultProps.allowFontScaling = false;
 
 const Stack = createStackNavigator();
 

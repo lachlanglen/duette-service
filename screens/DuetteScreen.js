@@ -126,6 +126,7 @@ const DuetteScreen = (props) => {
                         bluetooth={bluetooth}
                         setShowRecordDuetteModal={setShowRecordDuetteModal}
                         baseTrackUri={baseTrackUri}
+                        setSearchText={setSearchText}
                       />
                     )
                 }
@@ -165,7 +166,9 @@ const DuetteScreen = (props) => {
                                   handleUse={handleUse}
                                   setShowEditDetailsModal={setShowEditDetailsModal}
                                   showEditDetailsModal={showEditDetailsModal}
-                                  loading={loading} />
+                                  loading={loading}
+                                  searchText={searchText}
+                                />
                               )}
                               keyExtractor={item => item.id}
                               viewabilityConfig={{}}

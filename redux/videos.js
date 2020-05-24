@@ -39,10 +39,16 @@ export const postVideo = (details) => {
   };
 };
 
-export const deleteVideo = id => {
+export const deleteVideo = (id, searchText) => {
   return dispatch => {
     axios.delete(`https://duette.herokuapp.com/api/video/${id}`)
-      .then(() => dispatch(fetchVideos()))
+      .then(() => {
+        if (searchText) {
+          dispatch(fetchVideos(searchText));
+        } else {
+          dispatch(fetchVideos());
+        }
+      })
       .catch(e => {
         throw new Error('error in deleteVideo thunk: ', e)
       })

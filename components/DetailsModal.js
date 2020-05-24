@@ -1,14 +1,12 @@
 /* eslint-disable complexity */
-import React, { useState } from 'react';
-import { Image, Text, View, Modal, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Image, Text, View, Modal, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { connect } from 'react-redux';
-import uuid from 'react-native-uuid';
-import axios from 'axios';
-import CatsGallery from './CatsGallery';
 import { postVideo } from '../redux/videos';
 import Form from './Form';
 import ErrorView from './Error';
 import buttonStyles from '../styles/button';
+import SavingVideo from './SavingVideo';
 
 const DetailsModal = (props) => {
   const {
@@ -21,97 +19,14 @@ const DetailsModal = (props) => {
 
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [infoGettingDone, setInfoGettingDone] = useState(false);
-  const [croppingDone, setCroppingDone] = useState(false);
-  const [savingDone, setSavingDone] = useState(false);
   const [error, setError] = useState(false);
   const [title, setTitle] = useState('');
   const [composer, setComposer] = useState('');
   const [songKey, setSongKey] = useState('');
   const [performer, setPerformer] = useState(props.user.name);
 
-  const jobs = [];
-  let croppedVidId;
-  let intervalId;
-  let tempVidId;
-
-  const getJobStatus = async () => {
-    const status = (await axios.get(`https://duette.herokuapp.com/api/ffmpeg/job/${jobs[0].id}`)).data;
-    if (status.state !== 'completed') {
-      if (status.progress.percent === 20) {
-        setInfoGettingDone(true);
-      } else if (status.progress.percent === 60) {
-        if (!infoGettingDone) {
-          setInfoGettingDone(true);
-        }
-        setCroppingDone(true);
-      } else if (status.progress.percent === 95) {
-        if (!croppingDone) {
-          setCroppingDone(true);
-        }
-        setSavingDone(true);
-      }
-    } else if (status.state === 'failed') {
-      clearInterval(intervalId);
-      setError(true);
-      throw new Error(`job #${jobs[0].id} failed: `, status.reason);
-    } else {
-      // job is completed
-      // delete tempVid
-      try {
-        await axios.delete(`https://duette.herokuapp.com/api/aws/${tempVidId}`)
-        if (!infoGettingDone) setInfoGettingDone(true);
-        if (!croppingDone) setCroppingDone(true);
-        if (!savingDone) setSavingDone(true);
-        clearInterval(intervalId)
-        props.postVideo({ id: croppedVidId, title, composer, key: songKey, performer, userId: props.user.id });
-        // TODO: handle error posting video
-        setSuccess(true);
-        setSaving(false);
-      } catch (e) {
-        setError(true);
-        throw new Error('error deleting aws temp vid: ', e)
-      }
-    }
-  }
-
-  const poll = interval => {
-    intervalId = setInterval(getJobStatus, interval);
-  };
-
-  const handlePost = async () => {
-    tempVidId = uuid.v4();
-    let uriParts = dataUri.split('.');
-    let fileType = uriParts[uriParts.length - 1];
-    const vidFile = {
-      uri: dataUri,
-      name: `${tempVidId}.mov`,
-      type: `video/${fileType}`
-    }
-    try {
-      const signedUrl = (await axios.get(`https://duette.herokuapp.com/api/aws/getSignedUrl/${tempVidId}`)).data;
-      const awsOptions = {
-        method: 'PUT',
-        body: vidFile,
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': `video/${fileType}`,
-        },
-      };
-      await fetch(signedUrl, awsOptions);
-      croppedVidId = uuid.v4();
-      const job = (await axios.post(`https://duette.herokuapp.com/api/ffmpeg/job/accompaniment/${tempVidId}/${croppedVidId}`)).data
-      jobs.push(job);
-      poll(500);
-    } catch (e) {
-      setError(true);
-      throw new Error('error in handlePost: ', e)
-    }
-  };
-
   const handleSave = () => {
     setSaving(true);
-    handlePost();
   };
 
   const handleRecordAnother = () => {
@@ -133,15 +48,27 @@ const DetailsModal = (props) => {
       <ErrorView handleGoBack={handleError} />
     ) : (
         saving ? (
-          <CatsGallery
-            infoGettingDone={infoGettingDone}
-            croppingDone={croppingDone}
-            savingDone={savingDone}
+          <SavingVideo
+            dataUri={dataUri}
+            setSuccess={setSuccess}
+            setSaving={setSaving}
+            title={title}
+            composer={composer}
+            songKey={songKey}
+            performer={performer}
+            handleExit={handleExit}
+            type="base track"
           />
         ) : (
             success ? (
               <View>
-                <Text style={styles.titleTextBlue}>Successfully saved!</Text>
+                <Text style={styles.titleTextBlue}>Base track successfully uploaded!</Text>
+                <Text style={{
+                  ...styles.titleTextBlue,
+                  fontSize: 18,
+                  marginTop: 0,
+                  fontWeight: 'normal'
+                }}>We'll let you know when it's finished processing.</Text>
                 <Image style={styles.successCat} source={require('../assets/images/happy_grumpy_cat.png')} />
                 <TouchableOpacity
                   onPress={handleExit}
@@ -157,7 +84,7 @@ const DetailsModal = (props) => {
                   onPress={handleRecordAnother}
                   style={{
                     ...buttonStyles.regularButton,
-                    width: '60%'
+                    width: '80%'
                   }}>
                   <Text style={buttonStyles.regularButtonText}>Record another base track</Text>
                 </TouchableOpacity>
@@ -211,7 +138,8 @@ const styles = StyleSheet.create({
     height: 285,
     alignSelf: 'center',
     borderColor: 'black',
-    borderWidth: 2
+    borderWidth: 2,
+    borderRadius: 5,
   }
 });
 

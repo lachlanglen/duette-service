@@ -80,7 +80,8 @@ const AccompanimentScreen = (props) => {
   const startRecording = async () => {
     try {
       setRecording(true);
-      const vid = await cameraRef.recordAsync()
+      const vid = await cameraRef.recordAsync();
+      console.log('vid: ', vid)
       setDataUri(vid.uri)
       setPreview(true);
     } catch (e) {

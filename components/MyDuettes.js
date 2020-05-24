@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import MyDuettesItem from './MyDuettesItem';
+import { fetchDuettes } from '../redux/duettes';
 
 const MyDuettes = (props) => {
   const [selectedDuette, setSelectedDuette] = useState('');
@@ -28,6 +29,10 @@ const MyDuettes = (props) => {
     }
     detectOrientation();
   });
+
+  useEffect(() => {
+    props.setDuettes(props.user.id)
+  }, [])
 
   return (
     <SafeAreaView
@@ -91,10 +96,17 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapState = ({ userDuettes }) => {
+const mapState = ({ userDuettes, user }) => {
   return {
     userDuettes,
+    user,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    setDuettes: userId => dispatch(fetchDuettes(userId)),
   }
 }
 
-export default connect(mapState)(MyDuettes);
+export default connect(mapState, mapDispatch)(MyDuettes);

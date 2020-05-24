@@ -17,6 +17,7 @@ const RecordDuetteModal = (props) => {
     setShowRecordDuetteModal,
     bluetooth,
     baseTrackUri,
+    setSearchText,
   } = props;
 
   const [recording, setRecording] = useState(false);
@@ -122,6 +123,7 @@ const RecordDuetteModal = (props) => {
                 screenOrientation={screenOrientation}
                 playDelay={playDelay}
                 baseTrackUri={baseTrackUri}
+                setSearchText={setSearchText}
               />
             ) : (
                 <Modal

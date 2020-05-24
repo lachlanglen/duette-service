@@ -22,6 +22,7 @@ const VideoItem = (props) => {
     handleUse,
     setShowEditDetailsModal,
     loading,
+    searchText,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -35,7 +36,7 @@ const VideoItem = (props) => {
       'Are you sure you want to delete this video?',
       `This cannot be undone.${Platform.OS === 'ios' && ' 💀'}`,
       [
-        { text: 'Yes, delete it!', onPress: () => props.deleteVideo(id) },
+        { text: 'Yes, delete it!', onPress: () => props.deleteVideo(id, searchText) },
         { text: 'Cancel', onPress: () => { } }
       ],
       { cancelable: false }
@@ -236,7 +237,7 @@ const mapState = ({ user }) => {
 
 const mapDispatch = dispatch => {
   return {
-    deleteVideo: id => dispatch(deleteVideo(id)),
+    deleteVideo: (id, searchText) => dispatch(deleteVideo(id, searchText)),
     setVideo: id => dispatch(setVideo(id)),
   }
 };

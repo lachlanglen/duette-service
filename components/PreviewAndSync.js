@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
-import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform } from 'react-native';
+import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform, ActivityIndicator } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../constants/urls';
@@ -80,12 +80,19 @@ const PreviewAndSync = (props) => {
                 width: screenWidth,
                 height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9
               }}>
-              <Text style={{
-                fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 20,
-                fontWeight: 'bold'
-              }}>
-                {bothVidsReady ? 'Touch to preview!' : 'Loading...'}
-              </Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{
+                  fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 20,
+                  fontWeight: 'bold',
+                  marginRight: 10,
+                }}>
+                  {bothVidsReady ? 'Touch to preview!' : 'Loading...'}
+                </Text>
+                {
+                  !bothVidsReady &&
+                  <ActivityIndicator size="small" color="#0047B9" />
+                }
+              </View>
             </TouchableOpacity>
           ) : (
               // if preview has played (previewComplete)
