@@ -48,6 +48,11 @@ const User = connection.define('user', {
   lastLogin: {
     type: Sequelize.STRING,
     allowNull: false,
+  },
+  sendEmails: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
   }
 })
 

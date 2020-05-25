@@ -51,6 +51,7 @@ export const createOrUpdateUser = body => {
 };
 
 export const updateUser = (userId, body) => {
+  console.log('body in updateuser: ', body)
   return dispatch => {
     axios.put(`https://duette.herokuapp.com/api/user/${userId}`, body)
       .then(updated => dispatch(setUser(updated.data)))

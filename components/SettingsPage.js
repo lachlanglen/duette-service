@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions, TouchableOpacity, Platform, Alert } from 'react-native';
+import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions, TouchableOpacity, Platform, Alert, Switch } from 'react-native';
 import { Input } from 'react-native-elements';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import buttonStyles from '../styles/button';
@@ -14,6 +14,7 @@ const SettingsPage = (props) => {
   const [editEmail, setEditEmail] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
+  const [switchValue, setSwitchValue] = useState(false);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -83,6 +84,13 @@ const SettingsPage = (props) => {
   const handleCancel = () => {
     setError(null);
     setEditEmail(false);
+  };
+
+  console.log('props.user.id: ', props.user.id)
+
+  const handleUpdateEmailPreferences = (value) => {
+    props.updateUser(props.user.id, { sendEmails: value });
+    setSwitchValue(value);
   }
 
   return (
@@ -133,6 +141,26 @@ const SettingsPage = (props) => {
               </TouchableOpacity>
             </View>
           }
+          <View style={{
+            // backgroundColor: 'pink',
+            alignItems: 'center',
+            justifyContent: 'space-evenly',
+            width: '85%',
+            marginTop: 30,
+          }}>
+            <Text style={{
+              ...
+              styles.titleTextBlue,
+              marginTop: 0,
+            }}>Receive email notifications?</Text>
+            <Switch
+              trackColor={{ false: 'grey', true: '#0047B9' }}
+              // thumbColor={switchValue ? 'pink' : 'grey'}
+              style={styles.switch}
+              onValueChange={handleUpdateEmailPreferences}
+              value={switchValue}
+            />
+          </View>
           <Text style={styles.titleTextBlue}>Contact Us:</Text>
           <Text style={styles.emailText}>support@duette.app</Text>
           <TouchableOpacity
@@ -169,7 +197,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 30,
     marginHorizontal: 10,
     color: '#0047B9'
   },
@@ -193,6 +221,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#0047B9',
     marginHorizontal: 10,
+  },
+  switch: {
+    marginTop: 10,
   }
 });
 
