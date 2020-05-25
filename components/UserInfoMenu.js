@@ -11,7 +11,7 @@ const UserInfoMenu = (props) => {
   const navigation = useNavigation();
 
   const handlePress = (type) => {
-    navigation.navigate(type === 'duettes' ? 'My Duettes' : 'Support');
+    navigation.navigate(type === 'duettes' ? 'My Duettes' : 'Settings');
     props.toggleUserInfo(!props.displayUserInfo);
   }
 
@@ -48,10 +48,10 @@ const UserInfoMenu = (props) => {
           ...styles.optionContainer,
           borderRadius: 0,
         }}
-        onPress={() => handlePress('support')}
+        onPress={() => handlePress('Settings')}
       >
         <Text
-          style={styles.optionText}>Help
+          style={styles.optionText}>Settings
         </Text>
       </TouchableOpacity>
       <TouchableOpacity

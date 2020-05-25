@@ -50,6 +50,14 @@ export const createOrUpdateUser = body => {
   };
 };
 
+export const updateUser = (userId, body) => {
+  return dispatch => {
+    axios.put(`https://duette.herokuapp.com/api/user/${userId}`, body)
+      .then(updated => console.log('updated user in updateUser thunk: ', updated.data))
+      .catch(e => console.log('error in updateUser thunk: ', e))
+  }
+}
+
 export const fetchUser = facebookId => {
   return dispatch => {
     axios.get(`https://duette.herokuapp.com/api/user/facebookId/${facebookId}`)

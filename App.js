@@ -21,7 +21,7 @@ import { fetchUser } from './redux/user';
 import { fetchDuettes } from './redux/duettes';
 import MyDuettes from './components/MyDuettes';
 import DuetteScreen from './screens/DuetteScreen';
-import SupportPage from './components/SupportPage';
+import SettingsPage from './components/SettingsPage';
 
 Sentry.init({
   enableInExpoDevelopment: true,
@@ -101,7 +101,7 @@ export default function App(props) {
               <Stack.Navigator>
                 <Stack.Screen name="Root" component={BottomTabNavigator} />
                 <Stack.Screen name="My Duettes" component={MyDuettes} />
-                <Stack.Screen name="Support" component={SupportPage} />
+                <Stack.Screen name="Settings" component={SettingsPage} />
               </Stack.Navigator>
             </Provider>
           </ErrorBoundary>

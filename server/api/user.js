@@ -99,4 +99,25 @@ router.post('/', async (req, res, next) => {
     })
 });
 
+router.put('/:userId', (req, res, next) => {
+  const { userId } = req.params;
+  User.findOne({
+    where: {
+      id: userId,
+    }
+  })
+    .then(user => {
+      if (user) {
+        user.update({
+          ...user,
+          ...req.body,
+        })
+          .then(updated => res.status(200).send(updated))
+          .catch(e => res.status(400).send('error updating user: ', e))
+      } else {
+        res.status(404).send(`User #${userId} not found.`)
+      }
+    })
+})
+
 module.exports = router;
