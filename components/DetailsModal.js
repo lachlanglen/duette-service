@@ -53,8 +53,8 @@ const DetailsModal = (props) => {
             setSuccess={setSuccess}
             setSaving={setSaving}
             title={title}
-            composer={composer}
-            songKey={songKey}
+            composer={composer ? composer : null}
+            songKey={songKey ? songKey : null}
             performer={performer}
             handleExit={handleExit}
             type="base track"

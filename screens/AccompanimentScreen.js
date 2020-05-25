@@ -5,6 +5,7 @@ import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, 
 import { connect } from 'react-redux'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Permissions from 'expo-permissions';
+import { Camera } from 'expo-camera';
 import DetailsModal from '../components/DetailsModal';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
@@ -80,8 +81,7 @@ const AccompanimentScreen = (props) => {
   const startRecording = async () => {
     try {
       setRecording(true);
-      const vid = await cameraRef.recordAsync();
-      console.log('vid: ', vid)
+      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
       setDataUri(vid.uri)
       setPreview(true);
     } catch (e) {

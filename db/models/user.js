@@ -10,6 +10,7 @@ const User = connection.define('user', {
   facebookId: {
     type: Sequelize.STRING,
     allowNull: false,
+    unique: true,
     validate: {
       notEmpty: true,
     },

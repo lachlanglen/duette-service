@@ -55,33 +55,33 @@ const Form = (props) => {
         containerStyle={styles.inputField}
         onChangeText={val => setTitle(val)}
         value={title}
-        label="Title"
+        label="Title (required)"
         placeholder="e.g. Barcarolle" />
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
         onChangeText={val => setComposer(val)}
         value={composer}
-        label="Composer"
+        label="Composer (optional, but recommended)"
         placeholder="e.g. Offenbach" />
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
         onChangeText={val => setSongKey(val)}
         value={songKey}
-        label="Key"
+        label="Key (optional, but recommended)"
         placeholder="e.g. B-flat major" />
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
         onChangeText={val => setPerformer(val)}
         value={performer}
-        label="Performer"
+        label="Performer (required)"
         placeholder="Enter your name here!" />
       <TouchableOpacity
         onPress={type === 'initial' ? handleSave : handleUpdate}
-        disabled={!title || !composer || !songKey || !performer}
-        style={{ ...styles.button, backgroundColor: !title || !composer || !songKey || !performer ? 'grey' : '#0047B9' }}>
+        disabled={!title || !performer}
+        style={{ ...styles.button, backgroundColor: !title || !performer ? 'grey' : '#0047B9' }}>
         <Text style={styles.buttonText}>{type === 'initial' ? 'Submit!' : 'Update!'}</Text>
       </TouchableOpacity>
       <TouchableOpacity

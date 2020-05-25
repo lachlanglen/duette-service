@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { View, Modal, StyleSheet } from 'react-native';
+import { Camera } from 'expo-camera';
 import ErrorView from '../Error';
 import ReviewDuette from '../ReviewDuette';
 import RecordDuettePortrait from './RecordDuettePortrait';
@@ -26,7 +27,7 @@ const RecordDuetteModal = (props) => {
 
   const record = async () => {
     try {
-      const vid = await cameraRef.recordAsync();
+      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
       setDuetteUri(vid.uri);
       setShowPreviewModal(true);
     } catch (e) {

@@ -38,7 +38,7 @@ const RecordDuetteModal = (props) => {
   const record = async () => {
     try {
       time1 = Date.now();
-      const vid = await cameraRef.recordAsync();
+      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
       setDuetteUri(vid.uri);
     } catch (e) {
       setError(true);

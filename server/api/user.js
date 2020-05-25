@@ -118,6 +118,6 @@ router.put('/:userId', (req, res, next) => {
         res.status(404).send(`User #${userId} not found.`)
       }
     })
-})
+});
 
 module.exports = router;

@@ -6,6 +6,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import buttonStyles from '../styles/button';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
 import { validate } from 'validate.js';
+import { updateUser } from '../redux/user';
 
 const SettingsPage = (props) => {
   const [screenOrientation, setScreenOrientation] = useState('');
@@ -55,16 +56,13 @@ const SettingsPage = (props) => {
   };
 
   const handleSaveEmail = () => {
-    console.log('in handleSaveEmail');
-    // TODO: save email
+    props.updateUser(props.user.id, { email })
     setEditEmail(false);
   };
 
   const handleValidateEmail = () => {
     setError(null);
-    console.log('email: ', email)
     const validationResult = validate({ emailAddress: email }, constraints);
-    console.log('validationResult: ', validationResult);
     if (!validationResult) {
       // there are no errors; continue to updating user's email
       Alert.alert(
@@ -80,6 +78,11 @@ const SettingsPage = (props) => {
       // there are errors; set them on state and display in UI
       setError(validationResult.emailAddress[0]);
     }
+  };
+
+  const handleCancel = () => {
+    setError(null);
+    setEditEmail(false);
   }
 
   return (
@@ -96,23 +99,39 @@ const SettingsPage = (props) => {
                 <Text style={styles.emailText}>{props.user.email}</Text>
               ) : (
                   <Input
-                    // labelStyle={styles.labelText}
+                    // labelStyle={{ marginLeft: 30 }}
                     containerStyle={styles.inputField}
                     onChangeText={val => setEmail(val)}
-                    // value={title}
+                    value={email}
                     // label="Title"
                     placeholder="Enter your email here" />
                 )
             }
-            <TouchableOpacity
-              onPress={!editEmail ? handleEditEmail : handleValidateEmail}>
-              <Text style={styles.editText}>{!editEmail ? 'Edit' : 'Save'}</Text>
-            </TouchableOpacity>
+            {
+              !editEmail &&
+              <TouchableOpacity
+                onPress={handleEditEmail}>
+                <Text style={styles.editText}>Edit</Text>
+              </TouchableOpacity>
+            }
           </View>
           {
             error && (
               <Text style={styles.errorText}>{error}</Text>
             )
+          }
+          {
+            editEmail &&
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                onPress={handleValidateEmail}>
+                <Text style={styles.saveText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleCancel}>
+                <Text style={styles.saveText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           }
           <Text style={styles.titleTextBlue}>Contact Us:</Text>
           <Text style={styles.emailText}>support@duette.app</Text>
@@ -143,7 +162,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     width: '80%',
-    marginTop: 10
+    marginTop: 10,
   },
   titleTextBlue: {
     fontSize: 22,
@@ -168,6 +187,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
     color: '#0047B9',
+  },
+  saveText: {
+    fontSize: 16,
+    marginTop: 10,
+    color: '#0047B9',
+    marginHorizontal: 10,
   }
 });
 
@@ -175,6 +200,12 @@ const mapState = ({ user }) => {
   return {
     user,
   }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    updateUser: (id, body) => dispatch(updateUser(id, body))
+  }
 }
 
-export default connect(mapState)(SettingsPage);
+export default connect(mapState, mapDispatch)(SettingsPage);

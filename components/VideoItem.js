@@ -100,11 +100,11 @@ const VideoItem = (props) => {
       </Text>
       <Text
         style={styles.details}>
-        Composer: {composer}
+        Composer: {composer ? composer : 'Unknown'}
       </Text>
       <Text
         style={styles.details}>
-        Key: {theKey}
+        Key: {theKey ? theKey : 'Unknown'}
       </Text>
       <Text
         style={{
