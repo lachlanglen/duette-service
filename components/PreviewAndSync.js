@@ -45,7 +45,8 @@ const PreviewAndSync = (props) => {
           volume={1.0}
           isMuted={false}
           resizeMode="cover"
-          positionMillis={0}
+          shouldPlay={false}
+          // positionMillis={0}
           isLooping={false}
           style={{
             width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
@@ -62,7 +63,8 @@ const PreviewAndSync = (props) => {
           volume={1.0}
           isMuted={false}
           resizeMode="cover"
-          positionMillis={bluetooth ? 200 : 0}
+          shouldPlay={false}
+          // positionMillis={bluetooth ? 200 : 0}
           isLooping={false}
           style={{
             width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,

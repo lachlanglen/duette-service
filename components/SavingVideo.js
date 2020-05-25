@@ -91,7 +91,7 @@ const SavingVideo = (props) => {
         outputBucket: 'duette',
         accompanimentKey,
         duetteKey,
-        delay: (customOffset + playDelay + (date2 - date1)) / 1000,
+        delay: (customOffset + playDelay + 50 + (date2 - date1)) / 1000,
         userId: props.user.id,
         notificationToken: expoPushToken,
         email: props.user.email,

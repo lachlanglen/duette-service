@@ -42,7 +42,7 @@ const ReviewDuette = (props) => {
   const [vid2Ready, setVid2Ready] = useState(false);
   const [bothVidsReady, setBothVidsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [customOffset, setCustomOffset] = useState(bluetooth ? 200 : 0);
+  const [customOffset, setCustomOffset] = useState(0);
   const [error, setError] = useState(false);
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
 
@@ -99,15 +99,23 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    if (customOffset < (50 - playDelay)) return;
+    if (customOffset <= (0 - playDelay)) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-
-    setCustomOffset(customOffset - 50);
-    await vidBRef.playFromPositionAsync(customOffset + playDelay - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    date1 = Date.now();
-    await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    date2 = Date.now();
+    if (customOffset > (0 - playDelay) && customOffset < (50 - playDelay)) {
+      const remainder = playDelay + customOffset;
+      setCustomOffset(customOffset - remainder);
+      await vidBRef.playFromPositionAsync(customOffset + playDelay - remainder, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      date1 = Date.now();
+      await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      date2 = Date.now();
+    } else {
+      setCustomOffset(customOffset - 50);
+      await vidBRef.playFromPositionAsync(customOffset + playDelay - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      date1 = Date.now();
+      await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      date2 = Date.now();
+    }
   };
 
   const handleSyncForward = async () => {
