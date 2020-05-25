@@ -3,7 +3,7 @@ const router = express.Router();
 const { User } = require('../../db');
 
 router.get('/:id?', (req, res, next) => {
-  console.log('req.params.id: ', req.params.id)
+  const { id } = req.params;
   if (req.params.id) {
     User.findOne({
       where: {
