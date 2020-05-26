@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Button, Vibration, Platform, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { Notifications } from 'expo';
+import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import * as Permissions from 'expo-permissions';
 import * as FileSystem from 'expo-file-system';
@@ -31,7 +32,7 @@ const SavingVideo = (props) => {
     date2,
   } = props;
 
-  // console.log('props in SavingVideo: ', props)
+  const navigation = useNavigation();
 
   let tempVidId;
   let ws;
@@ -39,8 +40,15 @@ const SavingVideo = (props) => {
 
   useEffect(() => {
     createConnection();
+    Notifications.addListener(handleNotification);
     handlePost();
   }, []);
+
+  const handleNotification = async notification => {
+    Vibration.vibrate();
+    if (notification.data.type === 'base track') navigation.navigate('Duette')
+    else if (notification.data.type === 'duette') navigation.navigate('My Duettes');
+  };
 
   const createConnection = () => {
     ws = new WebSocket("wss://pi518guoyc.execute-api.us-east-2.amazonaws.com/test");

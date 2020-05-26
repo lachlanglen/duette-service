@@ -25,6 +25,9 @@ const PreviewAndSync = (props) => {
     handleSyncForward,
     baseTrackUri,
     handleRestart,
+    reduceBaseTrackVolume,
+    increaseBaseTrackVolume,
+    baseTrackVolume,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -33,7 +36,8 @@ const PreviewAndSync = (props) => {
   return (
     <View style={{
       ...styles.container,
-      paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+      paddingTop: screenOrientation === 'PORTRAIT' && !previewComplete ? 20 : 0,
+      paddingVertical: screenOrientation === 'PORTRAIT' && previewComplete ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
     }}>
       <View style={{ flexDirection: 'row' }}>
         <Video
@@ -169,10 +173,10 @@ const PreviewAndSync = (props) => {
               name="fast-rewind"
               type="material"
               color="white"
-              size={60} />
+              size={50} />
             <Text
               style={{
-                fontSize: 30,
+                fontSize: 25,
                 color: 'white',
                 alignSelf: 'center',
               }}>|
@@ -182,7 +186,7 @@ const PreviewAndSync = (props) => {
               name="fast-forward"
               type="material"
               color="white"
-              size={60} />
+              size={50} />
           </View>
           <Text
             style={styles.hintTitle}>Hint:
@@ -210,6 +214,32 @@ const PreviewAndSync = (props) => {
               name="fast-rewind"
               type="material"
               color="yellow" />
+          </View>
+          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 5, marginBottom: 15 }}>
+            <Text style={styles.volumeControlsTitle}>Volume control</Text>
+            <View style={styles.volumeControlsContainer}>
+              <Text style={styles.volumeInstructionText}>Base track volume:</Text>
+              <TouchableOpacity
+                style={{
+                  ...styles.volumeControlsButton,
+                  backgroundColor: baseTrackVolume < 0.2 ? 'grey' : '#0047B9',
+                }}
+                onPress={reduceBaseTrackVolume}
+                disabled={baseTrackVolume < 0.2}
+              >
+                <Text style={styles.volumeButtonText}>-</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  ...styles.volumeControlsButton,
+                  backgroundColor: baseTrackVolume > 0.9 ? 'grey' : '#0047B9',
+                }}
+                onPress={increaseBaseTrackVolume}
+                disabled={baseTrackVolume > 0.9}
+              >
+                <Text style={styles.volumeButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
             <TouchableOpacity
@@ -258,8 +288,8 @@ const PreviewAndSync = (props) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     backgroundColor: 'black',
     height: '100%',
   },
@@ -292,8 +322,8 @@ const styles = StyleSheet.create({
   },
   instruction: {
     color: 'white',
-    marginTop: 20,
-    marginVertical: 20,
+    marginTop: 10,
+    marginBottom: 15,
     textAlign: 'center',
   },
   syncIconsContainer: {
@@ -308,9 +338,37 @@ const styles = StyleSheet.create({
   },
   hintTitle: {
     fontStyle: 'italic',
-    marginTop: 30,
+    marginTop: 10,
     color: 'white',
     textAlign: 'center',
+  },
+  volumeControlsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '90%',
+    marginBottom: 20,
+  },
+  volumeControlsTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginVertical: 20,
+  },
+  volumeControlsButton: {
+    width: 25,
+    height: 25,
+    borderRadius: 50,
+  },
+  volumeInstructionText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 18,
+  },
+  volumeButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 18,
   },
   problemContainer: {
     alignItems: 'center',

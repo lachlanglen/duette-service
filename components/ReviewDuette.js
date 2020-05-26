@@ -45,6 +45,7 @@ const ReviewDuette = (props) => {
   const [customOffset, setCustomOffset] = useState(0);
   const [error, setError] = useState(false);
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
+  const [baseTrackVolume, setBaseTrackVolume] = useState(1);
 
   const handleSave = () => {
     setSaving(true);
@@ -56,9 +57,23 @@ const ReviewDuette = (props) => {
 
   const handleShowPreview = async () => {
     setPreviewComplete(false);
-    await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidBRef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: customOffset + playDelay,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: 1,
+    })
     date1 = Date.now();
-    await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidARef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: 0,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: baseTrackVolume,
+    })
     date2 = Date.now();
     setIsPlaying(true);
   };
@@ -105,15 +120,43 @@ const ReviewDuette = (props) => {
     if (customOffset > (0 - playDelay) && customOffset < (50 - playDelay)) {
       const remainder = playDelay + customOffset;
       setCustomOffset(customOffset - remainder);
-      await vidBRef.playFromPositionAsync(customOffset + playDelay - remainder, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      // await vidBRef.playFromPositionAsync(customOffset + playDelay - remainder, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay - remainder,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
       date1 = Date.now();
-      await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
       date2 = Date.now();
     } else {
       setCustomOffset(customOffset - 50);
-      await vidBRef.playFromPositionAsync(customOffset + playDelay - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      // await vidBRef.playFromPositionAsync(customOffset + playDelay - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay - 50,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
       date1 = Date.now();
-      await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
       date2 = Date.now();
     }
   };
@@ -122,20 +165,92 @@ const ReviewDuette = (props) => {
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
     setCustomOffset(customOffset + 50);
-    await vidBRef.playFromPositionAsync(customOffset + playDelay + 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidBRef.playFromPositionAsync(customOffset + playDelay + 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidBRef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: customOffset + playDelay + 50,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: 1,
+    })
     date1 = Date.now();
-    await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidARef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: 0,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: baseTrackVolume,
+    })
     date2 = Date.now();
   };
 
   const handleRestart = async () => {
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidBRef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: customOffset + playDelay,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: 1,
+    })
     date1 = Date.now();
-    await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+    await vidARef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: 0,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: baseTrackVolume,
+    })
     date2 = Date.now();
   };
+
+  const reduceBaseTrackVolume = async () => {
+    await vidARef.stopAsync();
+    await vidBRef.stopAsync();
+    setBaseTrackVolume(baseTrackVolume - 0.1);
+    await vidBRef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: customOffset + playDelay,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: 1,
+    })
+    date1 = Date.now();
+    await vidARef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: 0,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: baseTrackVolume - 0.1,
+    })
+    date2 = Date.now();
+  };
+
+  const increaseBaseTrackVolume = async () => {
+    await vidARef.stopAsync();
+    await vidBRef.stopAsync();
+    setBaseTrackVolume(baseTrackVolume + 0.1);
+    await vidBRef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: customOffset + playDelay,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: 1,
+    })
+    date1 = Date.now();
+    await vidARef.setStatusAsync({
+      shouldPlay: true,
+      positionMillis: 0,
+      seekMillisToleranceBefore: 0,
+      seekMillisToleranceAfter: 0,
+      volume: baseTrackVolume + 0.1,
+    })
+    date2 = Date.now();
+  }
 
   const handleError = () => {
     setDisplayMergedVideo(false);
@@ -203,6 +318,9 @@ const ReviewDuette = (props) => {
                         handleSyncForward={handleSyncForward}
                         baseTrackUri={baseTrackUri}
                         handleRestart={handleRestart}
+                        reduceBaseTrackVolume={reduceBaseTrackVolume}
+                        increaseBaseTrackVolume={increaseBaseTrackVolume}
+                        baseTrackVolume={baseTrackVolume}
                       />
                     )
                 )

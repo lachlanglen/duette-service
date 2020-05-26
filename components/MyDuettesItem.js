@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Image, Alert, Text, View, Dimensions, TouchableOpacity } from 'react-native';
+import { Image, Alert, Text, View, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import { Video } from 'expo-av';
@@ -26,20 +26,24 @@ const MyDuettesItem = props => {
   // let screenHeight = Math.round(Dimensions.get('window').height);
 
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const combinedKey = `${videoId}${duetteId}`;
 
   const handleExitAlert = () => {
     setSavingToCameraRoll(false);
+    setLoading(false);
     setSelectedDuette('');
   };
 
   const saveVideo = async (key) => {
+    setLoading(true);
     try {
       const { uri } = await FileSystem.downloadAsync(
         getAWSVideoUrl(key),
         FileSystem.documentDirectory + `${key}.mov`
       )
+      setSavingToCameraRoll(true);
       try {
         await MediaLibrary.saveToLibraryAsync(uri);
         Alert.alert(
@@ -81,7 +85,6 @@ const MyDuettesItem = props => {
   }
 
   const handleSaveToCameraRoll = async (duetteId, combinedKey) => {
-    setSavingToCameraRoll(true);
     setSelectedDuette(duetteId);
     const permission = await MediaLibrary.getPermissionsAsync();
     if (permission.status !== 'granted') {
@@ -188,14 +191,27 @@ const MyDuettesItem = props => {
             ...buttonStyles.regularButton,
             width: screenWidth * 0.85,
             marginTop: 10,
-            backgroundColor: savingToCameraRoll ? 'lightgrey' : '#0047B9',
-            borderColor: savingToCameraRoll ? 'white' : 'darkblue',
+            backgroundColor: loading || savingToCameraRoll ? 'lightgrey' : '#0047B9',
+            borderColor: loading || savingToCameraRoll ? 'white' : 'darkblue',
           }}>
-          <Text style={{
-            ...buttonStyles.regularButtonText,
-            fontWeight: 'normal',
-          }}>{savingToCameraRoll ? 'Saving to Camera Roll...' : 'Save to Camera Roll'}
-          </Text>
+          {
+            !loading ? (
+              <Text style={{
+                ...buttonStyles.regularButtonText,
+                fontWeight: 'normal',
+              }}>Save to Camera Roll
+              </Text>
+            ) : (
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={{
+                    ...buttonStyles.regularButtonText,
+                    fontWeight: 'normal',
+                  }}>{savingToCameraRoll ? 'Saving to Camera Roll...' : 'Loading...'}
+                  </Text>
+                  <ActivityIndicator size="small" color="#0047B9" />
+                </View>
+              )
+          }
         </TouchableOpacity>
       </View>
     </View >

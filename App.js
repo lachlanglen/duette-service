@@ -1,11 +1,12 @@
 /* eslint-disable radix */
 import React from 'react';
 import { Provider } from 'react-redux'
-import { Text, TextInput, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { Text, TextInput, Platform, StatusBar, StyleSheet, View, Vibration } from 'react-native';
 import store from './redux/store';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import * as SecureStore from 'expo-secure-store';
+import { Notifications } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
