@@ -141,6 +141,7 @@ const VideoItem = (props) => {
             <Text style={{
               textAlign: 'center',
               color: 'red',
+              fontSize: 16,
             }}>Delete</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -148,6 +149,7 @@ const VideoItem = (props) => {
             <Text style={{
               textAlign: 'center',
               color: '#0047B9',
+              fontSize: 16,
             }}>Edit Details</Text>
           </TouchableOpacity>
         </View>

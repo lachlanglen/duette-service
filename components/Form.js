@@ -49,6 +49,21 @@ const Form = (props) => {
     );
   };
 
+  const handleSetNotes = val => {
+    if (val.length <= 250) {
+      setNotes(val);
+    } else {
+      Alert.alert(
+        'Too long',
+        "Notes must be less than 250 characters",
+        [
+          { text: 'OK', onPress: () => { } },
+        ],
+        { cancelable: false }
+      );
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.titleText}>{type === 'initial' ? 'Please enter the following details:' : 'Update details:'}</Text>
@@ -83,7 +98,7 @@ const Form = (props) => {
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
-        onChangeText={val => setNotes(val)}
+        onChangeText={val => handleSetNotes(val)}
         value={notes}
         label="Want to add any notes about this track for Duetters? (optional)"
         placeholder={`e.g. "4 measures intro"`} />

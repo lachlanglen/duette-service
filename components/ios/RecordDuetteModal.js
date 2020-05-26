@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
 import ErrorView from '../Error';
@@ -21,24 +21,39 @@ const RecordDuetteModal = (props) => {
   } = props;
 
   const [recording, setRecording] = useState(false);
-  const [cameraRef, setCameraRef] = useState(null);
+  // const [cameraRef, setCameraRef] = useState(null);
   const [duetteUri, setDuetteUri] = useState('');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
-  const [vidRef, setVidRef] = useState(null);
+  // const [vidRef, setVidRef] = useState(null);
   const [vidLoaded, setVidLoaded] = useState(false);
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
   const [error, setError] = useState(false);
   const [playDelay, setPlayDelay] = useState(0);
+  const [displayedNotes, setDisplayedNotes] = useState(false);
+
+  const cameraRef = useRef(null);
+  const vidRef = useRef(null);
 
   let time1;
   let time2;
   let time3;
 
+  if (props.selectedVideo.notes && !displayedNotes && vidLoaded && vidDoneBuffering) {
+    Alert.alert(
+      `Notes from ${props.selectedVideo.performer.split(' ')[0]}`,
+      props.selectedVideo.notes,
+      [
+        { text: 'OK', onPress: () => setDisplayedNotes(true) },
+      ],
+      { cancelable: false }
+    );
+  }
+
   const record = async () => {
     try {
       time1 = Date.now();
-      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
+      const vid = await cameraRef.current.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
       setDuetteUri(vid.uri);
     } catch (e) {
       setError(true);
@@ -49,12 +64,8 @@ const RecordDuetteModal = (props) => {
   const play = async () => {
     try {
       time2 = Date.now();
-      // console.log('time2: ', time2)
-      console.log('time2 - time1: ', time2 - time1)
-      await vidRef.playFromPositionAsync(time2 - time1, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
+      await vidRef.current.playFromPositionAsync(time2 - time1, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
       time3 = Date.now();
-      // console.log('time3: ', time3);
-      console.log('time3 - time2: ', time3 - time2);
       setPlayDelay(time3 - time2);
     } catch (e) {
       setError(true);
@@ -65,7 +76,7 @@ const RecordDuetteModal = (props) => {
   const toggleRecord = () => {
     if (recording) {
       setRecording(false);
-      cameraRef.stopRecording();
+      cameraRef.current.stopRecording();
       setShowPreviewModal(true);
     } else {
       setRecording(true);
@@ -80,8 +91,8 @@ const RecordDuetteModal = (props) => {
 
   const handleCancel = async () => {
     try {
-      await vidRef.unloadAsync();
-      cameraRef.stopRecording();
+      await vidRef.current.unloadAsync();
+      cameraRef.current.stopRecording();
       setShowRecordDuetteModal(false);
       deleteLocalFile(baseTrackUri);
     } catch (e) {
@@ -91,8 +102,8 @@ const RecordDuetteModal = (props) => {
   };
 
   const handleTryAgain = async () => {
-    await vidRef.stopAsync();
-    cameraRef.stopRecording();
+    await vidRef.current.stopAsync();
+    cameraRef.current.stopRecording();
     setRecording(false);
   };
 
@@ -141,7 +152,8 @@ const RecordDuetteModal = (props) => {
                   }}>
                     <View style={{ flexDirection: 'row' }}>
                       <Video
-                        ref={ref => setVidRef(ref)}
+                        // ref={ref => setVidRef(ref)}
+                        ref={vidRef}
                         source={{ uri: baseTrackUri }}
                         rate={1.0}
                         volume={1.0}
@@ -161,7 +173,9 @@ const RecordDuetteModal = (props) => {
                           height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
                         }}
                         type={Camera.Constants.Type.front}
-                        ref={ref => setCameraRef(ref)}>
+                        // ref={ref => setCameraRef(ref)}
+                        ref={cameraRef}
+                      >
                         <View>
                           <TouchableOpacity
                             onPress={!recording ? handleCancel : () => { }}

@@ -38,6 +38,9 @@ const Video = connection.define('video', {
   notes: {
     type: Sequelize.TEXT,
     allowNull: true,
+    validate: {
+      len: [0, 250],
+    }
   }
 })
 

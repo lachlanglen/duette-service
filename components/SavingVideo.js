@@ -49,7 +49,7 @@ const SavingVideo = (props) => {
     };
     ws.onmessage = e => {
       const data = JSON.parse(e.data).data;
-      console.log('message: ', data)
+      // console.log('message: ', data)
     };
     ws.onerror = e => {
       console.log('onerror', e.message);
@@ -71,7 +71,6 @@ const SavingVideo = (props) => {
       handleSendToWebsocket();
     }
     const token = await Notifications.getExpoPushTokenAsync();
-    console.log(token);
     expoPushToken = token;
     handleSendToWebsocket();
   };
