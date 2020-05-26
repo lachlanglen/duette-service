@@ -1,6 +1,8 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Image, Text, View, Modal, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Modal, Image, Text, View, Button, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+// import Modal from 'react-native-modal';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { connect } from 'react-redux';
 import { postVideo } from '../redux/videos';
 import Form from './Form';
@@ -57,6 +59,7 @@ const DetailsModal = (props) => {
             composer={composer ? composer : null}
             songKey={songKey ? songKey : null}
             performer={performer}
+            notes={notes}
             handleExit={handleExit}
             type="base track"
           />
@@ -93,23 +96,27 @@ const DetailsModal = (props) => {
             ) : (
                 <View style={styles.container}>
                   <Modal
+                    // isVisible={true}
+                    // style={{ backgroundColor: 'white', flex: 1 }}
                     onRequestClose={handleDetailsExit}
                     supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
                   >
-                    <Form
-                      handleSave={handleSave}
-                      title={title}
-                      setTitle={setTitle}
-                      composer={composer}
-                      setComposer={setComposer}
-                      songKey={songKey}
-                      setSongKey={setSongKey}
-                      performer={performer}
-                      setPerformer={setPerformer}
-                      notes={notes}
-                      setNotes={setNotes}
-                      setShowDetailsModal={setShowDetailsModal}
-                      type="initial" />
+                    <KeyboardAwareScrollView>
+                      <Form
+                        handleSave={handleSave}
+                        title={title}
+                        setTitle={setTitle}
+                        composer={composer}
+                        setComposer={setComposer}
+                        songKey={songKey}
+                        setSongKey={setSongKey}
+                        performer={performer}
+                        setPerformer={setPerformer}
+                        notes={notes}
+                        setNotes={setNotes}
+                        setShowDetailsModal={setShowDetailsModal}
+                        type="initial" />
+                    </KeyboardAwareScrollView>
                   </Modal>
                 </View >
               )

@@ -109,6 +109,7 @@ const DuetteScreen = (props) => {
             origComposer={props.selectedVideo.composer}
             origSongKey={props.selectedVideo.key}
             origPerformer={props.selectedVideo.performer}
+            origNotes={props.selectedVideo.notes}
           />
         ) : (
             showRecordDuetteModal ? (

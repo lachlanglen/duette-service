@@ -20,12 +20,14 @@ const EditDetailsModal = (props) => {
     origComposer,
     origSongKey,
     origPerformer,
+    origNotes,
   } = props;
 
   const [title, setTitle] = useState(origTitle);
   const [composer, setComposer] = useState(origComposer);
   const [songKey, setSongKey] = useState(origSongKey);
   const [performer, setPerformer] = useState(origPerformer);
+  const [notes, setNotes] = useState(origNotes);
   const [error, setError] = useState(false);
 
   const handleDone = () => {
@@ -63,6 +65,8 @@ const EditDetailsModal = (props) => {
               setSongKey={setSongKey}
               performer={performer}
               setPerformer={setPerformer}
+              notes={notes}
+              setNotes={setNotes}
               setShowEditDetailsModal={setShowEditDetailsModal}
               type="update" />
           </Modal>

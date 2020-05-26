@@ -14,7 +14,7 @@ const SettingsPage = (props) => {
   const [editEmail, setEditEmail] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
-  const [switchValue, setSwitchValue] = useState(false);
+  const [switchValue, setSwitchValue] = useState(props.user.sendEmails);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);

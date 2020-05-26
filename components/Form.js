@@ -1,6 +1,6 @@
 import React, { createRef, useState } from 'react';
 import { connect } from 'react-redux';
-import { Image, Text, View, Modal, Button, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Input } from 'react-native-elements';
 import { clearVideo } from '../redux/singleVideo';
 

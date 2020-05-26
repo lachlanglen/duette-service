@@ -10,6 +10,7 @@ router.post('/', (req, res, next) => {
     composer,
     key,
     performer,
+    notes,
     userId
   } = req.body;
 
@@ -19,6 +20,7 @@ router.post('/', (req, res, next) => {
     composer,
     key,
     performer,
+    notes,
     userId
   })
     .then(created => res.status(201).send(created))
@@ -92,9 +94,10 @@ router.put('/:id', (req, res, next) => {
     composer,
     key,
     performer,
+    notes,
   } = req.body;
-  if (!title || !composer || !key || !performer) {
-    throw new Error('Title, composer, key & performer fields must all be valid to update video!')
+  if (!title || !performer) {
+    throw new Error('Title & performer fields must be valid to update video!')
   } else {
     Video.update(
       {
@@ -102,6 +105,7 @@ router.put('/:id', (req, res, next) => {
         composer,
         key,
         performer,
+        notes,
       },
       {
         where: {
