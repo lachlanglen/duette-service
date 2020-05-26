@@ -86,8 +86,6 @@ const SettingsPage = (props) => {
     setEditEmail(false);
   };
 
-  console.log('props.user.id: ', props.user.id)
-
   const handleUpdateEmailPreferences = (value) => {
     props.updateUser(props.user.id, { sendEmails: value });
     setSwitchValue(value);

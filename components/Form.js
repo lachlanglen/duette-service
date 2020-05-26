@@ -14,6 +14,8 @@ const Form = (props) => {
     songKey,
     setSongKey,
     performer,
+    notes,
+    setNotes,
     setPerformer,
     setShowDetailsModal,
     setShowEditDetailsModal,
@@ -78,6 +80,13 @@ const Form = (props) => {
         value={performer}
         label="Performer (required)"
         placeholder="Enter your name here!" />
+      <Input
+        labelStyle={styles.labelText}
+        containerStyle={styles.inputField}
+        onChangeText={val => setNotes(val)}
+        value={notes}
+        label="Want to add any notes about this track for Duetters? (optional)"
+        placeholder={`e.g. "4 measures intro"`} />
       <TouchableOpacity
         onPress={type === 'initial' ? handleSave : handleUpdate}
         disabled={!title || !performer}

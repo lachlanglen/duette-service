@@ -4,7 +4,7 @@ const { User } = require('../../db');
 
 router.get('/:id?', (req, res, next) => {
   const { id } = req.params;
-  if (req.params.id) {
+  if (id) {
     User.findOne({
       where: {
         id,

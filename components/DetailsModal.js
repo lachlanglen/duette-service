@@ -24,6 +24,7 @@ const DetailsModal = (props) => {
   const [composer, setComposer] = useState('');
   const [songKey, setSongKey] = useState('');
   const [performer, setPerformer] = useState(props.user.name);
+  const [notes, setNotes] = useState('');
 
   const handleSave = () => {
     setSaving(true);
@@ -105,6 +106,8 @@ const DetailsModal = (props) => {
                       setSongKey={setSongKey}
                       performer={performer}
                       setPerformer={setPerformer}
+                      notes={notes}
+                      setNotes={setNotes}
                       setShowDetailsModal={setShowDetailsModal}
                       type="initial" />
                   </Modal>

@@ -96,6 +96,7 @@ const SavingVideo = (props) => {
         notificationToken: expoPushToken,
         email: props.user.email,
         name: props.user.name.split(' ')[0],
+        sendEmails: props.user.sendEmails,
       }));
     } else {
       ws.send(JSON.stringify({
@@ -111,6 +112,7 @@ const SavingVideo = (props) => {
         notificationToken: expoPushToken,
         email: props.user.email,
         name: props.user.name.split(' ')[0],
+        sendEmails: props.user.sendEmails,
       }));
     }
     handleExit();

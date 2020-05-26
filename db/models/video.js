@@ -35,6 +35,10 @@ const Video = connection.define('video', {
       notEmpty: true,
     },
   },
+  notes: {
+    type: Sequelize.TEXT,
+    allowNull: true,
+  }
 })
 
 module.exports = Video;
