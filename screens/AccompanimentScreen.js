@@ -194,7 +194,7 @@ const AccompanimentScreen = (props) => {
                           }}
                           onPress={() => setRecord(true)}
                         >
-                          <Text style={buttonStyles.regularButtonText}>Record a new base track</Text>
+                          <Text style={buttonStyles.regularButtonText}>!!Record a new base track</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={{

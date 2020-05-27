@@ -18,7 +18,7 @@ const ReviewDuette = (props) => {
     duetteUri,
     setShowPreviewModal,
     setShowRecordDuetteModal,
-    playDelay,
+    // playDelay,
     baseTrackUri,
     setSearchText,
   } = props;
@@ -52,7 +52,8 @@ const ReviewDuette = (props) => {
     try {
       await vidBRef.setStatusAsync({
         shouldPlay: true,
-        positionMillis: customOffset + playDelay,
+        // positionMillis: customOffset + playDelay,
+        positionMillis: customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
         volume: 1,
@@ -107,48 +108,50 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    if (customOffset <= (0 - playDelay)) return;
+    // if (customOffset <= (0 - playDelay)) return;
+    if (customOffset === 0) return;
     try {
       await vidARef.stopAsync();
       await vidBRef.stopAsync();
-      if (customOffset > (0 - playDelay) && customOffset < (50 - playDelay)) {
-        const remainder = playDelay + customOffset;
-        setCustomOffset(customOffset - remainder);
-        await vidBRef.setStatusAsync({
-          shouldPlay: true,
-          positionMillis: customOffset + playDelay - remainder,
-          seekMillisToleranceBefore: 0,
-          seekMillisToleranceAfter: 0,
-          volume: 1,
-        })
-        date1 = Date.now();
-        await vidARef.setStatusAsync({
-          shouldPlay: true,
-          positionMillis: 0,
-          seekMillisToleranceBefore: 0,
-          seekMillisToleranceAfter: 0,
-          volume: baseTrackVolume,
-        })
-        date2 = Date.now();
-      } else {
-        setCustomOffset(customOffset - 50);
-        await vidBRef.setStatusAsync({
-          shouldPlay: true,
-          positionMillis: customOffset + playDelay - 50,
-          seekMillisToleranceBefore: 0,
-          seekMillisToleranceAfter: 0,
-          volume: 1,
-        })
-        date1 = Date.now();
-        await vidARef.setStatusAsync({
-          shouldPlay: true,
-          positionMillis: 0,
-          seekMillisToleranceBefore: 0,
-          seekMillisToleranceAfter: 0,
-          volume: baseTrackVolume,
-        })
-        date2 = Date.now();
-      }
+      // if (customOffset > (0 - playDelay) && customOffset < (50 - playDelay)) {
+      //   const remainder = playDelay + customOffset;
+      //   setCustomOffset(customOffset - remainder);
+      //   await vidBRef.setStatusAsync({
+      //     shouldPlay: true,
+      //     positionMillis: customOffset + playDelay - remainder,
+      //     seekMillisToleranceBefore: 0,
+      //     seekMillisToleranceAfter: 0,
+      //     volume: 1,
+      //   })
+      //   date1 = Date.now();
+      //   await vidARef.setStatusAsync({
+      //     shouldPlay: true,
+      //     positionMillis: 0,
+      //     seekMillisToleranceBefore: 0,
+      //     seekMillisToleranceAfter: 0,
+      //     volume: baseTrackVolume,
+      //   })
+      //   date2 = Date.now();
+      // } else {
+      setCustomOffset(customOffset - 50);
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        // positionMillis: customOffset + playDelay - 50,
+        positionMillis: customOffset - 50,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
+      date2 = Date.now();
+      // }
     } catch (e) {
       throw new Error('error in handleSyncBack: ', e)
     }
@@ -162,7 +165,8 @@ const ReviewDuette = (props) => {
       setCustomOffset(customOffset + 50);
       await vidBRef.setStatusAsync({
         shouldPlay: true,
-        positionMillis: customOffset + playDelay + 50,
+        // positionMillis: customOffset + playDelay + 50,
+        positionMillis: customOffset + 50,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
         volume: 1,
@@ -187,7 +191,8 @@ const ReviewDuette = (props) => {
       await vidBRef.stopAsync();
       await vidBRef.setStatusAsync({
         shouldPlay: true,
-        positionMillis: customOffset + playDelay,
+        // positionMillis: customOffset + playDelay,
+        positionMillis: customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
         volume: 1,
@@ -214,7 +219,8 @@ const ReviewDuette = (props) => {
       setBaseTrackVolume(parseInt((baseTrackVolume - 0.1).toFixed(1)));
       await vidBRef.setStatusAsync({
         shouldPlay: true,
-        positionMillis: customOffset + playDelay,
+        // positionMillis: customOffset + playDelay,
+        positionMillis: customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
         volume: 1,
@@ -241,7 +247,8 @@ const ReviewDuette = (props) => {
       setBaseTrackVolume(parseInt((baseTrackVolume + 0.1).toFixed(1)));
       await vidBRef.setStatusAsync({
         shouldPlay: true,
-        positionMillis: customOffset + playDelay,
+        // positionMillis: customOffset + playDelay,
+        positionMillis: customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
         volume: 1,
@@ -272,7 +279,7 @@ const ReviewDuette = (props) => {
               duetteUri={duetteUri}
               customOffset={customOffset}
               bluetooth={bluetooth}
-              playDelay={playDelay}
+              // playDelay={playDelay}
               baseTrackVolume={baseTrackVolume}
               date1={date1}
               date2={date2}

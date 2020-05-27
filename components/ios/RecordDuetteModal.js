@@ -178,7 +178,7 @@ const RecordDuetteModal = (props) => {
                       <View
                         style={styles.recordButtonContainer}>
                         <TouchableOpacity
-                          onPress={toggleRecord}>
+                        >
                           <Text style={{
                             ...styles.recordText,
                             fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,

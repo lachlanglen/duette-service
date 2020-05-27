@@ -136,7 +136,7 @@ const DuetteScreen = (props) => {
                 // VIEW VIDEOS
                 <SafeAreaView style={styles.listContainer}>
                   <Searchbar
-                    placeholder="Try 'No Such thing'"
+                    placeholder="Try 'No Such Thing'"
                     onChangeText={handleSearch}
                     style={styles.searchbar}
                   />

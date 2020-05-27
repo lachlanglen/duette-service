@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Text, View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { Input } from 'react-native-elements';
 import { clearVideo } from '../redux/singleVideo';
+import buttonStyles from '../styles/button';
 
 const Form = (props) => {
 
@@ -105,13 +106,27 @@ const Form = (props) => {
       <TouchableOpacity
         onPress={type === 'initial' ? handleSave : handleUpdate}
         disabled={!title || !performer}
-        style={{ ...styles.button, backgroundColor: !title || !performer ? 'grey' : '#0047B9' }}>
-        <Text style={styles.buttonText}>{type === 'initial' ? 'Submit!' : 'Update!'}</Text>
+        style={{
+          ...buttonStyles.regularButton,
+          height: 50,
+          width: '30%',
+          backgroundColor: !title || !performer ? 'grey' : '#0047B9',
+          marginBottom: 14,
+        }}>
+        <Text style={{
+          ...buttonStyles.regularButtonText,
+        }}>{type === 'initial' ? 'Submit!' : 'Update!'}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={handleBack}
-        style={styles.button}>
-        <Text style={styles.buttonText}>Back</Text>
+        style={{
+          ...buttonStyles.regularButton,
+          width: '30%',
+          height: 50,
+        }}>
+        <Text style={{
+          ...buttonStyles.regularButtonText,
+        }}>Back</Text>
       </TouchableOpacity>
     </View>
   )

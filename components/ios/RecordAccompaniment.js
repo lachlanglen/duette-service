@@ -66,15 +66,23 @@ const RecordAccompaniment = (props) => {
               style={{
                 flex: 1,
                 backgroundColor: 'transparent',
-                flexDirection: 'row',
-                justifyContent: 'center',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
               }}>
+              <Text style={{
+                color: 'red',
+                // fontSize: 13,
+                fontWeight: 'bold',
+                textAlign: 'center',
+                textTransform: 'uppercase',
+                fontSize: 14,
+              }}>{recording ? '' : 'record'}</Text>
               <TouchableOpacity
                 onPress={toggleRecord}
                 style={{
                   borderWidth: 5,
                   borderColor: recording ? 'darkred' : 'darkred',
-                  alignSelf: 'flex-end',
+                  alignSelf: 'center',
                   width: 50,
                   height: 50,
                   backgroundColor: recording ? 'black' : 'red',

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View, Dimensions, Modal, StyleSheet } from 'react-native';
 import { Video } from 'expo-av';
+import buttonStyles from '../../styles/button';
 
 const PreviewAccompaniment = (props) => {
   const {
@@ -62,24 +63,36 @@ const PreviewAccompaniment = (props) => {
           height: screenOrientation === 'PORTRAIT' ? (screenHeight - screenWidth / 8 * 9) / 2 : '100%'
         }}>
           <TouchableOpacity
+            // style={{
+            //   ...styles.button,
+            //   marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
+            //   marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
+            // }}
             style={{
-              ...styles.button,
-              marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
-              marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
+              ...buttonStyles.regularButton,
+              width: '30%',
+              height: 50,
+              marginHorizontal: 15,
             }}
             onPress={handleSave}>
-            <Text style={styles.overlayText}
+            <Text style={buttonStyles.regularButtonText}
             >Save
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
+            // style={{
+            //   ...styles.button,
+            //   marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
+            //   marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
+            // }}
             style={{
-              ...styles.button,
-              marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
-              marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
+              ...buttonStyles.regularButton,
+              width: '30%',
+              height: 50,
+              marginHorizontal: 15,
             }}
             onPress={handleRedo}>
-            <Text style={styles.overlayText}
+            <Text style={buttonStyles.regularButtonText}
             >Redo
             </Text>
           </TouchableOpacity>
