@@ -271,6 +271,7 @@ const ReviewDuette = (props) => {
               type="duette"
               duetteUri={duetteUri}
               customOffset={customOffset}
+              bluetooth={bluetooth}
               playDelay={playDelay}
               baseTrackVolume={baseTrackVolume}
               date1={date1}

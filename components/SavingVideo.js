@@ -9,7 +9,6 @@ import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import NetInfo from '@react-native-community/netinfo';
 import uuid from 'react-native-uuid';
-// import ws from '../config/index';
 import axios from 'axios';
 
 const SavingVideo = (props) => {
@@ -24,6 +23,7 @@ const SavingVideo = (props) => {
     notes,
     handleExit,
     type,
+    bluetooth,
     customOffset,
     playDelay,
     baseTrackVolume,
@@ -93,7 +93,7 @@ const SavingVideo = (props) => {
         outputBucket: 'duette',
         accompanimentKey,
         duetteKey,
-        delay: (customOffset + playDelay + 50 + (date2 - date1)) / 1000,
+        delay: bluetooth ? (customOffset + playDelay + 50 + (date2 - date1)) / 1000 : (customOffset + playDelay + (date2 - date1)) / 1000,
         volume: baseTrackVolume === 1 ? null : baseTrackVolume.toFixed(1),
         userId: props.user.id,
         notificationToken: expoPushToken,
