@@ -7,7 +7,6 @@ import axios from 'axios';
 import CatsGallery from './CatsGallery';
 import { postVideo } from '../redux/videos';
 import Form from './Form';
-import ErrorView from './Error';
 import buttonStyles from '../styles/button';
 import { updateVideo, clearVideo } from '../redux/singleVideo';
 
@@ -28,7 +27,6 @@ const EditDetailsModal = (props) => {
   const [songKey, setSongKey] = useState(origSongKey);
   const [performer, setPerformer] = useState(origPerformer);
   const [notes, setNotes] = useState(origNotes);
-  const [error, setError] = useState(false);
 
   const handleDone = () => {
     props.clearVideo();
@@ -37,6 +35,7 @@ const EditDetailsModal = (props) => {
 
   const handleUpdate = () => {
     props.updateVideoDetails(id, { title, composer, key: songKey, performer });
+    // FIXME: below will fire even updates have not successfully saved
     Alert.alert(
       'Updated!',
       "Your updates have been successfully saved.",
@@ -48,30 +47,26 @@ const EditDetailsModal = (props) => {
   }
 
   return (
-    error ? (
-      <ErrorView handleGoBack={handleError} />
-    ) : (
-        <View style={styles.container}>
-          <Modal
-            supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-          >
-            <Form
-              handleUpdate={handleUpdate}
-              title={title}
-              setTitle={setTitle}
-              composer={composer}
-              setComposer={setComposer}
-              songKey={songKey}
-              setSongKey={setSongKey}
-              performer={performer}
-              setPerformer={setPerformer}
-              notes={notes}
-              setNotes={setNotes}
-              setShowEditDetailsModal={setShowEditDetailsModal}
-              type="update" />
-          </Modal>
-        </View >
-      )
+    <View style={styles.container}>
+      <Modal
+        supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+      >
+        <Form
+          handleUpdate={handleUpdate}
+          title={title}
+          setTitle={setTitle}
+          composer={composer}
+          setComposer={setComposer}
+          songKey={songKey}
+          setSongKey={setSongKey}
+          performer={performer}
+          setPerformer={setPerformer}
+          notes={notes}
+          setNotes={setNotes}
+          setShowEditDetailsModal={setShowEditDetailsModal}
+          type="update" />
+      </Modal>
+    </View >
   )
 }
 

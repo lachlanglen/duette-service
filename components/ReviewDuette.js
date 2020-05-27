@@ -2,15 +2,7 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Alert, Image, View, Modal, Button, StyleSheet, Text, ActivityIndicator } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
-import axios from 'axios';
-import uuid from 'react-native-uuid';
-import DisplayMergedVideo from './DisplayMergedVideo';
-import CatsGallery from './CatsGallery';
-import { getAWSVideoUrl } from '../constants/urls';
-import ErrorView from './Error';
+import { View, Modal, StyleSheet } from 'react-native';
 import PreviewAndSync from './PreviewAndSync';
 import { postDuette } from '../redux/duettes';
 import { deleteLocalFile } from '../services/utils';
@@ -26,14 +18,12 @@ const ReviewDuette = (props) => {
     duetteUri,
     setShowPreviewModal,
     setShowRecordDuetteModal,
-    // screenOrientation,
     playDelay,
     baseTrackUri,
     setSearchText,
   } = props;
 
-  const [displayMergedVideo, setDisplayMergedVideo] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [screenOrientation, setScreenOrientation] = useState('');
   const [previewComplete, setPreviewComplete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [vidARef, setVidARef] = useState(null);
@@ -43,10 +33,7 @@ const ReviewDuette = (props) => {
   const [bothVidsReady, setBothVidsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [customOffset, setCustomOffset] = useState(0);
-  const [error, setError] = useState(false);
-  const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
   const [baseTrackVolume, setBaseTrackVolume] = useState(1);
-  const [screenOrientation, setScreenOrientation] = useState('');
 
   const handleModalOrientationChange = (ev) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
@@ -62,25 +49,27 @@ const ReviewDuette = (props) => {
 
   const handleShowPreview = async () => {
     setPreviewComplete(false);
-    // await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    await vidBRef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: customOffset + playDelay,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: 1,
-    })
-    date1 = Date.now();
-    // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    await vidARef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: 0,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: baseTrackVolume,
-    })
-    date2 = Date.now();
-    setIsPlaying(true);
+    try {
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
+      date2 = Date.now();
+      setIsPlaying(true);
+    } catch (e) {
+      throw new Error('error in handleShowPreview: ', e)
+    }
   };
 
   const handleRedo = () => {
@@ -89,7 +78,6 @@ const ReviewDuette = (props) => {
 
   const handleGoHome = () => {
     setSearchText('');
-    setSavingToCameraRoll(false);
     setShowPreviewModal(false);
     setShowRecordDuetteModal(false);
     deleteLocalFile(baseTrackUri);
@@ -120,222 +108,201 @@ const ReviewDuette = (props) => {
 
   const handleSyncBack = async () => {
     if (customOffset <= (0 - playDelay)) return;
-    await vidARef.stopAsync();
-    await vidBRef.stopAsync();
-    if (customOffset > (0 - playDelay) && customOffset < (50 - playDelay)) {
-      const remainder = playDelay + customOffset;
-      setCustomOffset(customOffset - remainder);
-      // await vidBRef.playFromPositionAsync(customOffset + playDelay - remainder, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-      await vidBRef.setStatusAsync({
-        shouldPlay: true,
-        positionMillis: customOffset + playDelay - remainder,
-        seekMillisToleranceBefore: 0,
-        seekMillisToleranceAfter: 0,
-        volume: 1,
-      })
-      date1 = Date.now();
-      // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-      await vidARef.setStatusAsync({
-        shouldPlay: true,
-        positionMillis: 0,
-        seekMillisToleranceBefore: 0,
-        seekMillisToleranceAfter: 0,
-        volume: baseTrackVolume,
-      })
-      date2 = Date.now();
-    } else {
-      setCustomOffset(customOffset - 50);
-      // await vidBRef.playFromPositionAsync(customOffset + playDelay - 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-      await vidBRef.setStatusAsync({
-        shouldPlay: true,
-        positionMillis: customOffset + playDelay - 50,
-        seekMillisToleranceBefore: 0,
-        seekMillisToleranceAfter: 0,
-        volume: 1,
-      })
-      date1 = Date.now();
-      // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-      await vidARef.setStatusAsync({
-        shouldPlay: true,
-        positionMillis: 0,
-        seekMillisToleranceBefore: 0,
-        seekMillisToleranceAfter: 0,
-        volume: baseTrackVolume,
-      })
-      date2 = Date.now();
+    try {
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      if (customOffset > (0 - playDelay) && customOffset < (50 - playDelay)) {
+        const remainder = playDelay + customOffset;
+        setCustomOffset(customOffset - remainder);
+        await vidBRef.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: customOffset + playDelay - remainder,
+          seekMillisToleranceBefore: 0,
+          seekMillisToleranceAfter: 0,
+          volume: 1,
+        })
+        date1 = Date.now();
+        await vidARef.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: 0,
+          seekMillisToleranceBefore: 0,
+          seekMillisToleranceAfter: 0,
+          volume: baseTrackVolume,
+        })
+        date2 = Date.now();
+      } else {
+        setCustomOffset(customOffset - 50);
+        await vidBRef.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: customOffset + playDelay - 50,
+          seekMillisToleranceBefore: 0,
+          seekMillisToleranceAfter: 0,
+          volume: 1,
+        })
+        date1 = Date.now();
+        await vidARef.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: 0,
+          seekMillisToleranceBefore: 0,
+          seekMillisToleranceAfter: 0,
+          volume: baseTrackVolume,
+        })
+        date2 = Date.now();
+      }
+    } catch (e) {
+      throw new Error('error in handleSyncBack: ', e)
     }
   };
 
   const handleSyncForward = async () => {
-    await vidARef.stopAsync();
-    await vidBRef.stopAsync();
-    setCustomOffset(customOffset + 50);
-    // await vidBRef.playFromPositionAsync(customOffset + playDelay + 50, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    await vidBRef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: customOffset + playDelay + 50,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: 1,
-    })
-    date1 = Date.now();
-    // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    await vidARef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: 0,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: baseTrackVolume,
-    })
-    date2 = Date.now();
+    // TODO: may need to add edge case if video is delayed for full length (would anyone actually do this?!)
+    try {
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      setCustomOffset(customOffset + 50);
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay + 50,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
+      date2 = Date.now();
+    } catch (e) {
+      throw new Error('error in handleSyncForward: ', e)
+    }
   };
 
   const handleRestart = async () => {
-    await vidARef.stopAsync();
-    await vidBRef.stopAsync();
-    // await vidBRef.playFromPositionAsync(customOffset + playDelay, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    await vidBRef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: customOffset + playDelay,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: 1,
-    })
-    date1 = Date.now();
-    // await vidARef.playFromPositionAsync(0, { toleranceMillisBefore: 0, toleranceMillisAfter: 0 });
-    await vidARef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: 0,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: baseTrackVolume,
-    })
-    date2 = Date.now();
+    try {
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
+      date2 = Date.now();
+    } catch (e) {
+      throw new Error('error in handleRestart: ', e)
+    }
   };
 
   const reduceBaseTrackVolume = async () => {
     if (baseTrackVolume === 0.1) return;
-    await vidARef.stopAsync();
-    await vidBRef.stopAsync();
-    setBaseTrackVolume(parseInt((baseTrackVolume - 0.1).toFixed(1)));
-    await vidBRef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: customOffset + playDelay,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: 1,
-    })
-    date1 = Date.now();
-    await vidARef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: 0,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: parseInt((baseTrackVolume - 0.1).toFixed(1)),
-    })
-    date2 = Date.now();
+    try {
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      setBaseTrackVolume(parseInt((baseTrackVolume - 0.1).toFixed(1)));
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: parseInt((baseTrackVolume - 0.1).toFixed(1)),
+      })
+      date2 = Date.now();
+    } catch (e) {
+      throw new Error('error in reduceBaseTrackVolume: ', e)
+    }
   };
 
   const increaseBaseTrackVolume = async () => {
     if (baseTrackVolume === 1) return;
-    await vidARef.stopAsync();
-    await vidBRef.stopAsync();
-    setBaseTrackVolume(parseInt((baseTrackVolume + 0.1).toFixed(1)));
-    await vidBRef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: customOffset + playDelay,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: 1,
-    })
-    date1 = Date.now();
-    await vidARef.setStatusAsync({
-      shouldPlay: true,
-      positionMillis: 0,
-      seekMillisToleranceBefore: 0,
-      seekMillisToleranceAfter: 0,
-      volume: parseInt((baseTrackVolume + 0.1).toFixed(1)),
-    })
-    date2 = Date.now();
+    try {
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      setBaseTrackVolume(parseInt((baseTrackVolume + 0.1).toFixed(1)));
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: customOffset + playDelay,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: 1,
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: 0,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: parseInt((baseTrackVolume + 0.1).toFixed(1)),
+      })
+      date2 = Date.now();
+    } catch (e) {
+      throw new Error('error in increaseBaseTrackVolume: ', e)
+    }
   }
 
-  const handleError = () => {
-    setDisplayMergedVideo(false);
-    setPreviewComplete(false);
-    setSaving(false);
-    setError(false);
-  };
-
   return (
-    error ? (
-      <ErrorView handleGoBack={handleError} />
-    ) : (
-        <View style={styles.container}>
-          <Modal
-            onOrientationChange={handleModalOrientationChange}
-            supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-          >{
-              saving ? (
-                <SavingVideo
-                  type="duette"
-                  duetteUri={duetteUri}
-                  customOffset={customOffset}
-                  playDelay={playDelay}
-                  baseTrackVolume={baseTrackVolume}
-                  date1={date1}
-                  date2={date2}
-                  setSuccess={setSuccess}
-                  setSaving={setSaving}
-                  handleExit={handleGoHome}
-                />
-              ) : (
-                  success ? (
-                    // video has been merged
-                    <View style={styles.saveContainer}>
-                      <Text style={styles.savingHeader}>Video saved!</Text>
-                      <Image source={{ uri: 'https://media.giphy.com/media/13OyGVcay7aWUE/giphy.gif' }} style={{ width: 300, height: 200, marginTop: 20, marginBottom: 20 }} />
-                      <Button
-                        title="View Video"
-                        onPress={handleView}
-                      />
-                      <Button
-                        disabled={savingToCameraRoll}
-                        title={savingToCameraRoll ? 'Saving to Camera Roll...' : 'Save to Camera Roll'}
-                        onPress={handleSaveToCameraRoll}
-                      />
-                      {
-                        savingToCameraRoll &&
-                        <ActivityIndicator size="small" color="#0047B9" />
-                      }
-                    </View>
-                  ) : (
-                      // video hasn't been merged yet
-                      <PreviewAndSync
-                        screenOrientation={screenOrientation}
-                        setVidARef={setVidARef}
-                        setVidBRef={setVidBRef}
-                        handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
-                        duetteUri={duetteUri}
-                        bluetooth={bluetooth}
-                        handleShowPreview={handleShowPreview}
-                        previewComplete={previewComplete}
-                        isPlaying={isPlaying}
-                        bothVidsReady={bothVidsReady}
-                        handleSave={handleSave}
-                        handleRedo={handleRedo}
-                        handleSyncBack={handleSyncBack}
-                        handleSyncForward={handleSyncForward}
-                        baseTrackUri={baseTrackUri}
-                        handleRestart={handleRestart}
-                        reduceBaseTrackVolume={reduceBaseTrackVolume}
-                        increaseBaseTrackVolume={increaseBaseTrackVolume}
-                      />
-                    )
-                )
-            }
-          </Modal>
-        </View >
-      )
+    <View style={styles.container}>
+      <Modal
+        onOrientationChange={handleModalOrientationChange}
+        supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+      >{
+          saving ? (
+            <SavingVideo
+              type="duette"
+              duetteUri={duetteUri}
+              customOffset={customOffset}
+              playDelay={playDelay}
+              baseTrackVolume={baseTrackVolume}
+              date1={date1}
+              date2={date2}
+              setSaving={setSaving}
+              handleExit={handleGoHome}
+            />
+          ) : (
+              <PreviewAndSync
+                screenOrientation={screenOrientation}
+                setVidARef={setVidARef}
+                setVidBRef={setVidBRef}
+                handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
+                duetteUri={duetteUri}
+                bluetooth={bluetooth}
+                handleShowPreview={handleShowPreview}
+                previewComplete={previewComplete}
+                isPlaying={isPlaying}
+                bothVidsReady={bothVidsReady}
+                handleSave={handleSave}
+                handleRedo={handleRedo}
+                handleSyncBack={handleSyncBack}
+                handleSyncForward={handleSyncForward}
+                baseTrackUri={baseTrackUri}
+                handleRestart={handleRestart}
+                reduceBaseTrackVolume={reduceBaseTrackVolume}
+                increaseBaseTrackVolume={increaseBaseTrackVolume}
+              />
+            )
+        }
+      </Modal>
+    </View >
   )
 }
 

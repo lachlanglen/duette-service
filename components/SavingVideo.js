@@ -17,8 +17,6 @@ const SavingVideo = (props) => {
   const {
     dataUri,
     duetteUri,
-    setSuccess,
-    setSaving,
     title,
     composer,
     songKey,
@@ -56,12 +54,12 @@ const SavingVideo = (props) => {
     ws.onopen = () => {
       console.log('Start Connection');
     };
-    ws.onmessage = e => {
-      const data = JSON.parse(e.data).data;
-      // console.log('message: ', data)
-    };
+    // ws.onmessage = e => {
+    //   // const data = JSON.parse(e.data).data;
+    //   // console.log('message: ', data)
+    // };
     ws.onerror = e => {
-      console.log('onerror', e.message);
+      throw new Error('websocket error in SavingVideo:', e.message);
     };
     ws.onclose = e => {
       console.log('onclose', e.code, e.reason);
@@ -83,11 +81,6 @@ const SavingVideo = (props) => {
     expoPushToken = token;
     handleSendToWebsocket();
   };
-
-  const handleFinish = () => {
-    setSuccess(true);
-    setSaving(false);
-  }
 
   const handleSendToWebsocket = () => {
     if (ws.readyState === 2 || ws.readyState === 3) createConnection();
@@ -127,6 +120,10 @@ const SavingVideo = (props) => {
       }));
     }
     handleExit();
+  };
+
+  const handleThrowError = err => {
+    throw new Error('error uploading video in SavingVideo: ', err)
   }
 
   const handlePost = async () => {
@@ -158,7 +155,14 @@ const SavingVideo = (props) => {
         { cancelable: false }
       );
     } catch (e) {
-      throw new Error('error in handlePost: ', e)
+      Alert.alert(
+        "We had a problem 😿",
+        'Unfortunately we were not able to upload your video. We apologize for the inconvenience! Please try again later.',
+        [
+          { text: 'OK', onPress: (e) => handleThrowError(e) },
+        ],
+        { cancelable: false }
+      );
     }
   };
 

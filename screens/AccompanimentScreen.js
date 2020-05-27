@@ -1,7 +1,7 @@
 /* eslint-disable max-statements */
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator, ScrollView } from 'react-native';
+import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator, ScrollView, Alert } from 'react-native';
 import { connect } from 'react-redux'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Permissions from 'expo-permissions';
@@ -10,7 +10,6 @@ import DetailsModal from '../components/DetailsModal';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
 import UserInfoMenu from '../components/UserInfoMenu';
-import ErrorView from '../components/Error';
 import RecordAccompanimentAndroid from '../components/android/RecordAccompaniment';
 import RecordAccompanimentIos from '../components/ios/RecordAccompaniment';
 import PreviewAccompanimentAndroid from '../components/android/PreviewAccompaniment';
@@ -28,7 +27,6 @@ const AccompanimentScreen = (props) => {
   const [cameraRef, setCameraRef] = useState(null);
   const [preview, setPreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [error, setError] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
 
   let screenWidth = Math.round(Dimensions.get('window').width);
@@ -44,6 +42,14 @@ const AccompanimentScreen = (props) => {
         if (status === 'granted') {
           setHasAudioPermission(true);
         } else {
+          Alert.alert(
+            `Oops...`,
+            'Duette needs audio permissions in order to function correctly. Please enable audio permissions for Duette in your device settings.',
+            [
+              { text: 'OK', onPress: () => { } },
+            ],
+            { cancelable: false }
+          )
           throw new Error('Audio permissions not granted');
         }
       }
@@ -54,6 +60,14 @@ const AccompanimentScreen = (props) => {
         if (status === 'granted') {
           setHasCameraPermission(true);
         } else {
+          Alert.alert(
+            `Oops...`,
+            'Duette needs camera permissions in order to function correctly. Please enable camera permissions for Duette in your device settings.',
+            [
+              { text: 'OK', onPress: () => { } },
+            ],
+            { cancelable: false }
+          )
           throw new Error('Camera permissions not granted');
         }
       }
@@ -78,6 +92,11 @@ const AccompanimentScreen = (props) => {
     detectOrientation();
   });
 
+  const handleRefresh = () => {
+    setRecording(false);
+    setPreview(false);
+  }
+
   const startRecording = async () => {
     try {
       setRecording(true);
@@ -85,7 +104,14 @@ const AccompanimentScreen = (props) => {
       setDataUri(vid.uri)
       setPreview(true);
     } catch (e) {
-      setError(true);
+      Alert.alert(
+        `Oops!`,
+        "We encountered a problem. Please press 'OK' to try again.",
+        [
+          { text: 'OK', onPress: () => handleRefresh() },
+        ],
+        { cancelable: false }
+      )
       throw new Error('error in recordAsync: ', e);
     }
   };
@@ -121,110 +147,99 @@ const AccompanimentScreen = (props) => {
     setShowDetailsModal(true);
   };
 
-  const handleError = () => {
-    setPreview(false);
-    setRecord(false);
-    setRecording(false);
-    setError(false);
-  };
-
   return (
-    error ? (
-      <ErrorView handleGoBack={handleError} />
+    !props.user.id ? (
+      !props.dataLoaded ? (
+        <LoadingSpinner />
+      ) : (
+          <FacebookSignin />
+        )
     ) : (
-        !props.user.id ? (
-          !props.dataLoaded ? (
-            <LoadingSpinner />
-          ) : (
-              <FacebookSignin />
-            )
-        ) : (
-            // ==> YES
-            !preview ? (
-              // record video:
-              <View style={styles.container}>
-                {
-                  record ? (
-                    // user has clicked 'Record!' button
-                    Platform.OS === 'android' ? (
-                      <RecordAccompanimentAndroid
-                        setCameraRef={setCameraRef}
-                        handleRecordExit={handleRecordExit}
-                        recording={recording}
-                        toggleRecord={toggleRecord}
-                        screenOrientation={screenOrientation}
-                      />
-                    ) : (
-                        <RecordAccompanimentIos
-                          setCameraRef={setCameraRef}
-                          handleRecordExit={handleRecordExit}
-                          recording={recording}
-                          toggleRecord={toggleRecord}
-                        />
-                      )
-                  ) : (
-                      // landing page ('Record!' button not clicked)
-                      <ScrollView
-                        style={styles.landingPage}>
-                        <View style={styles.logoAndButtonsContainer}>
-                          <Image
-                            source={require('../assets/images/duette-logo-HD.png')}
-                            style={styles.logo} />
-                          <View>
-                            <TouchableOpacity
-                              style={{
-                                ...buttonStyles.regularButton,
-                                width: '75%',
-                              }}
-                              onPress={() => setRecord(true)}
-                            >
-                              <Text style={buttonStyles.regularButtonText}>Record a new base track</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              style={{
-                                ...buttonStyles.regularButton,
-                                width: '60%'
-                              }}
-                              onPress={() => props.navigation.navigate('Duette')}
-                            >
-                              <Text style={buttonStyles.regularButtonText}>Record a Duette</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                        {
-                          props.displayUserInfo &&
-                          <UserInfoMenu />
-                        }
-                      </ScrollView>
-                    )
-                }
-              </View >
-            ) : (
-                // preview accompaniment:
-                showDetailsModal ? (
-                  // add accompaniment details
-                  <DetailsModal
-                    setPreview={setPreview}
-                    setRecord={setRecord}
-                    setShowDetailsModal={setShowDetailsModal}
-                    handleDetailsExit={handleDetailsExit}
-                    dataUri={dataUri} />
+        // ==> YES
+        !preview ? (
+          // record video:
+          <View style={styles.container}>
+            {
+              record && hasAudioPermission && hasCameraPermission ? (
+                // user has clicked 'Record!' button
+                Platform.OS === 'android' ? (
+                  <RecordAccompanimentAndroid
+                    setCameraRef={setCameraRef}
+                    handleRecordExit={handleRecordExit}
+                    recording={recording}
+                    toggleRecord={toggleRecord}
+                    screenOrientation={screenOrientation}
+                  />
                 ) : (
-                    // preview accompaniment
-                    Platform.OS === 'android' ? (
-                      <PreviewAccompanimentAndroid
-                        dataUri={dataUri}
-                        handleSave={handleSave}
-                        handleRedo={handleRedo}
-                        screenOrientation={screenOrientation}
-                      />
-                    ) : (
-                        <PreviewAccompanimentIos
-                          dataUri={dataUri}
-                          handleSave={handleSave}
-                          handleRedo={handleRedo}
-                        />
-                      )
+                    <RecordAccompanimentIos
+                      setCameraRef={setCameraRef}
+                      handleRecordExit={handleRecordExit}
+                      recording={recording}
+                      toggleRecord={toggleRecord}
+                    />
+                  )
+              ) : (
+                  // landing page ('Record!' button not clicked)
+                  <ScrollView
+                    style={styles.landingPage}>
+                    <View style={styles.logoAndButtonsContainer}>
+                      <Image
+                        source={require('../assets/images/duette-logo-HD.png')}
+                        style={styles.logo} />
+                      <View>
+                        <TouchableOpacity
+                          style={{
+                            ...buttonStyles.regularButton,
+                            width: '75%',
+                          }}
+                          onPress={() => setRecord(true)}
+                        >
+                          <Text style={buttonStyles.regularButtonText}>Record a new base track</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            ...buttonStyles.regularButton,
+                            width: '60%'
+                          }}
+                          onPress={() => props.navigation.navigate('Duette')}
+                        >
+                          <Text style={buttonStyles.regularButtonText}>Record a Duette</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    {
+                      props.displayUserInfo &&
+                      <UserInfoMenu />
+                    }
+                  </ScrollView>
+                )
+            }
+          </View >
+        ) : (
+            // preview accompaniment:
+            showDetailsModal ? (
+              // add accompaniment details
+              <DetailsModal
+                setPreview={setPreview}
+                setRecord={setRecord}
+                setShowDetailsModal={setShowDetailsModal}
+                handleDetailsExit={handleDetailsExit}
+                dataUri={dataUri} />
+            ) : (
+                // preview accompaniment
+                Platform.OS === 'android' ? (
+                  <PreviewAccompanimentAndroid
+                    dataUri={dataUri}
+                    handleSave={handleSave}
+                    handleRedo={handleRedo}
+                    screenOrientation={screenOrientation}
+                  />
+                ) : (
+                    <PreviewAccompanimentIos
+                      dataUri={dataUri}
+                      handleSave={handleSave}
+                      handleRedo={handleRedo}
+                    />
                   )
               )
           )
