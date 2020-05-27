@@ -28,6 +28,7 @@ const SavingVideo = (props) => {
     type,
     customOffset,
     playDelay,
+    baseTrackVolume,
     date1,
     date2,
   } = props;
@@ -100,6 +101,7 @@ const SavingVideo = (props) => {
         accompanimentKey,
         duetteKey,
         delay: (customOffset + playDelay + 50 + (date2 - date1)) / 1000,
+        volume: baseTrackVolume === 1 ? null : baseTrackVolume.toFixed(1),
         userId: props.user.id,
         notificationToken: expoPushToken,
         email: props.user.email,

@@ -1,7 +1,7 @@
 /* eslint-disable max-statements */
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
-import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator } from 'react-native';
+import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { connect } from 'react-redux'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Permissions from 'expo-permissions';
@@ -164,7 +164,7 @@ const AccompanimentScreen = (props) => {
                       )
                   ) : (
                       // landing page ('Record!' button not clicked)
-                      <View
+                      <ScrollView
                         style={styles.landingPage}>
                         <View style={styles.logoAndButtonsContainer}>
                           <Image
@@ -195,7 +195,7 @@ const AccompanimentScreen = (props) => {
                           props.displayUserInfo &&
                           <UserInfoMenu />
                         }
-                      </View>
+                      </ScrollView>
                     )
                 }
               </View >

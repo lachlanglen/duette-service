@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
   },
   problemText: {
     color: 'red',
+    fontSize: 16,
     marginTop: 20,
     width: '100%',
   }

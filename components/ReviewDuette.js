@@ -26,7 +26,7 @@ const ReviewDuette = (props) => {
     duetteUri,
     setShowPreviewModal,
     setShowRecordDuetteModal,
-    screenOrientation,
+    // screenOrientation,
     playDelay,
     baseTrackUri,
     setSearchText,
@@ -46,6 +46,11 @@ const ReviewDuette = (props) => {
   const [error, setError] = useState(false);
   const [savingToCameraRoll, setSavingToCameraRoll] = useState(false);
   const [baseTrackVolume, setBaseTrackVolume] = useState(1);
+  const [screenOrientation, setScreenOrientation] = useState('');
+
+  const handleModalOrientationChange = (ev) => {
+    setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
+  };
 
   const handleSave = () => {
     setSaving(true);
@@ -209,9 +214,10 @@ const ReviewDuette = (props) => {
   };
 
   const reduceBaseTrackVolume = async () => {
+    if (baseTrackVolume === 0.1) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    setBaseTrackVolume(baseTrackVolume - 0.1);
+    setBaseTrackVolume(parseInt((baseTrackVolume - 0.1).toFixed(1)));
     await vidBRef.setStatusAsync({
       shouldPlay: true,
       positionMillis: customOffset + playDelay,
@@ -225,15 +231,16 @@ const ReviewDuette = (props) => {
       positionMillis: 0,
       seekMillisToleranceBefore: 0,
       seekMillisToleranceAfter: 0,
-      volume: baseTrackVolume - 0.1,
+      volume: parseInt((baseTrackVolume - 0.1).toFixed(1)),
     })
     date2 = Date.now();
   };
 
   const increaseBaseTrackVolume = async () => {
+    if (baseTrackVolume === 1) return;
     await vidARef.stopAsync();
     await vidBRef.stopAsync();
-    setBaseTrackVolume(baseTrackVolume + 0.1);
+    setBaseTrackVolume(parseInt((baseTrackVolume + 0.1).toFixed(1)));
     await vidBRef.setStatusAsync({
       shouldPlay: true,
       positionMillis: customOffset + playDelay,
@@ -247,7 +254,7 @@ const ReviewDuette = (props) => {
       positionMillis: 0,
       seekMillisToleranceBefore: 0,
       seekMillisToleranceAfter: 0,
-      volume: baseTrackVolume + 0.1,
+      volume: parseInt((baseTrackVolume + 0.1).toFixed(1)),
     })
     date2 = Date.now();
   }
@@ -265,6 +272,7 @@ const ReviewDuette = (props) => {
     ) : (
         <View style={styles.container}>
           <Modal
+            onOrientationChange={handleModalOrientationChange}
             supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
           >{
               saving ? (
@@ -273,6 +281,7 @@ const ReviewDuette = (props) => {
                   duetteUri={duetteUri}
                   customOffset={customOffset}
                   playDelay={playDelay}
+                  baseTrackVolume={baseTrackVolume}
                   date1={date1}
                   date2={date2}
                   setSuccess={setSuccess}
@@ -320,7 +329,6 @@ const ReviewDuette = (props) => {
                         handleRestart={handleRestart}
                         reduceBaseTrackVolume={reduceBaseTrackVolume}
                         increaseBaseTrackVolume={increaseBaseTrackVolume}
-                        baseTrackVolume={baseTrackVolume}
                       />
                     )
                 )

@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   problemText: {
     color: 'red',
-    fontSize: 15,
+    fontSize: 16,
     marginTop: 20,
   }
 });

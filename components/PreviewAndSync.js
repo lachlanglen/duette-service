@@ -36,10 +36,13 @@ const PreviewAndSync = (props) => {
   return (
     <View style={{
       ...styles.container,
-      paddingTop: screenOrientation === 'PORTRAIT' && !previewComplete ? 20 : 0,
-      paddingVertical: screenOrientation === 'PORTRAIT' && previewComplete ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+      // paddingVertical: screenOrientation === 'PORTRAIT' && !previewComplete ? 20 : 0,
+      paddingTop: screenOrientation === 'PORTRAIT' && previewComplete ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
     }}>
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{
+        flexDirection: 'row',
+        marginTop: screenOrientation === 'PORTRAIT' && !previewComplete ? 20 : 0,
+      }}>
         <Video
           ref={ref => setVidARef(ref)}
           source={{
@@ -107,7 +110,9 @@ const PreviewAndSync = (props) => {
                 style={{
                   ...styles.overlay,
                   opacity: 0.8,
+                  paddingTop: 40,
                   flexDirection: 'column',
+                  justifyContent: 'space-evenly',
                   width: screenWidth,
                   height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
                 }}>
@@ -115,14 +120,10 @@ const PreviewAndSync = (props) => {
                   style={{
                     ...buttonStyles.regularButton,
                     width: 200,
-                    marginBottom: 10
                   }}
                   onPress={handleShowPreview}>
                   <Text
-                    style={{
-                      ...buttonStyles.regularButtonText,
-                      fontSize: 17,
-                    }}>
+                    style={buttonStyles.regularButtonText}>
                     View again
                   </Text>
                 </TouchableOpacity>
@@ -130,14 +131,10 @@ const PreviewAndSync = (props) => {
                   style={{
                     ...buttonStyles.regularButton,
                     width: 100,
-                    marginBottom: 10,
                   }}
                   onPress={handleSave}>
                   <Text
-                    style={{
-                      ...buttonStyles.regularButtonText,
-                      fontSize: 17
-                    }}>
+                    style={buttonStyles.regularButtonText}>
                     Save
                   </Text>
                 </TouchableOpacity>
@@ -145,14 +142,10 @@ const PreviewAndSync = (props) => {
                   style={{
                     ...buttonStyles.regularButton,
                     width: 100,
-                    marginBottom: 10,
                   }}
                   onPress={handleRedo}>
                   <Text
-                    style={{
-                      ...buttonStyles.regularButtonText,
-                      fontSize: 17
-                    }}>
+                    style={buttonStyles.regularButtonText}>
                     Redo
                   </Text>
                 </TouchableOpacity>
@@ -194,7 +187,7 @@ const PreviewAndSync = (props) => {
           <View
             style={styles.hintContainer}>
             <Text
-              style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the base track, press
+              style={{ color: 'white', fontSize: 14, }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the base track, press
             </Text>
             <Icon
               name="fast-forward"
@@ -208,7 +201,7 @@ const PreviewAndSync = (props) => {
 
             }}>
             <Text
-              style={{ color: 'white' }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the base track, press
+              style={{ color: 'white', fontSize: 14, }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the base track, press
             </Text>
             <Icon
               name="fast-rewind"
@@ -216,16 +209,17 @@ const PreviewAndSync = (props) => {
               color="yellow" />
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 5, marginBottom: 15 }}>
-            <Text style={styles.volumeControlsTitle}>Volume control</Text>
+            <Text style={styles.volumeControlsTitle}>Volume control:</Text>
             <View style={styles.volumeControlsContainer}>
               <Text style={styles.volumeInstructionText}>Base track volume:</Text>
               <TouchableOpacity
                 style={{
                   ...styles.volumeControlsButton,
                   backgroundColor: baseTrackVolume < 0.2 ? 'grey' : '#0047B9',
+                  paddingLeft: 1,
                 }}
                 onPress={reduceBaseTrackVolume}
-                disabled={baseTrackVolume < 0.2}
+                disabled={baseTrackVolume === 0.1}
               >
                 <Text style={styles.volumeButtonText}>-</Text>
               </TouchableOpacity>
@@ -235,7 +229,7 @@ const PreviewAndSync = (props) => {
                   backgroundColor: baseTrackVolume > 0.9 ? 'grey' : '#0047B9',
                 }}
                 onPress={increaseBaseTrackVolume}
-                disabled={baseTrackVolume > 0.9}
+                disabled={baseTrackVolume === 0.9}
               >
                 <Text style={styles.volumeButtonText}>+</Text>
               </TouchableOpacity>
@@ -248,13 +242,13 @@ const PreviewAndSync = (props) => {
                 width: 100,
                 marginBottom: 10,
               }}
-              onPress={handleSave} >
+              onPress={!previewComplete && !isPlaying && bothVidsReady ? handleShowPreview : handleSave} >
               <Text
                 style={{
                   ...buttonStyles.regularButtonText,
                   fontSize: Platform.OS === 'ios' ? 20 : 17,
                   fontWeight: Platform.OS === 'ios' ? 'normal' : 'bold',
-                }}>Save
+                }}>{!previewComplete && !isPlaying && bothVidsReady ? 'Preview' : 'Save'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -277,7 +271,7 @@ const PreviewAndSync = (props) => {
             onPress={handleRestart}
             style={styles.problemContainer}
           >
-            <Text style={{ color: 'red' }}>Having a problem? Touch here to refresh.</Text>
+            <Text style={{ fontSize: 16, color: 'red' }}>Having a problem? Touch here to refresh.</Text>
           </TouchableOpacity>
         </View>
       }
@@ -325,6 +319,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 15,
     textAlign: 'center',
+    fontSize: 16,
   },
   syncIconsContainer: {
     flexDirection: 'row',
@@ -341,6 +336,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: 'white',
     textAlign: 'center',
+    fontSize: 16,
   },
   volumeControlsContainer: {
     flexDirection: 'row',
@@ -353,12 +349,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 20,
-    marginVertical: 20,
+    marginTop: 10,
+    marginBottom: 14,
   },
   volumeControlsButton: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
     borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   volumeInstructionText: {
     color: 'white',
@@ -368,7 +367,8 @@ const styles = StyleSheet.create({
   volumeButtonText: {
     color: 'white',
     textAlign: 'center',
-    fontSize: 18,
+    paddingBottom: 2,
+    fontSize: 20,
   },
   problemContainer: {
     alignItems: 'center',

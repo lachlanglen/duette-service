@@ -109,7 +109,7 @@ const RecordDuetteModal = (props) => {
 
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.isLoaded !== vidLoaded) setVidLoaded(updateObj.isLoaded);
-    if (updateObj.isBuffering === vidDoneBuffering) setVidDoneBuffering(!updateObj.isBuffering);
+    if (!vidDoneBuffering && !updateObj.isBuffering) setVidDoneBuffering(true);
   };
 
   const handleError = () => {
@@ -182,6 +182,8 @@ const RecordDuetteModal = (props) => {
                           >
                             <Text style={{
                               ...styles.overlayText,
+                              paddingLeft: screenOrientation === 'LANDSCAPE' ? 20 : 10,
+                              paddingTop: screenOrientation === 'LANDSCAPE' ? 20 : 10,
                               fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
                             }}
                             >
@@ -194,24 +196,31 @@ const RecordDuetteModal = (props) => {
                           <View
                             style={styles.recordButtonContainer}>
                             <TouchableOpacity
-                              onPress={toggleRecord}
-                              style={{
-                                ...styles.recordButton,
-                                borderWidth: screenWidth / 100,
-                                width: screenWidth / 10,
-                                height: screenWidth / 10,
-                                backgroundColor: recording ? 'black' : 'red',
-                              }}
-                            />
+                              onPress={toggleRecord}>
+                              <Text style={{
+                                ...styles.recordText,
+                                fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,
+                              }}>{recording ? '' : 'record'}</Text>
+                              <TouchableOpacity
+                                onPress={toggleRecord}
+                                style={{
+                                  ...styles.recordButton,
+                                  borderWidth: screenWidth / 100,
+                                  width: screenWidth / 10,
+                                  height: screenWidth / 10,
+                                  backgroundColor: recording ? 'black' : 'red',
+                                  marginBottom: screenOrientation === 'LANDSCAPE' ? 10 : 6,
+                                }} />
+                            </TouchableOpacity>
                           </View>
                         }
                         {
                           screenOrientation === 'LANDSCAPE' && recording &&
                           <TouchableOpacity
                             onPress={handleTryAgain}
-                            style={styles.problemContainerPortrait}
+                            style={styles.problemContainerLandscape}
                           >
-                            <Text style={{ color: 'red' }}>Having a problem? Touch here to try again.</Text>
+                            <Text style={{ color: 'red', fontSize: 16 }}>Having a problem? Touch here to try again.</Text>
                           </TouchableOpacity>
                         }
                       </Camera>
@@ -221,7 +230,7 @@ const RecordDuetteModal = (props) => {
                       <TouchableOpacity
                         onPress={handleTryAgain}
                       >
-                        <Text style={{ color: 'red', marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
+                        <Text style={{ color: 'red', fontSize: 16, marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
                       </TouchableOpacity>
                     }
                   </View>
@@ -251,12 +260,10 @@ const styles = StyleSheet.create({
     borderColor: 'black',
   },
   overlayText: {
-    paddingLeft: 20,
-    paddingTop: 20,
     fontWeight: 'normal',
     color: 'red',
   },
-  problemContainerPortrait: {
+  problemContainerLandscape: {
     alignItems: 'center',
     paddingBottom: 10,
     height: 30,
@@ -266,12 +273,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'flex-end'
   },
   recordButton: {
     borderColor: 'darkred',
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
     borderRadius: 50,
-    margin: 10,
+    marginTop: 6,
+  },
+  recordText: {
+    color: 'red',
+    fontSize: 13,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textTransform: 'uppercase',
   }
 });
 
