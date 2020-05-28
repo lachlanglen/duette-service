@@ -49,7 +49,7 @@ const MyDuettes = (props) => {
               fontStyle: 'italic',
               // borderColor: 'black',
               // borderWidth: 1,
-            }}>Duettes available for one month</Text>
+            }}>Duettes available for 30 days</Text>
             <FlatList
               data={props.userDuettes.filter(duette => duette.videoId)}
               renderItem={({ item }) => (

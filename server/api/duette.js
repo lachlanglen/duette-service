@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router();
+const { Op } = require("sequelize");
 const { Duette, Video } = require('../../db');
 
 router.post('/', (req, res, next) => {
@@ -16,8 +17,20 @@ router.get('/byUserId/:userId', (req, res, next) => {
   const { userId } = req.params;
   Duette.findAll({
     where: {
+      // [Op.and]: [
+      // {
       userId,
+      createdAt: {
+        [Op.between]: [new Date() - 90 * 24 * 60 * 60 * 1000, new Date()]
+        // $lt: new Date(),
+        // $gt: new Date(new Date() - 30 * 24 * 60 * 60 * 1000)
+      }
+      // },
+      // ]
     },
+    // where: {
+    //   userId,
+    // },
     include: [
       {
         model: Video,

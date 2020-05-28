@@ -144,7 +144,15 @@ const AccompanimentScreen = (props) => {
   };
 
   const handleSave = () => {
-    setShowDetailsModal(true);
+    Alert.alert(
+      'Agree to Terms',
+      "By saving this base track, you are making it available to any user on the Duette app. You can delete it at any time by searching for the video and selecting 'Delete'. You are also confirming that this video does not contain explicit content. Do you wish to continue?",
+      [
+        { text: 'Yes, I agree', onPress: () => setShowDetailsModal(true) },
+        { text: 'Cancel', onPress: () => { } },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (

@@ -70,7 +70,7 @@ const MyDuettesItem = props => {
     setLoading(true);
     try {
       const { uri } = await FileSystem.downloadAsync(
-        getAWSVideoUrl(key),
+        getAWSVideoUrl(`duette/${key}`),
         FileSystem.documentDirectory + `${key}.mov`
       )
       setSavingToCameraRoll(true);
@@ -160,7 +160,7 @@ const MyDuettesItem = props => {
       {
         selectedDuette === duetteId && showPreview ? (
           <Video
-            source={{ uri: getAWSVideoUrl(combinedKey) }}
+            source={{ uri: getAWSVideoUrl(`duette/${combinedKey}`) }}
             shouldPlay={true}
             useNativeControls={true}
             onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
@@ -177,7 +177,7 @@ const MyDuettesItem = props => {
                   height: screenWidth * 0.85 / 16 * 9,
                   borderRadius: 10,
                 }}
-                source={{ uri: getAWSThumbnailUrl(combinedKey) }} />
+                source={{ uri: getAWSThumbnailUrl(`duette/${combinedKey}`) }} />
               <TouchableOpacity
                 onPress={playPreview}
                 style={{

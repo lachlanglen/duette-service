@@ -63,11 +63,6 @@ const PreviewAccompaniment = (props) => {
           height: screenOrientation === 'PORTRAIT' ? (screenHeight - screenWidth / 8 * 9) / 2 : '100%'
         }}>
           <TouchableOpacity
-            // style={{
-            //   ...styles.button,
-            //   marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
-            //   marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
-            // }}
             style={{
               ...buttonStyles.regularButton,
               width: '30%',
@@ -80,11 +75,6 @@ const PreviewAccompaniment = (props) => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            // style={{
-            //   ...styles.button,
-            //   marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
-            //   marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
-            // }}
             style={{
               ...buttonStyles.regularButton,
               width: '30%',
