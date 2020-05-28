@@ -21,7 +21,7 @@ router.get('/byUserId/:userId', (req, res, next) => {
       // {
       userId,
       createdAt: {
-        [Op.between]: [new Date() - 30 * 24 * 60 * 60 * 1000, new Date()]
+        [Op.between]: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date()]
         // $lt: new Date(),
         // $gt: new Date(new Date() - 30 * 24 * 60 * 60 * 1000)
       }
