@@ -17,20 +17,12 @@ router.get('/byUserId/:userId', (req, res, next) => {
   const { userId } = req.params;
   Duette.findAll({
     where: {
-      // [Op.and]: [
-      // {
       userId,
       createdAt: {
-        [Op.between]: [new Date() - 7 * 24 * 60 * 60 * 1000, new Date()]
-        // $lt: new Date(),
-        // $gt: new Date(new Date() - 30 * 24 * 60 * 60 * 1000)
-      }
-      // },
-      // ]
+        // past 30 days
+        [Op.between]: [new Date() - 30 * 24 * 60 * 60 * 1000, new Date()]
+      },
     },
-    // where: {
-    //   userId,
-    // },
     include: [
       {
         model: Video,
