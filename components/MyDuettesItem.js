@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Image, Alert, Text, View, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
+import * as StoreReview from 'expo-store-review';
 import * as FileSystem from 'expo-file-system';
+import * as SecureStore from 'expo-secure-store';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import buttonStyles from '../styles/button';
 import { deleteLocalFile } from '../services/utils';
+import { toggleRequestReview } from '../redux/requestReview';
+import { toggleUserInfo } from '../redux/userInfo';
 
 const MyDuettesItem = props => {
   const {
@@ -30,10 +34,36 @@ const MyDuettesItem = props => {
 
   const combinedKey = `${videoId}${duetteId}`;
 
-  const handleExitAlert = () => {
+  const requestReview = async () => {
+    console.log('props.requestReview: ', props.requestReview)
+    // check for redux toggle
+    if (props.requestReview) {
+      // check if review request is available
+      const available = await StoreReview.isAvailableAsync();
+      console.log('available: ', available);
+      if (available) {
+        // request review
+        await StoreReview.requestReview();
+        console.log('review requested!')
+        // set on secure store
+        const currentTime = Date.now().toString();
+        await SecureStore.setItemAsync('reviewRequestTimeMillis', currentTime);
+        console.log('set on secure store!')
+        // change toggle to false
+        props.toggleRequestReview(false);
+      }
+    }
+  }
+
+  const handleExitAlert = (success) => {
+    console.log('success: ', success)
+    if (success) {
+      requestReview();
+    }
     setSavingToCameraRoll(false);
     setLoading(false);
     setSelectedDuette('');
+    props.toggleUserInfo(false);
   };
 
   const saveVideo = async (key) => {
@@ -50,7 +80,7 @@ const MyDuettesItem = props => {
           'Saved!',
           'This Duette has been saved to your Camera Roll',
           [
-            { text: 'OK', onPress: handleExitAlert() },
+            { text: 'OK', onPress: handleExitAlert('success') },
           ],
           { cancelable: false }
         );
@@ -218,4 +248,17 @@ const MyDuettesItem = props => {
   )
 };
 
-export default MyDuettesItem;
+const mapState = ({ requestReview }) => {
+  return {
+    requestReview,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    toggleRequestReview: bool => dispatch(toggleRequestReview(bool)),
+    toggleUserInfo: bool => dispatch(toggleUserInfo(bool)),
+  }
+};
+
+export default connect(mapState, mapDispatch)(MyDuettesItem);

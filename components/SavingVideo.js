@@ -10,6 +10,7 @@ import Constants from 'expo-constants';
 import NetInfo from '@react-native-community/netinfo';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
+import { toggleRequestReview } from '../redux/requestReview';
 
 const SavingVideo = (props) => {
 
@@ -46,7 +47,15 @@ const SavingVideo = (props) => {
   const handleNotification = async notification => {
     Vibration.vibrate();
     if (notification.data.type === 'base track') navigation.navigate('Duette')
-    else if (notification.data.type === 'duette') navigation.navigate('My Duettes');
+    else if (notification.data.type === 'duette') {
+      // check to see if review has been requested
+      // if it has, just navigate
+      // if it hasn't, update redux requestReview toggle to 'true' before navigating
+      const reviewRequestTimeMillis = await SecureStore.getItemAsync('reviewRequestTimeMillis');
+      console.log('reviewRequestTimeMillis: ', reviewRequestTimeMillis);
+      if (!reviewRequestTimeMillis) props.toggleRequestReview(true);
+      navigation.navigate('My Duettes');
+    };
   };
 
   const createConnection = () => {
@@ -218,4 +227,10 @@ const mapState = ({ user, selectedVideo }) => {
   }
 };
 
-export default connect(mapState)(SavingVideo);
+const mapDispatch = dispatch => {
+  return {
+    toggleRequestReview: bool => dispatch(toggleRequestReview(bool)),
+  }
+};
+
+export default connect(mapState, mapDispatch)(SavingVideo);

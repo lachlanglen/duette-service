@@ -1,6 +1,7 @@
 const TOGGLE_INFO = 'TOGGLE_INFO';
 
-export const toggleUserInfo = bool => {
+export const toggleRequestReview = bool => {
+  console.log('bool in toggleRequestReview: ', bool)
   return {
     type: TOGGLE_INFO,
     bool
@@ -8,7 +9,7 @@ export const toggleUserInfo = bool => {
 
 };
 
-export const displayUserInfoReducer = (state = false, action) => {
+export const requestReviewReducer = (state = false, action) => {
   switch (action.type) {
     case TOGGLE_INFO:
       return action.bool;
