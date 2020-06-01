@@ -8,6 +8,8 @@ import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import ReviewDuette from '../ReviewDuette';
 import { deleteLocalFile } from '../../services/utils';
 
+let countdownIntervalId;
+
 const RecordDuetteModal = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -28,6 +30,8 @@ const RecordDuetteModal = (props) => {
   const [vidDoneBuffering, setVidDoneBuffering] = useState(false);
   const [playDelay, setPlayDelay] = useState(0);
   const [displayedNotes, setDisplayedNotes] = useState(false);
+  const [countdown, setCountdown] = useState(3);  // start with 3 secs remaining
+  const [countdownActive, setCountdownActive] = useState(false);
 
   const cameraRef = useRef(null);
   const vidRef = useRef(null);
@@ -89,14 +93,15 @@ const RecordDuetteModal = (props) => {
 
   const handleCancel = async () => {
     try {
-      await vidRef.current.unloadAsync();
-      cameraRef.current.stopRecording();
       setShowRecordDuetteModal(false);
       deleteLocalFile(baseTrackUri);
       setDuetteUri('');
+      clearInterval(countdownIntervalId);
+      setCountdown(3);
+      setCountdownActive(false);
+      cameraRef.current.stopRecording();
+      await vidRef.current.unloadAsync();
     } catch (e) {
-      setDuetteUri('');
-      deleteLocalFile(baseTrackUri);
       throw new Error('error unloading video: ', e);
     }
   };
@@ -106,6 +111,9 @@ const RecordDuetteModal = (props) => {
     cameraRef.current.stopRecording();
     setRecording(false);
     setDuetteUri('');
+    clearInterval(countdownIntervalId);
+    setCountdownActive(false);
+    setCountdown(3);
   };
 
   const handlePlaybackStatusUpdate = (updateObj) => {
@@ -113,6 +121,22 @@ const RecordDuetteModal = (props) => {
     if (!vidDoneBuffering && !updateObj.isBuffering) setVidDoneBuffering(true);
     if (updateObj.didJustFinish) toggleRecord();
   };
+
+  const startCountdown = () => {
+    setCountdownActive(true);
+    countdownIntervalId = setInterval(() => {
+      setCountdown(countdown => countdown - 1)
+    }, 1000)
+  };
+
+  useEffect(() => {
+    if (countdownActive && countdown === 0) {
+      toggleRecord();
+      clearInterval(countdownIntervalId);
+      setCountdownActive(false);
+      setCountdown(3);
+    }
+  }, [countdownActive, countdown])
 
   return (
     <View style={styles.container}>
@@ -167,9 +191,10 @@ const RecordDuetteModal = (props) => {
                     type={Camera.Constants.Type.front}
                     ref={cameraRef}
                   >
-                    <View style={{ flexDirection: 'row' }}>
+                    <View>
                       <TouchableOpacity
                         onPress={!recording ? handleCancel : () => { }}
+                        style={{ flexDirection: 'row' }}
                       >
                         <Text style={{
                           ...styles.overlayText,
@@ -189,7 +214,7 @@ const RecordDuetteModal = (props) => {
                               backgroundColor: 'red',
                               borderRadius: 50,
                               marginLeft: 7,
-                              marginTop: 24,
+                              marginTop: 16,
                             }} />
                         }
                       </TouchableOpacity>
@@ -205,7 +230,7 @@ const RecordDuetteModal = (props) => {
                             fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,
                           }}>{recording ? '' : 'record'}</Text>
                           <TouchableOpacity
-                            onPress={toggleRecord}
+                            onPress={!recording ? startCountdown : toggleRecord}
                             style={{
                               ...styles.recordButton,
                               borderWidth: screenWidth / 100,
@@ -228,6 +253,12 @@ const RecordDuetteModal = (props) => {
                     }
                   </Camera>
                 </View>
+                {
+                  countdownActive && countdown > 0 &&
+                  <View style={{ position: 'absolute', height: 300, alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: 'white', fontSize: screenOrientation === 'LANDSCAPE' ? 100 : 70 }}>{countdown}</Text>
+                  </View>
+                }
                 {
                   screenOrientation === 'PORTRAIT' && recording &&
                   <TouchableOpacity
