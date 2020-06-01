@@ -20,6 +20,8 @@ const EditDetailsModal = (props) => {
     origSongKey,
     origPerformer,
     origNotes,
+    setSearchText,
+    searchText,
   } = props;
 
   const [title, setTitle] = useState(origTitle);
@@ -34,7 +36,7 @@ const EditDetailsModal = (props) => {
   }
 
   const handleUpdate = () => {
-    props.updateVideoDetails(id, { title, composer, key: songKey, performer });
+    props.updateVideoDetails(id, { title, composer, key: songKey, performer }, searchText);
     // FIXME: below will fire even updates have not successfully saved
     Alert.alert(
       'Updated!',
@@ -107,7 +109,7 @@ const mapState = ({ user, selectedVideo }) => {
 const mapDispatch = dispatch => {
   return {
     postVideo: details => dispatch(postVideo(details)),
-    updateVideoDetails: (id, newDetails) => dispatch(updateVideo(id, newDetails)),
+    updateVideoDetails: (id, newDetails, text) => dispatch(updateVideo(id, newDetails, text)),
     clearVideo: () => dispatch(clearVideo()),
   }
 }

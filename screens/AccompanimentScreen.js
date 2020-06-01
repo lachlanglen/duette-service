@@ -18,6 +18,8 @@ import PreviewAccompanimentIos from '../components/ios/PreviewAccompaniment';
 import buttonStyles from '../styles/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 
+let intervalId;
+
 const AccompanimentScreen = (props) => {
 
   const [hasAudioPermission, setHasAudioPermission] = useState(null);
@@ -29,6 +31,8 @@ const AccompanimentScreen = (props) => {
   const [preview, setPreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
+  const [secs, setSecs] = useState(540);  // start with 9 mins remaining
+  const [timerActive, setTimerActive] = useState(false);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -96,11 +100,13 @@ const AccompanimentScreen = (props) => {
   const handleRefresh = () => {
     setRecording(false);
     setPreview(false);
-  }
+    setSecs(540);
+  };
 
   const startRecording = async () => {
     try {
       setRecording(true);
+      startCountdown();
       const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
       setDataUri(vid.uri)
       setPreview(true);
@@ -120,6 +126,7 @@ const AccompanimentScreen = (props) => {
   const stopRecording = () => {
     cameraRef.stopRecording();
     setRecording(false);
+    setSecs(540);
   };
 
   const toggleRecord = () => {
@@ -158,6 +165,21 @@ const AccompanimentScreen = (props) => {
     );
   };
 
+  const startCountdown = () => {
+    setTimerActive(true);
+    intervalId = setInterval(() => {
+      setSecs(secs => secs - 1)
+    }, 1000)
+  };
+
+  useEffect(() => {
+    if (timerActive && secs === 0) {
+      clearInterval(intervalId);
+      setTimerActive(false);
+      toggleRecord();
+    }
+  }, [timerActive, secs]);
+
   return (
     !props.user.id ? (
       !props.dataLoaded ? (
@@ -187,6 +209,8 @@ const AccompanimentScreen = (props) => {
                       handleRecordExit={handleRecordExit}
                       recording={recording}
                       toggleRecord={toggleRecord}
+                      secs={secs}
+                      setSecs={setSecs}
                     />
                   )
               ) : (

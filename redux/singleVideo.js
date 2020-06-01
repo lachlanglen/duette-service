@@ -46,10 +46,10 @@ export const clearVideo = () => {
   }
 };
 
-export const updateVideo = (id, updatedDetails) => {
+export const updateVideo = (id, updatedDetails, searchText) => {
   return dispatch => {
     axios.put(`https://duette.herokuapp.com/api/video/${id}`, updatedDetails)
-      .then(() => dispatch(fetchVideos()))
+      .then(() => dispatch(fetchVideos(searchText)))
       .catch(e => {
         throw new Error('error in updateVideo thunk: ', e)
       })

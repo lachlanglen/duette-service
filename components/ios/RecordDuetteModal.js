@@ -111,6 +111,7 @@ const RecordDuetteModal = (props) => {
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.isLoaded !== vidLoaded) setVidLoaded(updateObj.isLoaded);
     if (!vidDoneBuffering && !updateObj.isBuffering) setVidDoneBuffering(true);
+    if (updateObj.didJustFinish) toggleRecord();
   };
 
   return (
@@ -166,7 +167,7 @@ const RecordDuetteModal = (props) => {
                     type={Camera.Constants.Type.front}
                     ref={cameraRef}
                   >
-                    <View>
+                    <View style={{ flexDirection: 'row' }}>
                       <TouchableOpacity
                         onPress={!recording ? handleCancel : () => { }}
                       >
@@ -177,8 +178,20 @@ const RecordDuetteModal = (props) => {
                           fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
                         }}
                         >
-                          {recording ? 'Recording' : 'Cancel'}
+                          {recording ? 'REC' : 'Cancel'}
                         </Text>
+                        {
+                          recording &&
+                          <View
+                            style={{
+                              width: 10,
+                              height: 10,
+                              backgroundColor: 'red',
+                              borderRadius: 50,
+                              marginLeft: 7,
+                              marginTop: 24,
+                            }} />
+                        }
                       </TouchableOpacity>
                     </View>
                     {

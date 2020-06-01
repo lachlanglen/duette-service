@@ -10,16 +10,25 @@ const RecordAccompaniment = (props) => {
     setCameraRef,
     handleRecordExit,
     recording,
-    toggleRecord
+    toggleRecord,
+    secs,
+    setSecs,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  const [screenOrientation, setScreenOrientation] = useState('')
+  const [screenOrientation, setScreenOrientation] = useState('');
 
   const handleModalOrientationChange = (ev) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
+  };
+
+  const getColor = () => {
+    if (!recording) return 'yellow';
+    if (secs > 59) return 'green';
+    if (secs > 14 && secs <= 59) return 'yellow';
+    if (secs <= 14) return 'red';
   }
 
   return (
@@ -46,19 +55,44 @@ const RecordAccompaniment = (props) => {
               height: '100%'
             }}
             type={Camera.Constants.Type.front} ref={ref => setCameraRef(ref)}>
-            <View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <TouchableOpacity
                 onPress={handleRecordExit}
               >
+                <View style={{ flexDirection: 'row' }}>
+                  <Text style={{
+                    color: 'red',
+                    fontSize: recording ? 15 : 20,
+                    paddingLeft: 20,
+                    paddingTop: 20,
+                    fontWeight: recording ? 'bold' : 'normal'
+                  }}
+                  >
+                    {recording ? 'REC' : 'Cancel'}
+                  </Text>
+                  {
+                    recording &&
+                    <View
+                      style={{
+                        width: 10,
+                        height: 10,
+                        backgroundColor: 'red',
+                        borderRadius: 50,
+                        marginLeft: 7,
+                        marginTop: 24,
+                      }} />
+                  }
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ marginBottom: 30 }}>
                 <Text style={{
-                  color: 'red',
-                  fontSize: recording ? 15 : 20,
-                  paddingLeft: 20,
+                  color: getColor(),
+                  fontSize: 20,
                   paddingTop: 20,
-                  fontWeight: recording ? 'bold' : 'normal'
-                }}
-                >
-                  {recording ? 'Recording' : 'Cancel'}
+                  paddingRight: 20,
+                  fontWeight: secs > 59 ? 'normal' : 'bold',
+                }}>
+                  {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
                 </Text>
               </TouchableOpacity>
             </View>
