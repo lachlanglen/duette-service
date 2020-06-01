@@ -24,7 +24,7 @@ const PreviewAccompaniment = (props) => {
     <Modal
       animationType="fade"
       onOrientationChange={e => handleModalOrientationChange(e)}
-      supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+      supportedOrientations={['portrait']}
     >
       <View
         style={{

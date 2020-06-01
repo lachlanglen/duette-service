@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import ReviewDuette from '../ReviewDuette';
 import { deleteLocalFile } from '../../services/utils';
 
@@ -47,9 +48,10 @@ const RecordDuetteModal = (props) => {
   }
 
   const record = async () => {
+    if (duetteUri) setDuetteUri('');
     try {
       time1 = Date.now();
-      const vid = await cameraRef.current.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
+      const vid = await cameraRef.current.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
       setDuetteUri(vid.uri);
     } catch (e) {
       throw new Error('error starting recording: ', e);
@@ -69,10 +71,12 @@ const RecordDuetteModal = (props) => {
 
   const toggleRecord = () => {
     if (recording) {
+      deactivateKeepAwake();
       setRecording(false);
       cameraRef.current.stopRecording();
       setShowPreviewModal(true);
     } else {
+      activateKeepAwake();
       setRecording(true);
       record();
       play();
@@ -89,7 +93,9 @@ const RecordDuetteModal = (props) => {
       cameraRef.current.stopRecording();
       setShowRecordDuetteModal(false);
       deleteLocalFile(baseTrackUri);
+      setDuetteUri('');
     } catch (e) {
+      setDuetteUri('');
       deleteLocalFile(baseTrackUri);
       throw new Error('error unloading video: ', e);
     }
@@ -99,6 +105,7 @@ const RecordDuetteModal = (props) => {
     await vidRef.current.stopAsync();
     cameraRef.current.stopRecording();
     setRecording(false);
+    setDuetteUri('');
   };
 
   const handlePlaybackStatusUpdate = (updateObj) => {
@@ -115,6 +122,7 @@ const RecordDuetteModal = (props) => {
             setShowRecordDuetteModal={setShowRecordDuetteModal}
             duetteUri={duetteUri}
             setShowPreviewModal={setShowPreviewModal}
+            setDuetteUri={setDuetteUri}
             screenOrientation={screenOrientation}
             playDelay={playDelay}
             baseTrackUri={baseTrackUri}
@@ -123,7 +131,7 @@ const RecordDuetteModal = (props) => {
         ) : (
             <Modal
               onRequestClose={handleCancel}
-              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape-right']}
               onOrientationChange={e => handleModalOrientationChange(e)}
             >
               <View style={{

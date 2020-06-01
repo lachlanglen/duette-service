@@ -85,7 +85,7 @@ class RecordDuetteClassModal extends Component {
       try {
         this.setState({ recording: true });
         await this.vidRef.playAsync();
-        const vid = await this.cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
+        const vid = await this.cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
         this.setState({ duetteUri: vid.uri, showPreviewModal: true });
       } catch (e) {
         console.log('error recording: ', e)

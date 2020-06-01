@@ -32,6 +32,7 @@ const DetailsModal = (props) => {
     setSaving(false);
     setRecord(false);
     setPreview(false);
+    setShowDetailsModal(false);
   };
 
   return (

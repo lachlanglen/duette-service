@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Permissions from 'expo-permissions';
 import { Camera } from 'expo-camera';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import DetailsModal from '../components/DetailsModal';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
@@ -100,7 +101,7 @@ const AccompanimentScreen = (props) => {
   const startRecording = async () => {
     try {
       setRecording(true);
-      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
+      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
       setDataUri(vid.uri)
       setPreview(true);
     } catch (e) {
@@ -123,8 +124,10 @@ const AccompanimentScreen = (props) => {
 
   const toggleRecord = () => {
     if (recording) {
+      deactivateKeepAwake();
       stopRecording();
     } else {
+      activateKeepAwake();
       startRecording();
     }
   };
@@ -202,7 +205,7 @@ const AccompanimentScreen = (props) => {
                           }}
                           onPress={() => setRecord(true)}
                         >
-                          <Text style={buttonStyles.regularButtonText}>!!Record a new base track</Text>
+                          <Text style={buttonStyles.regularButtonText}>Record a new base track 🐨</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={{

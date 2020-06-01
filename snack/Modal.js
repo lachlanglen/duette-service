@@ -31,7 +31,7 @@ const RecordVideoModal = (props) => {
       try {
         setRecording(true);
         await vidRef.playAsync();
-        const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'], mirror: true });
+        const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
         setDuetteUri(vid.uri);
       } catch (e) {
         console.log('error recording: ', e)

@@ -42,6 +42,8 @@ export const postVideo = (details) => {
 export const deleteVideo = (id, searchText) => {
   return dispatch => {
     axios.delete(`https://duette.herokuapp.com/api/video/${id}`)
+      .then(() => axios.delete(`https://duette.herokuapp.com/api/aws/${id}.mov`))
+      .then(() => axios.delete(`https://duette.herokuapp.com/api/aws/${id}thumbnail.mov`))
       .then(() => {
         if (searchText) {
           dispatch(fetchVideos(searchText));

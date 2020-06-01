@@ -132,6 +132,7 @@ const PreviewAndSync = (props) => {
                     ...buttonStyles.regularButton,
                     width: 100,
                   }}
+                  disabled={!bothVidsReady}
                   onPress={handleSave}>
                   <Text
                     style={buttonStyles.regularButtonText}>

@@ -5,6 +5,7 @@ import { Notifications } from 'expo';
 import { useNavigation } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import * as Permissions from 'expo-permissions';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 import NetInfo from '@react-native-community/netinfo';
@@ -39,6 +40,7 @@ const SavingVideo = (props) => {
   let expoPushToken = null;
 
   useEffect(() => {
+    activateKeepAwake();
     createConnection();
     Notifications.addListener(handleNotification);
     handlePost();
@@ -68,7 +70,8 @@ const SavingVideo = (props) => {
     //   // console.log('message: ', data)
     // };
     ws.onerror = e => {
-      throw new Error('websocket error in SavingVideo:', e.message);
+      console.log('websocket error: ', e)
+      // throw new Error('websocket error in SavingVideo:', e.message);
     };
     ws.onclose = e => {
       console.log('onclose', e.code, e.reason);
@@ -128,7 +131,8 @@ const SavingVideo = (props) => {
         name: props.user.name.split(' ')[0],
         sendEmails: props.user.sendEmails,
       }));
-    }
+    };
+    deactivateKeepAwake();
     handleExit();
   };
 

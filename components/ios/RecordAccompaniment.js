@@ -26,7 +26,7 @@ const RecordAccompaniment = (props) => {
     <Modal
       animationType="fade"
       onOrientationChange={e => handleModalOrientationChange(e)}
-      supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+      supportedOrientations={['portrait', 'portrait-upside-down', 'landscape-right']}
     >
       <View style={{
         flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
