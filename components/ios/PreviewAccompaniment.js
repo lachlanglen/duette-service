@@ -8,7 +8,7 @@ const PreviewAccompaniment = (props) => {
   const {
     dataUri,
     handleSave,
-    handleRedo
+    handleRefresh
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -81,7 +81,7 @@ const PreviewAccompaniment = (props) => {
               height: 50,
               marginHorizontal: 15,
             }}
-            onPress={handleRedo}>
+            onPress={handleRefresh}>
             <Text style={buttonStyles.regularButtonText}
             >Redo
             </Text>

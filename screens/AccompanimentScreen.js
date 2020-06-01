@@ -18,7 +18,8 @@ import PreviewAccompanimentIos from '../components/ios/PreviewAccompaniment';
 import buttonStyles from '../styles/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-let intervalId;
+let timerIntervalId;
+let countdownIntervalId;
 
 const AccompanimentScreen = (props) => {
 
@@ -32,6 +33,8 @@ const AccompanimentScreen = (props) => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
   const [secs, setSecs] = useState(540);  // start with 9 mins remaining
+  const [countdown, setCountdown] = useState(3);  // start with 3 secs remaining
+  const [countdownActive, setCountdownActive] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
@@ -69,7 +72,7 @@ const AccompanimentScreen = (props) => {
             `Oops...`,
             'Duette needs camera permissions in order to function correctly. Please enable camera permissions for Duette in your device settings.',
             [
-              { text: 'OK', onPress: () => { } },
+              { text: 'OK', onPress: () => handleRefresh() },
             ],
             { cancelable: false }
           )
@@ -98,15 +101,22 @@ const AccompanimentScreen = (props) => {
   });
 
   const handleRefresh = () => {
+    clearInterval(timerIntervalId);
+    clearInterval(countdownIntervalId);
+    setCountdownActive(false);
+    setTimerActive(false);
     setRecording(false);
+    setDataUri('');
+    setShowDetailsModal(false);
     setPreview(false);
     setSecs(540);
+    setCountdown(3);
   };
 
   const startRecording = async () => {
     try {
       setRecording(true);
-      startCountdown();
+      startTimer();
       const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
       setDataUri(vid.uri)
       setPreview(true);
@@ -131,27 +141,46 @@ const AccompanimentScreen = (props) => {
 
   const toggleRecord = () => {
     if (recording) {
-      deactivateKeepAwake();
-      stopRecording();
+      if (secs > 530) {
+        Alert.alert(
+          'Too short',
+          "Video must be at least 10 seconds long",
+          [
+            { text: 'OK', onPress: () => handleRefresh() },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        console.log('timerIntervalId: ', timerIntervalId)
+        clearInterval(timerIntervalId);
+        console.log('intervalCleared')
+        deactivateKeepAwake();
+        stopRecording();
+        setSecs(540);
+      }
     } else {
       activateKeepAwake();
+      setCountdownActive(false);
       startRecording();
     }
   };
 
   const handleRecordExit = () => {
-    if (!recording) setRecord(false);
+    handleRefresh();
+    setRecord(false);
   };
 
   const handleDetailsExit = () => {
     setRecord(false);
     setShowDetailsModal(false);
     setPreview(false);
+    setCountdown(3);
   };
 
-  const handleRedo = () => {
-    setPreview(false);
-  };
+  // const handleRedo = () => {
+  //   setPreview(false);
+  //   setCountdown(3);
+  // };
 
   const handleSave = () => {
     Alert.alert(
@@ -165,20 +194,36 @@ const AccompanimentScreen = (props) => {
     );
   };
 
-  const startCountdown = () => {
+  const startTimer = () => {
     setTimerActive(true);
-    intervalId = setInterval(() => {
+    timerIntervalId = setInterval(() => {
       setSecs(secs => secs - 1)
     }, 1000)
   };
 
   useEffect(() => {
     if (timerActive && secs === 0) {
-      clearInterval(intervalId);
+      clearInterval(timerIntervalId);
       setTimerActive(false);
       toggleRecord();
     }
   }, [timerActive, secs]);
+
+  const startCountdown = () => {
+    setCountdownActive(true);
+    countdownIntervalId = setInterval(() => {
+      setCountdown(countdown => countdown - 1)
+    }, 1000)
+  };
+
+  useEffect(() => {
+    if (countdownActive && countdown === 0) {
+      clearInterval(countdownIntervalId);
+      setCountdownActive(false);
+      setCountdown(3);
+      toggleRecord();
+    }
+  }, [countdownActive, countdown])
 
   return (
     !props.user.id ? (
@@ -208,9 +253,12 @@ const AccompanimentScreen = (props) => {
                       setCameraRef={setCameraRef}
                       handleRecordExit={handleRecordExit}
                       recording={recording}
-                      toggleRecord={toggleRecord}
+                      startCountdown={startCountdown}
                       secs={secs}
                       setSecs={setSecs}
+                      countdown={countdown}
+                      countdownActive={countdownActive}
+                      toggleRecord={toggleRecord}
                     />
                   )
               ) : (
@@ -273,7 +321,7 @@ const AccompanimentScreen = (props) => {
                     <PreviewAccompanimentIos
                       dataUri={dataUri}
                       handleSave={handleSave}
-                      handleRedo={handleRedo}
+                      handleRefresh={handleRefresh}
                     />
                   )
               )
