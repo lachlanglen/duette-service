@@ -34,6 +34,7 @@ const ReviewDuette = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [customOffset, setCustomOffset] = useState(0);
   const [baseTrackVolume, setBaseTrackVolume] = useState(1);
+  const [duetteVolume, setDuetteVolume] = useState(1);
 
   let pos1;
   let pos2;
@@ -55,11 +56,10 @@ const ReviewDuette = (props) => {
     try {
       await vidBRef.setStatusAsync({
         shouldPlay: true,
-        // positionMillis: customOffset + playDelay,
         positionMillis: customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
-        volume: 1,
+        volume: duetteVolume,
       })
       date1 = Date.now();
       await vidARef.setStatusAsync({
@@ -112,11 +112,9 @@ const ReviewDuette = (props) => {
   };
 
   const handleSyncBack = async () => {
-    // if (customOffset <= (0 - playDelay)) return;
     if (customOffset === 0) return;
     try {
       const { positionMillis } = await vidARef.getStatusAsync();
-      // pos1 = positionMillis;
       await vidARef.stopAsync();
       await vidBRef.stopAsync();
       setCustomOffset(customOffset - 50);
@@ -125,7 +123,7 @@ const ReviewDuette = (props) => {
         positionMillis: positionMillis + customOffset - 50,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
-        volume: 1,
+        volume: duetteVolume,
       })
       date1 = Date.now();
       await vidARef.setStatusAsync({
@@ -136,7 +134,6 @@ const ReviewDuette = (props) => {
         volume: baseTrackVolume,
       })
       date2 = Date.now();
-      // }
     } catch (e) {
       throw new Error('error in handleSyncBack: ', e)
     }
@@ -155,7 +152,7 @@ const ReviewDuette = (props) => {
         positionMillis: positionMillis + customOffset + 50,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
-        volume: 1,
+        volume: duetteVolume,
       })
       date1 = Date.now();
       await vidARef.setStatusAsync({
@@ -181,7 +178,7 @@ const ReviewDuette = (props) => {
         positionMillis: positionMillis + customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
-        volume: 1,
+        volume: duetteVolume,
       })
       date1 = Date.now();
       await vidARef.setStatusAsync({
@@ -203,13 +200,13 @@ const ReviewDuette = (props) => {
       const { positionMillis } = await vidARef.getStatusAsync();
       await vidARef.stopAsync();
       await vidBRef.stopAsync();
-      setBaseTrackVolume(Number((baseTrackVolume - 0.1).toFixed(1), 16));
+      setBaseTrackVolume(Number((baseTrackVolume - 0.1).toFixed(1)));
       await vidBRef.setStatusAsync({
         shouldPlay: true,
         positionMillis: positionMillis + customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
-        volume: 1,
+        volume: duetteVolume,
       })
       date1 = Date.now();
       await vidARef.setStatusAsync({
@@ -238,7 +235,7 @@ const ReviewDuette = (props) => {
         positionMillis: positionMillis + customOffset,
         seekMillisToleranceBefore: 0,
         seekMillisToleranceAfter: 0,
-        volume: 1,
+        volume: duetteVolume,
       })
       date1 = Date.now();
       await vidARef.setStatusAsync({
@@ -252,7 +249,63 @@ const ReviewDuette = (props) => {
     } catch (e) {
       throw new Error('error in increaseBaseTrackVolume: ', e)
     }
-  }
+  };
+
+  const reduceDuetteVolume = async () => {
+    if (duetteVolume === 0.1) return;
+    try {
+      const { positionMillis } = await vidARef.getStatusAsync();
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      setDuetteVolume(Number((duetteVolume - 0.1).toFixed(1)));
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: positionMillis + customOffset,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: Number((duetteVolume - 0.1).toFixed(1)),
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: positionMillis,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
+      date2 = Date.now();
+    } catch (e) {
+      throw new Error('error in reduceBaseTrackVolume: ', e)
+    }
+  };
+
+  const increaseDuetteVolume = async () => {
+    if (duetteVolume === 1) return;
+    try {
+      const { positionMillis } = await vidARef.getStatusAsync();
+      await vidARef.stopAsync();
+      await vidBRef.stopAsync();
+      setDuetteVolume(Number((duetteVolume + 0.1).toFixed(1)));
+      await vidBRef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: positionMillis + customOffset,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: Number((duetteVolume + 0.1).toFixed(1)),
+      })
+      date1 = Date.now();
+      await vidARef.setStatusAsync({
+        shouldPlay: true,
+        positionMillis: positionMillis,
+        seekMillisToleranceBefore: 0,
+        seekMillisToleranceAfter: 0,
+        volume: baseTrackVolume,
+      })
+      date2 = Date.now();
+    } catch (e) {
+      throw new Error('error in increaseBaseTrackVolume: ', e)
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -266,8 +319,8 @@ const ReviewDuette = (props) => {
               duetteUri={duetteUri}
               customOffset={customOffset}
               bluetooth={bluetooth}
-              // playDelay={playDelay}
               baseTrackVolume={baseTrackVolume}
+              duetteVolume={duetteVolume}
               date1={date1}
               date2={date2}
               setSaving={setSaving}
@@ -293,6 +346,10 @@ const ReviewDuette = (props) => {
                 handleRestart={handleRestart}
                 reduceBaseTrackVolume={reduceBaseTrackVolume}
                 increaseBaseTrackVolume={increaseBaseTrackVolume}
+                baseTrackVolume={baseTrackVolume}
+                reduceDuetteVolume={reduceDuetteVolume}
+                increaseDuetteVolume={increaseDuetteVolume}
+                duetteVolume={duetteVolume}
               />
             )
         }

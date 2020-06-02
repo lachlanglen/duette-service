@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import React from 'react';
 import { connect } from 'react-redux';
-import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform, ActivityIndicator } from 'react-native';
+import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
 import { getAWSVideoUrl } from '../constants/urls';
@@ -28,13 +28,16 @@ const PreviewAndSync = (props) => {
     reduceBaseTrackVolume,
     increaseBaseTrackVolume,
     baseTrackVolume,
+    reduceDuetteVolume,
+    increaseDuetteVolume,
+    duetteVolume,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
   return (
-    <View style={{
+    <ScrollView style={{
       ...styles.container,
       // paddingVertical: screenOrientation === 'PORTRAIT' && !previewComplete ? 20 : 0,
       paddingTop: screenOrientation === 'PORTRAIT' && previewComplete ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
@@ -163,7 +166,8 @@ const PreviewAndSync = (props) => {
           <View
             style={styles.syncIconsContainer}>
             <Icon
-              onPress={handleSyncBack}
+              onPress={isPlaying ? handleSyncBack : () => { }}
+              underlayColor="black"
               name="fast-rewind"
               type="material"
               color="white"
@@ -176,7 +180,8 @@ const PreviewAndSync = (props) => {
               }}>|
             </Text>
             <Icon
-              onPress={handleSyncForward}
+              onPress={isPlaying ? handleSyncForward : () => { }}
+              underlayColor="black"
               name="fast-forward"
               type="material"
               color="white"
@@ -188,7 +193,7 @@ const PreviewAndSync = (props) => {
           <View
             style={styles.hintContainer}>
             <Text
-              style={{ color: 'white', fontSize: 14, }}>If your video is <Text style={{ color: 'yellow' }}>behind</Text> the base track, press
+              style={{ color: 'white', fontSize: 14, }}>If your Duette is <Text style={{ color: 'yellow' }}>behind</Text> the base track, press
             </Text>
             <Icon
               name="fast-forward"
@@ -202,7 +207,7 @@ const PreviewAndSync = (props) => {
 
             }}>
             <Text
-              style={{ color: 'white', fontSize: 14, }}>If your video is <Text style={{ color: 'yellow' }}>ahead of</Text> the base track, press
+              style={{ color: 'white', fontSize: 14, }}>If your Duette is <Text style={{ color: 'yellow' }}>ahead of</Text> the base track, press
             </Text>
             <Icon
               name="fast-rewind"
@@ -210,30 +215,60 @@ const PreviewAndSync = (props) => {
               color="yellow" />
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 5, marginBottom: 15 }}>
-            <Text style={styles.volumeControlsTitle}>Volume control:</Text>
+            <Text style={styles.volumeControlsTitle}>Volume controls:</Text>
             <View style={styles.volumeControlsContainer}>
               <Text style={styles.volumeInstructionText}>Base track volume:</Text>
-              <TouchableOpacity
-                style={{
-                  ...styles.volumeControlsButton,
-                  backgroundColor: baseTrackVolume < 0.2 ? 'grey' : '#0047B9',
-                  paddingLeft: 1,
-                }}
-                onPress={reduceBaseTrackVolume}
-                disabled={baseTrackVolume === 0.1}
-              >
-                <Text style={styles.volumeButtonText}>-</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  ...styles.volumeControlsButton,
-                  backgroundColor: baseTrackVolume > 0.9 ? 'grey' : '#0047B9',
-                }}
-                onPress={increaseBaseTrackVolume}
-                disabled={baseTrackVolume === 0.9}
-              >
-                <Text style={styles.volumeButtonText}>+</Text>
-              </TouchableOpacity>
+              <View style={styles.volumeButtonsContainer}>
+                <TouchableOpacity
+                  style={{
+                    ...styles.volumeControlsButton,
+                    backgroundColor: baseTrackVolume < 0.2 ? 'grey' : '#0047B9',
+                    paddingLeft: 1,
+                    marginRight: 15,
+                  }}
+                  onPress={reduceBaseTrackVolume}
+                  disabled={baseTrackVolume === 0.1 || !isPlaying}
+                >
+                  <Text style={styles.volumeButtonText}>-</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    ...styles.volumeControlsButton,
+                    backgroundColor: baseTrackVolume > 0.9 ? 'grey' : '#0047B9',
+                  }}
+                  onPress={increaseBaseTrackVolume}
+                  disabled={baseTrackVolume === 0.9 || !isPlaying}
+                >
+                  <Text style={styles.volumeButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.volumeControlsContainer}>
+              <Text style={styles.volumeInstructionText}>Duette volume:</Text>
+              <View style={styles.volumeButtonsContainer}>
+                <TouchableOpacity
+                  style={{
+                    ...styles.volumeControlsButton,
+                    backgroundColor: duetteVolume < 0.2 ? 'grey' : '#0047B9',
+                    paddingLeft: 1,
+                    marginRight: 15,
+                  }}
+                  onPress={reduceDuetteVolume}
+                  disabled={duetteVolume === 0.1 || !isPlaying}
+                >
+                  <Text style={styles.volumeButtonText}>-</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    ...styles.volumeControlsButton,
+                    backgroundColor: duetteVolume > 0.9 ? 'grey' : '#0047B9',
+                  }}
+                  onPress={increaseDuetteVolume}
+                  disabled={duetteVolume === 0.9 || !isPlaying}
+                >
+                  <Text style={styles.volumeButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
@@ -268,15 +303,18 @@ const PreviewAndSync = (props) => {
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={handleRestart}
-            style={styles.problemContainer}
-          >
-            <Text style={{ fontSize: 16, color: 'red' }}>Having a problem? Touch here to refresh.</Text>
-          </TouchableOpacity>
+          {
+            isPlaying &&
+            <TouchableOpacity
+              onPress={handleRestart}
+              style={styles.problemContainer}
+            >
+              <Text style={{ fontSize: 16, color: 'red' }}>Having a problem? Touch here to refresh.</Text>
+            </TouchableOpacity>
+          }
         </View>
       }
-    </View>
+    </ScrollView>
   )
 };
 
@@ -342,16 +380,21 @@ const styles = StyleSheet.create({
   volumeControlsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
-    width: '90%',
-    marginBottom: 20,
+    justifyContent: 'space-between',
+    width: '80%',
+    marginBottom: 10,
+    marginRight: 20,
+    marginLeft: 20,
   },
   volumeControlsTitle: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 20,
-    marginTop: 10,
+    // marginTop: 10,
     marginBottom: 14,
+  },
+  volumeButtonsContainer: {
+    flexDirection: 'row',
   },
   volumeControlsButton: {
     width: 30,
@@ -374,7 +417,7 @@ const styles = StyleSheet.create({
   problemContainer: {
     alignItems: 'center',
     paddingBottom: 10,
-    marginTop: 15,
+    marginTop: 5,
     height: 30,
   },
 });

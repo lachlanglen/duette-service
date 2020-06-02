@@ -29,6 +29,7 @@ const SavingVideo = (props) => {
     customOffset,
     playDelay,
     baseTrackVolume,
+    duetteVolume,
     date1,
     date2,
   } = props;
@@ -54,7 +55,6 @@ const SavingVideo = (props) => {
       // if it has, just navigate
       // if it hasn't, update redux requestReview toggle to 'true' before navigating
       const reviewRequestTimeMillis = await SecureStore.getItemAsync('reviewRequestTimeMillis');
-      console.log('reviewRequestTimeMillis: ', reviewRequestTimeMillis);
       if (!reviewRequestTimeMillis) props.toggleRequestReview(true);
       navigation.navigate('My Duettes');
     };
@@ -105,9 +105,9 @@ const SavingVideo = (props) => {
         outputBucket: 'duette',
         accompanimentKey,
         duetteKey,
-        // delay: bluetooth ? (customOffset + playDelay + 50 + (date2 - date1)) / 1000 : (customOffset + playDelay + (date2 - date1)) / 1000,
         delay: bluetooth ? (customOffset + 50 + (date2 - date1)) / 1000 : (customOffset + (date2 - date1)) / 1000,
-        volume: baseTrackVolume === 1 ? null : baseTrackVolume.toFixed(1),
+        baseTrackVolume: baseTrackVolume === 1 ? null : baseTrackVolume.toFixed(1),
+        duetteVolume: duetteVolume === 1 ? null : duetteVolume.toFixed(1),
         userId: props.user.id,
         notificationToken: expoPushToken,
         email: props.user.email,
