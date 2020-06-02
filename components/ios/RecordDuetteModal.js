@@ -4,11 +4,13 @@ import { connect } from 'react-redux';
 import { View, Modal, StyleSheet, TouchableOpacity, Text, Dimensions, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import { Camera } from 'expo-camera';
+import * as Device from 'expo-device';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import ReviewDuette from '../ReviewDuette';
 import { deleteLocalFile } from '../../services/utils';
 
 let countdownIntervalId;
+let cancel;
 
 const RecordDuetteModal = (props) => {
 
@@ -32,13 +34,24 @@ const RecordDuetteModal = (props) => {
   const [displayedNotes, setDisplayedNotes] = useState(false);
   const [countdown, setCountdown] = useState(3);  // start with 3 secs remaining
   const [countdownActive, setCountdownActive] = useState(false);
+  const [deviceType, setDeviceType] = useState(null);
+  const [cameraRef, setCameraRef] = useState(null);
+  // const [cancel, setCancel] = useState(false);
 
-  const cameraRef = useRef(null);
+  // const cameraRef = useRef(null);
   const vidRef = useRef(null);
 
   let time1;
   let time2;
   let time3;
+
+  useEffect(() => {
+    const getDeviceType = async () => {
+      const type = await Device.getDeviceTypeAsync();
+      setDeviceType(type);
+    };
+    getDeviceType();
+  }, []);
 
   if (props.selectedVideo.notes && !displayedNotes && vidLoaded && vidDoneBuffering) {
     Alert.alert(
@@ -55,8 +68,13 @@ const RecordDuetteModal = (props) => {
     if (duetteUri) setDuetteUri('');
     try {
       time1 = Date.now();
-      const vid = await cameraRef.current.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
+      const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
       setDuetteUri(vid.uri);
+      if (!cancel) {
+        setShowPreviewModal(true);
+      } else {
+        cancel = undefined;
+      }
     } catch (e) {
       throw new Error('error starting recording: ', e);
     }
@@ -73,12 +91,11 @@ const RecordDuetteModal = (props) => {
     }
   };
 
-  const toggleRecord = () => {
+  const toggleRecord = async () => {
     if (recording) {
       deactivateKeepAwake();
       setRecording(false);
-      cameraRef.current.stopRecording();
-      setShowPreviewModal(true);
+      cameraRef.stopRecording();
     } else {
       activateKeepAwake();
       setRecording(true);
@@ -93,13 +110,15 @@ const RecordDuetteModal = (props) => {
 
   const handleCancel = async () => {
     try {
-      setShowRecordDuetteModal(false);
       deleteLocalFile(baseTrackUri);
       setDuetteUri('');
       clearInterval(countdownIntervalId);
       setCountdown(3);
       setCountdownActive(false);
-      cameraRef.current.stopRecording();
+      cancel = true;
+      cameraRef.stopRecording();
+      setShowRecordDuetteModal(false);
+      cancel = undefined;
       await vidRef.current.unloadAsync();
     } catch (e) {
       throw new Error('error unloading video: ', e);
@@ -108,7 +127,8 @@ const RecordDuetteModal = (props) => {
 
   const handleTryAgain = async () => {
     await vidRef.current.stopAsync();
-    cameraRef.current.stopRecording();
+    cancel = true;
+    cameraRef.stopRecording();
     setRecording(false);
     setDuetteUri('');
     clearInterval(countdownIntervalId);
@@ -136,7 +156,7 @@ const RecordDuetteModal = (props) => {
       setCountdownActive(false);
       setCountdown(3);
     }
-  }, [countdownActive, countdown])
+  }, [countdownActive, countdown]);
 
   return (
     <View style={styles.container}>
@@ -156,118 +176,141 @@ const RecordDuetteModal = (props) => {
         ) : (
             <Modal
               onRequestClose={handleCancel}
-              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape-right']}
+              supportedOrientations={deviceType === 2 ? ['portrait'] : ['portrait', 'landscape-right']}
               onOrientationChange={e => handleModalOrientationChange(e)}
             >
-              <View style={{
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'black',
-                paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
-                height: '100%'
-              }}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Video
-                    ref={vidRef}
-                    source={{ uri: baseTrackUri }}
-                    rate={1.0}
-                    volume={1.0}
-                    isMuted={false}
-                    resizeMode="cover"
-                    progressUpdateIntervalMillis={50}
-                    onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-                    style={{
-                      width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-                      height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                    }}
-                  />
-                  {/* TODO: add codec to camera input? (e.g. .mov) */}
-                  <Camera
-                    style={{
-                      width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-                      height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                    }}
-                    type={Camera.Constants.Type.front}
-                    ref={cameraRef}
-                  >
-                    <View>
-                      <TouchableOpacity
-                        onPress={!recording ? handleCancel : () => { }}
-                        style={{ flexDirection: 'row' }}
-                      >
-                        <Text style={{
-                          ...styles.overlayText,
-                          paddingLeft: screenOrientation === 'LANDSCAPE' ? 20 : 10,
-                          paddingTop: screenOrientation === 'LANDSCAPE' ? 20 : 10,
-                          fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
-                        }}
-                        >
-                          {recording ? 'REC' : 'Cancel'}
-                        </Text>
-                        {
-                          recording &&
-                          <View
-                            style={{
-                              width: 10,
-                              height: 10,
-                              backgroundColor: 'red',
-                              borderRadius: 50,
-                              marginLeft: 7,
-                              marginTop: 16,
-                            }} />
-                        }
-                      </TouchableOpacity>
-                    </View>
-                    {
-                      vidLoaded && vidDoneBuffering &&
-                      <View
-                        style={styles.recordButtonContainer}>
-                        <TouchableOpacity
-                        >
-                          <Text style={{
-                            ...styles.recordText,
-                            fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,
-                          }}>{recording ? '' : 'record'}</Text>
-                          <TouchableOpacity
-                            onPress={!recording ? startCountdown : toggleRecord}
-                            style={{
-                              ...styles.recordButton,
-                              borderWidth: screenWidth / 100,
-                              width: screenWidth / 10,
-                              height: screenWidth / 10,
-                              backgroundColor: recording ? 'black' : 'red',
-                              marginBottom: screenOrientation === 'LANDSCAPE' ? 10 : 6,
-                            }} />
-                        </TouchableOpacity>
-                      </View>
-                    }
-                    {
-                      screenOrientation === 'LANDSCAPE' && recording &&
-                      <TouchableOpacity
-                        onPress={handleTryAgain}
-                        style={styles.problemContainerLandscape}
-                      >
-                        <Text style={{ color: 'red', fontSize: 16 }}>Having a problem? Touch here to try again.</Text>
-                      </TouchableOpacity>
-                    }
-                  </Camera>
-                </View>
-                {
-                  countdownActive && countdown > 0 &&
-                  <View style={{ position: 'absolute', height: 300, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: 'white', fontSize: screenOrientation === 'LANDSCAPE' ? 100 : 70 }}>{countdown}</Text>
+              {
+                deviceType === 2 && screenOrientation === 'LANDSCAPE' ? (
+                  <View style={{ flex: 1, backgroundColor: 'black', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ color: 'white', fontSize: 20 }}>Landscape recording not supported on iPad</Text>
                   </View>
-                }
-                {
-                  screenOrientation === 'PORTRAIT' && recording &&
-                  <TouchableOpacity
-                    onPress={handleTryAgain}
-                  >
-                    <Text style={{ color: 'red', fontSize: 16, marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
-                  </TouchableOpacity>
-                }
-              </View>
+                ) : (
+                    <View style={{
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      backgroundColor: 'black',
+                      paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
+                      height: '100%'
+                    }}>
+                      <View style={{ flexDirection: 'row' }}>
+                        <Video
+                          ref={vidRef}
+                          source={{ uri: baseTrackUri }}
+                          rate={1.0}
+                          volume={1.0}
+                          isMuted={false}
+                          resizeMode="cover"
+                          progressUpdateIntervalMillis={50}
+                          onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+                          style={{
+                            width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                            height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                          }}
+                        />
+                        {/* TODO: add codec to camera input? (e.g. .mov) */}
+                        <Camera
+                          style={{
+                            width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                            height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                          }}
+                          type={Camera.Constants.Type.front}
+                          ref={ref => setCameraRef(ref)}                        >
+                          <View>
+                            <TouchableOpacity
+                              onPress={!recording ? handleCancel : () => { }}
+                              style={{ flexDirection: 'row' }}
+                            >
+                              <Text style={deviceType !== 2 ? {
+                                ...styles.overlayText,
+                                paddingLeft: screenOrientation === 'LANDSCAPE' ? 20 : 10,
+                                paddingTop: screenOrientation === 'LANDSCAPE' ? 20 : 10,
+                                fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
+                              } : {
+                                  ...styles.overlayText,
+                                  paddingLeft: 10,
+                                  paddingTop: 10,
+                                  fontSize: 26,
+                                }}
+                              >
+                                {recording ? 'REC' : 'Cancel'}
+                              </Text>
+                              {
+                                recording && deviceType !== 2 &&
+                                <View
+                                  style={{
+                                    width: 10,
+                                    height: 10,
+                                    backgroundColor: 'red',
+                                    borderRadius: 50,
+                                    marginLeft: 7,
+                                    marginTop: 16,
+                                  }} />
+                              }
+                            </TouchableOpacity>
+                          </View>
+                          {
+                            vidLoaded && vidDoneBuffering &&
+                            <View
+                              style={styles.recordButtonContainer}>
+                              <TouchableOpacity
+                              >
+                                <Text style={{
+                                  ...styles.recordText,
+                                  fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,
+                                }}>{recording ? '' : 'record'}</Text>
+                                <TouchableOpacity
+                                  onPress={!recording ? startCountdown : toggleRecord}
+                                  style={{
+                                    ...styles.recordButton,
+                                    borderWidth: deviceType === 2 ? 6 : screenWidth / 100,
+                                    width: deviceType === 2 ? 60 : screenWidth / 10,
+                                    height: deviceType === 2 ? 60 : screenWidth / 10,
+                                    backgroundColor: recording ? 'black' : 'red',
+                                    marginBottom: screenOrientation === 'LANDSCAPE' ? 10 : 6,
+                                  }} />
+                              </TouchableOpacity>
+                            </View>
+                          }
+                          {
+                            screenOrientation === 'LANDSCAPE' && recording &&
+                            <TouchableOpacity
+                              onPress={handleTryAgain}
+                              style={styles.problemContainerLandscape}
+                            >
+                              <Text style={{ color: 'red', fontSize: 16 }}>Having a problem? Touch here to try again.</Text>
+                            </TouchableOpacity>
+                          }
+                        </Camera>
+                      </View>
+                      {
+                        countdownActive && countdown > 0 &&
+                        <View style={{
+                          position: 'absolute',
+                          height: 300,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                          <Text style={{
+                            color: '#0047B9',
+                            fontSize: screenOrientation === 'LANDSCAPE' || deviceType === 2 ? 100 : 70
+                          }}
+                          >
+                            {countdown}
+                          </Text>
+                        </View>
+                      }
+                      {
+                        screenOrientation === 'PORTRAIT' && recording &&
+                        <TouchableOpacity
+                          onPress={handleTryAgain}
+                        >
+                          <Text style={{ color: 'red', fontSize: 16, marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
+                        </TouchableOpacity>
+                      }
+                    </View>
+                  )
+              }
             </Modal >
           )
       }

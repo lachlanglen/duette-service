@@ -8,6 +8,7 @@ import RecordDuetteModalAndroid from '../components/android/RecordDuetteModal';
 import Constants from 'expo-constants';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as FileSystem from 'expo-file-system';
+import * as Device from 'expo-device';
 import { fetchVideos } from '../redux/videos';
 import FacebookSignin from '../components/FacebookSignin';
 import UserInfoMenu from '../components/UserInfoMenu';
@@ -26,6 +27,7 @@ const DuetteScreen = (props) => {
   const [screenOrientation, setScreenOrientation] = useState('');
   const [baseTrackUri, setBaseTrackUri] = useState('');
   const [loading, setLoading] = useState({ isLoading: false, id: '' });
+  const [deviceType, setDeviceType] = useState(null);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -43,8 +45,13 @@ const DuetteScreen = (props) => {
           if (info.orientationInfo.orientation === 3 || info.orientationInfo.orientation === 4) setScreenOrientation('LANDSCAPE');
         }
       })
-    }
+    };
+    const getDeviceType = async () => {
+      const type = await Device.getDeviceTypeAsync();
+      setDeviceType(type);
+    };
     detectOrientation();
+    getDeviceType();
   });
 
   const loadVideo = async (bluetooth, id) => {
@@ -83,7 +90,7 @@ const DuetteScreen = (props) => {
   const handleUse = (id) => {
     Alert.alert(
       'Are you using bluetooth or wired headphones?',
-      `This helps us sync your video perfectly${Platform.OS === 'ios' ? ` 🥰` : `!`}`,
+      `This helps us sync your video perfectly${Platform.OS === 'ios' && deviceType !== 2 ? ` 🥰` : `!`}`,
       [
         { text: 'Bluetooth', onPress: () => loadVideo(true, id) },
         { text: 'Wired', onPress: () => loadVideo(false, id) },

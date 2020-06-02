@@ -15,6 +15,7 @@ const RecordAccompaniment = (props) => {
     countdownActive,
     toggleRecord,
     secs,
+    deviceType,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -56,7 +57,8 @@ const RecordAccompaniment = (props) => {
               width: '100%',
               height: '100%'
             }}
-            type={Camera.Constants.Type.front} ref={ref => setCameraRef(ref)}>
+            type={Camera.Constants.Type.front}
+            ref={ref => setCameraRef(ref)}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <TouchableOpacity
                 onPress={handleRecordExit}
@@ -101,8 +103,16 @@ const RecordAccompaniment = (props) => {
             </View>
             {
               countdownActive &&
-              <View style={{ height: 300, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: 'white', fontSize: 110 }}>{countdown}</Text>
+              <View style={{
+                height: 300,
+                marginTop: deviceType === 2 ? screenHeight / 5 : 0,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Text style={{
+                  color: '#0047B9',
+                  fontSize: deviceType === 2 ? 200 : 110,
+                }}>{countdown}</Text>
               </View>
             }
             <View

@@ -5,6 +5,7 @@ import { Image, View, Dimensions, StyleSheet, TouchableOpacity, Text, Platform, 
 import { connect } from 'react-redux'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import * as Permissions from 'expo-permissions';
+import * as Device from 'expo-device';
 import { Camera } from 'expo-camera';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import DetailsModal from '../components/DetailsModal';
@@ -36,6 +37,7 @@ const AccompanimentScreen = (props) => {
   const [countdown, setCountdown] = useState(3);  // start with 3 secs remaining
   const [countdownActive, setCountdownActive] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
+  const [deviceType, setDeviceType] = useState(null);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -96,11 +98,17 @@ const AccompanimentScreen = (props) => {
           if (info.orientationInfo.orientation === 3 || info.orientationInfo.orientation === 4) setScreenOrientation('LANDSCAPE');
         }
       })
-    }
+    };
+    const getDeviceType = async () => {
+      const type = await Device.getDeviceTypeAsync();
+      setDeviceType(type);
+    };
     detectOrientation();
+    getDeviceType();
   });
 
   const handleRefresh = () => {
+    if (recording) cameraRef.stopRecording();
     clearInterval(timerIntervalId);
     clearInterval(countdownIntervalId);
     setCountdownActive(false);
@@ -118,8 +126,8 @@ const AccompanimentScreen = (props) => {
       setRecording(true);
       startTimer();
       const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
+      console.log('vid.uri: ', vid.uri)
       setDataUri(vid.uri)
-      setPreview(true);
     } catch (e) {
       Alert.alert(
         `Oops!`,
@@ -136,6 +144,7 @@ const AccompanimentScreen = (props) => {
   const stopRecording = () => {
     cameraRef.stopRecording();
     setRecording(false);
+    setPreview(true);
     setSecs(540);
   };
 
@@ -151,12 +160,9 @@ const AccompanimentScreen = (props) => {
           { cancelable: false }
         );
       } else {
-        console.log('timerIntervalId: ', timerIntervalId)
         clearInterval(timerIntervalId);
-        console.log('intervalCleared')
         deactivateKeepAwake();
         stopRecording();
-        setSecs(540);
       }
     } else {
       activateKeepAwake();
@@ -259,6 +265,7 @@ const AccompanimentScreen = (props) => {
                       countdown={countdown}
                       countdownActive={countdownActive}
                       toggleRecord={toggleRecord}
+                      deviceType={deviceType}
                     />
                   )
               ) : (
@@ -273,7 +280,7 @@ const AccompanimentScreen = (props) => {
                         <TouchableOpacity
                           style={{
                             ...buttonStyles.regularButton,
-                            width: '75%',
+                            width: deviceType === 2 ? screenWidth * 0.5 : '75%'
                           }}
                           onPress={() => setRecord(true)}
                         >
@@ -282,7 +289,7 @@ const AccompanimentScreen = (props) => {
                         <TouchableOpacity
                           style={{
                             ...buttonStyles.regularButton,
-                            width: '60%'
+                            width: deviceType === 2 ? screenWidth * 0.5 : '60%'
                           }}
                           onPress={() => props.navigation.navigate('Duette')}
                         >
@@ -322,6 +329,7 @@ const AccompanimentScreen = (props) => {
                       dataUri={dataUri}
                       handleSave={handleSave}
                       handleRefresh={handleRefresh}
+                      deviceType={deviceType}
                     />
                   )
               )

@@ -1,7 +1,6 @@
 const TOGGLE_INFO = 'TOGGLE_INFO';
 
 export const toggleRequestReview = bool => {
-  console.log('bool in toggleRequestReview: ', bool)
   return {
     type: TOGGLE_INFO,
     bool

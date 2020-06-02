@@ -8,7 +8,8 @@ const PreviewAccompaniment = (props) => {
   const {
     dataUri,
     handleSave,
-    handleRefresh
+    handleRefresh,
+    deviceType
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -18,7 +19,7 @@ const PreviewAccompaniment = (props) => {
 
   const handleModalOrientationChange = (ev) => {
     setScreenOrientation(ev.nativeEvent.orientation.toUpperCase())
-  }
+  };
 
   return (
     <Modal
@@ -47,7 +48,7 @@ const PreviewAccompaniment = (props) => {
             volume={1.0}
             isMuted={false}
             resizeMode="cover"
-            shouldPlay
+            shouldPlay={true}
             positionMillis={50}
             useNativeControls={true}
             isLooping={false}
@@ -65,9 +66,10 @@ const PreviewAccompaniment = (props) => {
           <TouchableOpacity
             style={{
               ...buttonStyles.regularButton,
-              width: '30%',
+              width: deviceType === 2 && screenOrientation === 'LANDSCAPE' ? '60%' : '30%',
               height: 50,
-              marginHorizontal: 15,
+              marginHorizontal: screenOrientation === 'PORTRAIT' ? 15 : 0,
+              marginTop: deviceType === 2 ? 30 : 0,
             }}
             onPress={handleSave}>
             <Text style={buttonStyles.regularButtonText}
@@ -77,9 +79,10 @@ const PreviewAccompaniment = (props) => {
           <TouchableOpacity
             style={{
               ...buttonStyles.regularButton,
-              width: '30%',
+              width: deviceType === 2 && screenOrientation === 'LANDSCAPE' ? '60%' : '30%',
               height: 50,
-              marginHorizontal: 15,
+              marginHorizontal: screenOrientation === 'PORTRAIT' ? 15 : 0,
+              marginTop: deviceType === 2 ? 30 : 0,
             }}
             onPress={handleRefresh}>
             <Text style={buttonStyles.regularButtonText}

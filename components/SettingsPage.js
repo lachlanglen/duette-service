@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions, TouchableOpacity, Platform, Alert, Switch } from 'react-native';
 import { Input } from 'react-native-elements';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as Device from 'expo-device';
 import buttonStyles from '../styles/button';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
 import { validate } from 'validate.js';
@@ -15,6 +16,7 @@ const SettingsPage = (props) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
   const [switchValue, setSwitchValue] = useState(props.user.sendEmails);
+  const [deviceType, setDeviceType] = useState(null);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
@@ -32,9 +34,14 @@ const SettingsPage = (props) => {
           if (info.orientationInfo.orientation === 3 || info.orientationInfo.orientation === 4) setScreenOrientation('LANDSCAPE');
         }
       })
-    }
+    };
+    const getDeviceType = async () => {
+      const type = await Device.getDeviceTypeAsync();
+      setDeviceType(type);
+    };
     detectOrientation();
-  });
+    getDeviceType();
+  }, []);
 
   const handleViewPrivacyPolicy = () => {
     setShowPrivacyPolicyModal(true);
@@ -165,7 +172,7 @@ const SettingsPage = (props) => {
             onPress={handleViewPrivacyPolicy}
             style={{
               ...buttonStyles.regularButton,
-              width: '75%',
+              width: deviceType === 2 ? screenWidth / 2 : '75%',
               margin: 20,
             }}>
             <Text style={buttonStyles.regularButtonText}>View Privacy Policy</Text>

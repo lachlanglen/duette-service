@@ -1,9 +1,10 @@
 /* eslint-disable complexity */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
+import * as Device from 'expo-device';
 import { getAWSVideoUrl } from '../constants/urls';
 import buttonStyles from '../styles/button';
 
@@ -35,6 +36,16 @@ const PreviewAndSync = (props) => {
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
+
+  const [deviceType, setDeviceType] = useState(null);
+
+  useEffect(() => {
+    const getDeviceType = async () => {
+      const type = await Device.getDeviceTypeAsync();
+      setDeviceType(type);
+    };
+    getDeviceType();
+  }, [])
 
   return (
     <ScrollView style={{
@@ -164,7 +175,13 @@ const PreviewAndSync = (props) => {
             style={styles.instruction}>Not perfectly in sync? Use the arrows below to adjust to your taste!
           </Text>
           <View
-            style={styles.syncIconsContainer}>
+            style={deviceType === 2 ? {
+              ...styles.syncIconsContainer,
+              width: screenWidth / 2,
+              alignSelf: 'center',
+            } : {
+                ...styles.syncIconsContainer,
+              }}>
             <Icon
               onPress={isPlaying ? handleSyncBack : () => { }}
               underlayColor="black"
@@ -216,7 +233,13 @@ const PreviewAndSync = (props) => {
           </View>
           <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 5, marginBottom: 15 }}>
             <Text style={styles.volumeControlsTitle}>Volume controls:</Text>
-            <View style={styles.volumeControlsContainer}>
+            <View style={deviceType === 2 ? {
+              ...styles.volumeControlsContainer,
+              width: screenWidth / 2,
+              alignSelf: 'center',
+            } : {
+                ...styles.volumeControlsContainer,
+              }}>
               <Text style={styles.volumeInstructionText}>Base track volume:</Text>
               <View style={styles.volumeButtonsContainer}>
                 <TouchableOpacity
@@ -243,7 +266,13 @@ const PreviewAndSync = (props) => {
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.volumeControlsContainer}>
+            <View style={deviceType === 2 ? {
+              ...styles.volumeControlsContainer,
+              width: screenWidth / 2,
+              alignSelf: 'center',
+            } : {
+                ...styles.volumeControlsContainer,
+              }}>
               <Text style={styles.volumeInstructionText}>Duette volume:</Text>
               <View style={styles.volumeButtonsContainer}>
                 <TouchableOpacity
@@ -271,7 +300,15 @@ const PreviewAndSync = (props) => {
               </View>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+          <View style={deviceType === 2 ? {
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            width: screenWidth / 2.5,
+            alignSelf: 'center',
+          } : {
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
             <TouchableOpacity
               style={{
                 ...buttonStyles.regularButton,

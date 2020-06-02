@@ -74,7 +74,8 @@
     "util": "^0.12.2",
     "uuid": "^7.0.3",
     "validate.js": "^0.13.1",
-    "expo-keep-awake": "~8.1.0"
+    "expo-keep-awake": "~8.1.0",
+    "expo-device": "~2.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
