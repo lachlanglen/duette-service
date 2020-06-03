@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import { Text, TextInput, Platform, StatusBar, StyleSheet, View, Vibration } from 'react-native';
 import store from './redux/store';
 import { SplashScreen } from 'expo';
+import { Audio } from 'expo-av';
 import * as Font from 'expo-font';
 import * as SecureStore from 'expo-secure-store';
 import { Notifications } from 'expo';
@@ -78,6 +79,9 @@ export default function App(props) {
           }
         }
         // store.dispatch(fetchVideos());
+        Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+        });
         store.dispatch(loadCats('final'));
       } catch (e) {
         console.warn(e);

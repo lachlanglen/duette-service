@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform, ActivityIndicator, ScrollView } from 'react-native';
+import { Alert, Text, TouchableOpacity, View, Dimensions, Button, StyleSheet, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Video } from 'expo-av';
 import * as Device from 'expo-device';
@@ -29,9 +29,10 @@ const PreviewAndSync = (props) => {
     reduceBaseTrackVolume,
     increaseBaseTrackVolume,
     baseTrackVolume,
+    duetteVolume,
     reduceDuetteVolume,
     increaseDuetteVolume,
-    duetteVolume,
+    handleHardRefresh,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -45,7 +46,19 @@ const PreviewAndSync = (props) => {
       setDeviceType(type);
     };
     getDeviceType();
-  }, [])
+  }, []);
+
+  const handleProblem = () => {
+    Alert.alert(
+      'What would you like to do?',
+      "'Soft Refresh' is recommended if a video has frozen. 'Hard Refresh' is recommended if a video has failed to load.",
+      [
+        { text: 'Soft Refresh', onPress: () => handleRestart() },
+        { text: 'Hard Refresh', onPress: () => handleHardRefresh() },
+      ],
+      { cancelable: false }
+    );
+  }
 
   return (
     <ScrollView style={{
@@ -340,15 +353,12 @@ const PreviewAndSync = (props) => {
               </Text>
             </TouchableOpacity>
           </View>
-          {
-            isPlaying &&
-            <TouchableOpacity
-              onPress={handleRestart}
-              style={styles.problemContainer}
-            >
-              <Text style={{ fontSize: 16, color: 'red' }}>Having a problem? Touch here to refresh.</Text>
-            </TouchableOpacity>
-          }
+          <TouchableOpacity
+            onPress={isPlaying ? handleProblem : handleHardRefresh}
+            style={styles.problemContainer}
+          >
+            <Text style={{ fontSize: 16, color: 'red' }}>Having a problem? Touch here to refresh.</Text>
+          </TouchableOpacity>
         </View>
       }
     </ScrollView>

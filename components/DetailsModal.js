@@ -7,6 +7,7 @@ import { postVideo } from '../redux/videos';
 import Form from './Form';
 import buttonStyles from '../styles/button';
 import SavingVideo from './SavingVideo';
+import AddEmailModal from './AddEmailModal';
 
 const DetailsModal = (props) => {
   const {
@@ -23,9 +24,15 @@ const DetailsModal = (props) => {
   const [songKey, setSongKey] = useState('');
   const [performer, setPerformer] = useState(props.user.name);
   const [notes, setNotes] = useState('');
+  const [showAddEmailModal, setShowAddEmailModal] = useState(false);
+  const [updatedEmail, setUpdatedEmail] = useState(null);
 
   const handleSave = () => {
-    setSaving(true);
+    if (!props.user.email) {
+      setShowAddEmailModal(true);
+    } else {
+      setSaving(true);
+    }
   };
 
   const handleExit = () => {
@@ -47,31 +54,39 @@ const DetailsModal = (props) => {
         notes={notes}
         handleExit={handleExit}
         type="base track"
+        updatedEmail={updatedEmail}
       />
     ) : (
-        <View style={styles.container}>
-          <Modal
-            onRequestClose={handleDetailsExit}
-            supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-          >
-            <KeyboardAwareScrollView>
-              <Form
-                handleSave={handleSave}
-                title={title}
-                setTitle={setTitle}
-                composer={composer}
-                setComposer={setComposer}
-                songKey={songKey}
-                setSongKey={setSongKey}
-                performer={performer}
-                setPerformer={setPerformer}
-                notes={notes}
-                setNotes={setNotes}
-                setShowDetailsModal={setShowDetailsModal}
-                type="initial" />
-            </KeyboardAwareScrollView>
-          </Modal>
-        </View >
+        !showAddEmailModal ? (
+          <View style={styles.container}>
+            <Modal
+              onRequestClose={handleDetailsExit}
+              supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+            >
+              <KeyboardAwareScrollView>
+                <Form
+                  handleSave={handleSave}
+                  title={title}
+                  setTitle={setTitle}
+                  composer={composer}
+                  setComposer={setComposer}
+                  songKey={songKey}
+                  setSongKey={setSongKey}
+                  performer={performer}
+                  setPerformer={setPerformer}
+                  notes={notes}
+                  setNotes={setNotes}
+                  setShowDetailsModal={setShowDetailsModal}
+                  type="initial" />
+              </KeyboardAwareScrollView>
+            </Modal>
+          </View >
+        ) : (
+            <AddEmailModal
+              setSaving={setSaving}
+              setUpdatedEmail={setUpdatedEmail}
+            />
+          )
       )
   )
 }

@@ -32,6 +32,7 @@ const SavingVideo = (props) => {
     duetteVolume,
     date1,
     date2,
+    updatedEmail,
   } = props;
 
   const navigation = useNavigation();
@@ -105,12 +106,13 @@ const SavingVideo = (props) => {
         outputBucket: 'duette',
         accompanimentKey,
         duetteKey,
-        delay: bluetooth ? (customOffset + 50 + (date2 - date1)) / 1000 : (customOffset + (date2 - date1)) / 1000,
+        delay: (customOffset + (date2 - date1)) / 1000,
+        // delay: bluetooth ? (customOffset + 50 + (date2 - date1)) / 1000 : (customOffset + (date2 - date1)) / 1000,
         baseTrackVolume: baseTrackVolume === 1 ? null : baseTrackVolume.toFixed(1),
         duetteVolume: duetteVolume === 1 ? null : duetteVolume.toFixed(1),
         userId: props.user.id,
         notificationToken: expoPushToken,
-        email: props.user.email,
+        email: updatedEmail ? updatedEmail : props.user.email,
         name: props.user.name.split(' ')[0],
         sendEmails: props.user.sendEmails,
       }));

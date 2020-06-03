@@ -126,7 +126,6 @@ const AccompanimentScreen = (props) => {
       setRecording(true);
       startTimer();
       const vid = await cameraRef.recordAsync({ quality: Camera.Constants.VideoQuality['720p'] });
-      console.log('vid.uri: ', vid.uri)
       setDataUri(vid.uri)
     } catch (e) {
       Alert.alert(
@@ -284,7 +283,7 @@ const AccompanimentScreen = (props) => {
                           }}
                           onPress={() => setRecord(true)}
                         >
-                          <Text style={buttonStyles.regularButtonText}>Record a new base track 🐨</Text>
+                          <Text style={buttonStyles.regularButtonText}>Record a new base track 🦁</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={{

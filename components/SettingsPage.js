@@ -15,7 +15,7 @@ const SettingsPage = (props) => {
   const [editEmail, setEditEmail] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
-  const [switchValue, setSwitchValue] = useState(props.user.sendEmails);
+  const [switchValue, setSwitchValue] = useState(props.user.email ? props.user.sendEmails : false);
   const [deviceType, setDeviceType] = useState(null);
 
   let screenWidth = Math.round(Dimensions.get('window').width);
@@ -68,6 +68,11 @@ const SettingsPage = (props) => {
     setEditEmail(false);
   };
 
+  const handleValChange = (val) => {
+    if (error) setError(null);
+    setEmail(val);
+  }
+
   const handleValidateEmail = () => {
     setError(null);
     const validationResult = validate({ emailAddress: email }, constraints);
@@ -109,12 +114,12 @@ const SettingsPage = (props) => {
           <View style={styles.lineContainer}>
             {
               !editEmail ? (
-                <Text style={styles.emailText}>{props.user.email}</Text>
+                <Text style={styles.emailText}>{props.user.email ? props.user.email : 'None provided'}</Text>
               ) : (
                   <Input
                     // labelStyle={{ marginLeft: 30 }}
                     containerStyle={styles.inputField}
-                    onChangeText={val => setEmail(val)}
+                    onChangeText={val => handleValChange(val)}
                     value={email}
                     // label="Title"
                     placeholder="Enter your email here" />

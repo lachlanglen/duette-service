@@ -8,6 +8,7 @@ import * as Device from 'expo-device';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import ReviewDuette from '../ReviewDuette';
 import { deleteLocalFile } from '../../services/utils';
+import buttonStyles from '../../styles/button';
 
 let countdownIntervalId;
 let cancel;
@@ -36,6 +37,7 @@ const RecordDuetteModal = (props) => {
   const [countdownActive, setCountdownActive] = useState(false);
   const [deviceType, setDeviceType] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
+  const [hardRefresh, setHardRefresh] = useState(false);
   // const [cancel, setCancel] = useState(false);
 
   // const cameraRef = useRef(null);
@@ -117,10 +119,10 @@ const RecordDuetteModal = (props) => {
       setCountdownActive(false);
       cancel = true;
       cameraRef.stopRecording();
-      setShowRecordDuetteModal(false);
-      cancel = undefined;
       await vidRef.current.unloadAsync();
+      setShowRecordDuetteModal(false);
     } catch (e) {
+      setShowRecordDuetteModal(false);
       throw new Error('error unloading video: ', e);
     }
   };
@@ -135,6 +137,28 @@ const RecordDuetteModal = (props) => {
     setCountdownActive(false);
     setCountdown(3);
   };
+
+  const handleReload = () => {
+    setShowPreviewModal(true);
+    setHardRefresh(false);
+  };
+
+  const handleReRecord = () => {
+    setHardRefresh(false);
+    setDuetteUri(false);
+  };
+
+  const confirmReRecord = () => {
+    Alert.alert(
+      'Are you sure?',
+      'If you proceed, your previous Duette will be permanently deleted.',
+      [
+        { text: "Yes, I'm sure", onPress: () => handleReRecord() },
+        { text: 'Cancel', onPress: () => { } }
+      ],
+      { cancelable: false }
+    );
+  }
 
   const handlePlaybackStatusUpdate = (updateObj) => {
     if (updateObj.isLoaded !== vidLoaded) setVidLoaded(updateObj.isLoaded);
@@ -172,6 +196,7 @@ const RecordDuetteModal = (props) => {
             playDelay={playDelay}
             baseTrackUri={baseTrackUri}
             setSearchText={setSearchText}
+            setHardRefresh={setHardRefresh}
           />
         ) : (
             <Modal
@@ -193,96 +218,99 @@ const RecordDuetteModal = (props) => {
                       paddingVertical: screenOrientation === 'PORTRAIT' ? (screenHeight - (screenWidth / 8 * 9)) / 2 : 0,
                       height: '100%'
                     }}>
-                      <View style={{ flexDirection: 'row' }}>
-                        <Video
-                          ref={vidRef}
-                          source={{ uri: baseTrackUri }}
-                          rate={1.0}
-                          volume={1.0}
-                          isMuted={false}
-                          resizeMode="cover"
-                          progressUpdateIntervalMillis={50}
-                          onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-                          style={{
-                            width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-                            height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                          }}
-                        />
-                        {/* TODO: add codec to camera input? (e.g. .mov) */}
-                        <Camera
-                          style={{
-                            width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-                            height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-                          }}
-                          type={Camera.Constants.Type.front}
-                          ref={ref => setCameraRef(ref)}                        >
-                          <View>
-                            <TouchableOpacity
-                              onPress={!recording ? handleCancel : () => { }}
-                              style={{ flexDirection: 'row' }}
-                            >
-                              <Text style={deviceType !== 2 ? {
-                                ...styles.overlayText,
-                                paddingLeft: screenOrientation === 'LANDSCAPE' ? 20 : 10,
-                                paddingTop: screenOrientation === 'LANDSCAPE' ? 20 : 10,
-                                fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
-                              } : {
-                                  ...styles.overlayText,
-                                  paddingLeft: 10,
-                                  paddingTop: 10,
-                                  fontSize: 26,
-                                }}
-                              >
-                                {recording ? 'REC' : 'Cancel'}
-                              </Text>
-                              {
-                                recording && deviceType !== 2 &&
-                                <View
-                                  style={{
-                                    width: 10,
-                                    height: 10,
-                                    backgroundColor: 'red',
-                                    borderRadius: 50,
-                                    marginLeft: 7,
-                                    marginTop: 16,
-                                  }} />
-                              }
-                            </TouchableOpacity>
-                          </View>
-                          {
-                            vidLoaded && vidDoneBuffering &&
-                            <View
-                              style={styles.recordButtonContainer}>
+                      {
+                        !hardRefresh &&
+                        <View style={{ flexDirection: 'row' }}>
+                          <Video
+                            ref={vidRef}
+                            source={{ uri: baseTrackUri }}
+                            rate={1.0}
+                            volume={1.0}
+                            isMuted={false}
+                            resizeMode="cover"
+                            progressUpdateIntervalMillis={50}
+                            onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+                            style={{
+                              width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                              height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                            }}
+                          />
+                          {/* TODO: add codec to camera input? (e.g. .mov) */}
+                          <Camera
+                            style={{
+                              width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                              height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                            }}
+                            type={Camera.Constants.Type.front}
+                            ref={ref => setCameraRef(ref)}                        >
+                            <View>
                               <TouchableOpacity
+                                onPress={!recording ? handleCancel : () => { }}
+                                style={{ flexDirection: 'row' }}
                               >
-                                <Text style={{
-                                  ...styles.recordText,
-                                  fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,
-                                }}>{recording ? '' : 'record'}</Text>
-                                <TouchableOpacity
-                                  onPress={!recording ? startCountdown : toggleRecord}
-                                  style={{
-                                    ...styles.recordButton,
-                                    borderWidth: deviceType === 2 ? 6 : screenWidth / 100,
-                                    width: deviceType === 2 ? 60 : screenWidth / 10,
-                                    height: deviceType === 2 ? 60 : screenWidth / 10,
-                                    backgroundColor: recording ? 'black' : 'red',
-                                    marginBottom: screenOrientation === 'LANDSCAPE' ? 10 : 6,
-                                  }} />
+                                <Text style={deviceType !== 2 ? {
+                                  ...styles.overlayText,
+                                  paddingLeft: screenOrientation === 'LANDSCAPE' ? 20 : 10,
+                                  paddingTop: screenOrientation === 'LANDSCAPE' ? 20 : 10,
+                                  fontSize: screenOrientation === 'LANDSCAPE' ? screenWidth / 30 : screenWidth / 22,
+                                } : {
+                                    ...styles.overlayText,
+                                    paddingLeft: 10,
+                                    paddingTop: 10,
+                                    fontSize: 26,
+                                  }}
+                                >
+                                  {recording ? 'REC' : 'Cancel'}
+                                </Text>
+                                {
+                                  recording && deviceType !== 2 &&
+                                  <View
+                                    style={{
+                                      width: 10,
+                                      height: 10,
+                                      backgroundColor: 'red',
+                                      borderRadius: 50,
+                                      marginLeft: 7,
+                                      marginTop: 16,
+                                    }} />
+                                }
                               </TouchableOpacity>
                             </View>
-                          }
-                          {
-                            screenOrientation === 'LANDSCAPE' && recording &&
-                            <TouchableOpacity
-                              onPress={handleTryAgain}
-                              style={styles.problemContainerLandscape}
-                            >
-                              <Text style={{ color: 'red', fontSize: 16 }}>Having a problem? Touch here to try again.</Text>
-                            </TouchableOpacity>
-                          }
-                        </Camera>
-                      </View>
+                            {
+                              vidLoaded && vidDoneBuffering &&
+                              <View
+                                style={styles.recordButtonContainer}>
+                                <TouchableOpacity
+                                >
+                                  <Text style={{
+                                    ...styles.recordText,
+                                    fontSize: screenOrientation === 'LANDSCAPE' ? 18 : 13,
+                                  }}>{recording ? '' : 'record'}</Text>
+                                  <TouchableOpacity
+                                    onPress={!recording ? startCountdown : toggleRecord}
+                                    style={{
+                                      ...styles.recordButton,
+                                      borderWidth: deviceType === 2 ? 6 : screenWidth / 100,
+                                      width: deviceType === 2 ? 60 : screenWidth / 10,
+                                      height: deviceType === 2 ? 60 : screenWidth / 10,
+                                      backgroundColor: recording ? 'black' : 'red',
+                                      marginBottom: screenOrientation === 'LANDSCAPE' ? 10 : 6,
+                                    }} />
+                                </TouchableOpacity>
+                              </View>
+                            }
+                            {
+                              screenOrientation === 'LANDSCAPE' && recording &&
+                              <TouchableOpacity
+                                onPress={handleTryAgain}
+                                style={styles.problemContainerLandscape}
+                              >
+                                <Text style={{ color: 'red', fontSize: 16 }}>Having a problem? Touch here to try again.</Text>
+                              </TouchableOpacity>
+                            }
+                          </Camera>
+                        </View>
+                      }
                       {
                         countdownActive && countdown > 0 &&
                         <View style={{
@@ -307,6 +335,36 @@ const RecordDuetteModal = (props) => {
                         >
                           <Text style={{ color: 'red', fontSize: 16, marginTop: 20 }}>Having a problem? Touch here to try again.</Text>
                         </TouchableOpacity>
+                      }
+                      {
+                        hardRefresh &&
+                        <View style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}>
+                          <Text style={{
+                            ...buttonStyles.regularButtonText,
+                            marginBottom: 30,
+                          }}>What would you like to do?</Text>
+                          <TouchableOpacity
+                            onPress={handleReload}
+                            style={{
+                              ...buttonStyles.regularButton,
+                              width: '75%',
+                            }}
+                          >
+                            <Text style={buttonStyles.regularButtonText}>Reload preview</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            onPress={confirmReRecord}
+                            style={{
+                              ...buttonStyles.regularButton,
+                              width: '75%',
+                            }}
+                          >
+                            <Text style={buttonStyles.regularButtonText}>Re-record Duette</Text>
+                          </TouchableOpacity>
+                        </View>
                       }
                     </View>
                   )

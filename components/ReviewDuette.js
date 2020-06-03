@@ -7,6 +7,7 @@ import PreviewAndSync from './PreviewAndSync';
 import { postDuette } from '../redux/duettes';
 import { deleteLocalFile } from '../services/utils';
 import SavingVideo from './SavingVideo';
+import AddEmailModal from './AddEmailModal';
 
 let date1 = 0;
 let date2 = 0;
@@ -21,6 +22,8 @@ const ReviewDuette = (props) => {
     setDuetteUri,
     baseTrackUri,
     setSearchText,
+    handleReload,
+    setHardRefresh,
   } = props;
 
   const [screenOrientation, setScreenOrientation] = useState('');
@@ -35,6 +38,8 @@ const ReviewDuette = (props) => {
   const [customOffset, setCustomOffset] = useState(0);
   const [baseTrackVolume, setBaseTrackVolume] = useState(1);
   const [duetteVolume, setDuetteVolume] = useState(1);
+  const [showAddEmailModal, setShowAddEmailModal] = useState(false);
+  const [updatedEmail, setUpdatedEmail] = useState(null);
 
   let pos1;
   let pos2;
@@ -44,7 +49,11 @@ const ReviewDuette = (props) => {
   };
 
   const handleSave = () => {
-    setSaving(true);
+    if (!props.user.email) {
+      setShowAddEmailModal(true);
+    } else {
+      setSaving(true);
+    }
   };
 
   const handleView = () => {
@@ -194,6 +203,11 @@ const ReviewDuette = (props) => {
     }
   };
 
+  const handleHardRefresh = () => {
+    setHardRefresh(true);
+    setShowPreviewModal(false);
+  }
+
   const reduceBaseTrackVolume = async () => {
     if (baseTrackVolume === 0.1) return;
     try {
@@ -312,7 +326,8 @@ const ReviewDuette = (props) => {
       <Modal
         onOrientationChange={handleModalOrientationChange}
         supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
-      >{
+      >
+        {
           saving ? (
             <SavingVideo
               type="duette"
@@ -325,32 +340,41 @@ const ReviewDuette = (props) => {
               date2={date2}
               setSaving={setSaving}
               handleExit={handleGoHome}
+              updatedEmail={updatedEmail}
             />
           ) : (
-              <PreviewAndSync
-                screenOrientation={screenOrientation}
-                setVidARef={setVidARef}
-                setVidBRef={setVidBRef}
-                handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
-                duetteUri={duetteUri}
-                bluetooth={bluetooth}
-                handleShowPreview={handleShowPreview}
-                previewComplete={previewComplete}
-                isPlaying={isPlaying}
-                bothVidsReady={bothVidsReady}
-                handleSave={handleSave}
-                handleRedo={handleRedo}
-                handleSyncBack={handleSyncBack}
-                handleSyncForward={handleSyncForward}
-                baseTrackUri={baseTrackUri}
-                handleRestart={handleRestart}
-                reduceBaseTrackVolume={reduceBaseTrackVolume}
-                increaseBaseTrackVolume={increaseBaseTrackVolume}
-                baseTrackVolume={baseTrackVolume}
-                reduceDuetteVolume={reduceDuetteVolume}
-                increaseDuetteVolume={increaseDuetteVolume}
-                duetteVolume={duetteVolume}
-              />
+              !showAddEmailModal ? (
+                <PreviewAndSync
+                  screenOrientation={screenOrientation}
+                  setVidARef={setVidARef}
+                  setVidBRef={setVidBRef}
+                  handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
+                  duetteUri={duetteUri}
+                  bluetooth={bluetooth}
+                  handleShowPreview={handleShowPreview}
+                  previewComplete={previewComplete}
+                  isPlaying={isPlaying}
+                  bothVidsReady={bothVidsReady}
+                  handleSave={handleSave}
+                  handleRedo={handleRedo}
+                  handleSyncBack={handleSyncBack}
+                  handleSyncForward={handleSyncForward}
+                  baseTrackUri={baseTrackUri}
+                  handleRestart={handleRestart}
+                  reduceBaseTrackVolume={reduceBaseTrackVolume}
+                  increaseBaseTrackVolume={increaseBaseTrackVolume}
+                  baseTrackVolume={baseTrackVolume}
+                  reduceDuetteVolume={reduceDuetteVolume}
+                  increaseDuetteVolume={increaseDuetteVolume}
+                  duetteVolume={duetteVolume}
+                  handleHardRefresh={handleHardRefresh}
+                />
+              ) : (
+                  <AddEmailModal
+                    setSaving={setSaving}
+                    setUpdatedEmail={setUpdatedEmail}
+                  />
+                )
             )
         }
       </Modal>
