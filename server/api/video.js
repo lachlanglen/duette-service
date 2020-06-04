@@ -14,20 +14,29 @@ router.post('/', (req, res, next) => {
     userId
   } = req.body;
 
-  Video.create({
-    id,
-    title,
-    composer,
-    key,
-    performer,
-    notes,
-    userId
-  })
-    .then(created => res.status(201).send(created))
-    .catch(e => {
-      console.log('error creating new video record: ', e)
-      res.status(400).send(e)
+  if (
+    title.length > 50 ||
+    composer.length > 20 ||
+    key.length > 10 ||
+    performer.length > 50 ||
+    notes.length > 250
+  ) {
+    res.status(400).send('Fields must adhere to maximum length requirements')
+  } else {
+    Video.create({
+      id,
+      title,
+      composer,
+      key,
+      performer,
+      notes,
+      userId
     })
+      .then(created => res.status(201).send(created))
+      .catch(e => {
+        res.status(400).send('Error creating new video record: ', e)
+      })
+  }
 });
 
 router.get('/:id', (req, res, next) => {
@@ -68,8 +77,7 @@ router.get('/', (req, res, next) => {
     })
       .then(videos => res.status(200).send(videos))
       .catch(e => {
-        console.log("error: ", e)
-        // res.send('error finding videos by search value: ', e);
+        res.status(400).send('error finding videos by search value: ', e);
       })
   } else {
     Video.findAll({
@@ -81,8 +89,7 @@ router.get('/', (req, res, next) => {
         res.status(200).send(videos)
       })
       .catch(e => {
-        console.log('error finding all videos: ', e)
-        res.status(404).send(e)
+        res.status(404).send('Error finding all videos: ', e)
       })
   }
 });
@@ -97,7 +104,15 @@ router.put('/:id', (req, res, next) => {
     notes,
   } = req.body;
   if (!title || !performer) {
-    throw new Error('Title & performer fields must be valid to update video!')
+    res.status(400).send('Title & performer fields must not be null!');
+  } else if (
+    title && title.length > 50 ||
+    composer && composer.length > 20 ||
+    key && key.length > 10 ||
+    performer && performer.length > 50 ||
+    notes && notes.length > 250
+  ) {
+    res.status(400).send('Update Video fields must adhere to maximum length requirements');
   } else {
     Video.update(
       {
@@ -116,21 +131,25 @@ router.put('/:id', (req, res, next) => {
     )
       .then(updated => res.status(200).send(updated))
       .catch(e => {
-        res.status(404).send(e);
-        throw new Error('error updating video: ', e)
+        res.status(404).send('Error updating video record: ', e);
       })
   }
-})
+});
 
-router.delete('/:id', (req, res, next) => {
-  const { id } = req.params;
-  Video.destroy({
-    where: {
-      id
-    }
-  })
-    .then(() => res.status(200).send('Video deleted!'))
-    .catch(e => res.status(404).send('error deleting video: ', e))
-})
+router.delete('/', (req, res, next) => {
+  const { id, userId } = req.body;
+  if (!id || !userId) {
+    res.status(400).send('video id or user id not valid')
+  } else {
+    Video.destroy({
+      where: {
+        id,
+        userId
+      }
+    })
+      .then(() => res.status(200).send('Video deleted!'))
+      .catch(e => res.status(404).send('error deleting video: ', e))
+  }
+});
 
 module.exports = router;
