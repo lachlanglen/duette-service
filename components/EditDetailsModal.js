@@ -1,6 +1,7 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect } from 'react';
 import { Image, Text, View, Modal, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { connect } from 'react-redux';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
@@ -9,6 +10,7 @@ import { postVideo } from '../redux/videos';
 import Form from './Form';
 import buttonStyles from '../styles/button';
 import { updateVideo, clearVideo } from '../redux/singleVideo';
+import { clearError } from '../redux/error';
 
 const EditDetailsModal = (props) => {
 
@@ -29,23 +31,45 @@ const EditDetailsModal = (props) => {
   const [songKey, setSongKey] = useState(origSongKey);
   const [performer, setPerformer] = useState(origPerformer);
   const [notes, setNotes] = useState(origNotes);
+  const [updatesSubmitted, setUpdatesSubmitted] = useState(false);
 
-  const handleDone = () => {
+  useEffect(() => {
+    if (updatesSubmitted && props.error.errorRegistered) {
+      if (!props.error.isError) {
+        Alert.alert(
+          'Updated!',
+          "Your updates have been successfully saved.",
+          [
+            { text: 'OK', onPress: () => handleDone() },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        Alert.alert(
+          'Oops...',
+          "We could not save your updates. Please try again later.",
+          [
+            { text: 'OK', onPress: () => handleDone(props.error.message) },
+          ],
+          { cancelable: false }
+        );
+      }
+    }
+  })
+
+  const handleDone = (msg) => {
+    setUpdatesSubmitted(false);
     props.clearVideo();
+    props.clearError();
     setShowEditDetailsModal(false);
-  }
+    if (msg) {
+      throw new Error('Error saving video updates: ', msg)
+    }
+  };
 
   const handleUpdate = () => {
-    props.updateVideoDetails(id, { title, composer, key: songKey, performer }, searchText);
-    // FIXME: below will fire even updates have not successfully saved
-    Alert.alert(
-      'Updated!',
-      "Your updates have been successfully saved.",
-      [
-        { text: 'OK', onPress: () => handleDone() },
-      ],
-      { cancelable: false }
-    );
+    props.updateVideoDetails(props.user.id, id, { title, composer, key: songKey, performer, notes }, searchText);
+    setUpdatesSubmitted(true);
   }
 
   return (
@@ -53,20 +77,22 @@ const EditDetailsModal = (props) => {
       <Modal
         supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
       >
-        <Form
-          handleUpdate={handleUpdate}
-          title={title}
-          setTitle={setTitle}
-          composer={composer}
-          setComposer={setComposer}
-          songKey={songKey}
-          setSongKey={setSongKey}
-          performer={performer}
-          setPerformer={setPerformer}
-          notes={notes}
-          setNotes={setNotes}
-          setShowEditDetailsModal={setShowEditDetailsModal}
-          type="update" />
+        <KeyboardAwareScrollView>
+          <Form
+            handleUpdate={handleUpdate}
+            title={title}
+            setTitle={setTitle}
+            composer={composer}
+            setComposer={setComposer}
+            songKey={songKey}
+            setSongKey={setSongKey}
+            performer={performer}
+            setPerformer={setPerformer}
+            notes={notes}
+            setNotes={setNotes}
+            setShowEditDetailsModal={setShowEditDetailsModal}
+            type="update" />
+        </KeyboardAwareScrollView>
       </Modal>
     </View >
   )
@@ -99,18 +125,20 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapState = ({ user, selectedVideo }) => {
+const mapState = ({ user, selectedVideo, error }) => {
   return {
     user,
     selectedVideo,
+    error,
   }
 }
 
 const mapDispatch = dispatch => {
   return {
     postVideo: details => dispatch(postVideo(details)),
-    updateVideoDetails: (id, newDetails, text) => dispatch(updateVideo(id, newDetails, text)),
+    updateVideoDetails: (userId, videoId, newDetails, text) => dispatch(updateVideo(userId, videoId, newDetails, text)),
     clearVideo: () => dispatch(clearVideo()),
+    clearError: () => dispatch(clearError()),
   }
 }
 

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { fetchVideos } from './videos';
+import { setError, setErrorRegistered } from './error';
 
 const SET_SELECTED_VIDEO = 'SET_SELECTED_VIDEO';
 const CLEAR_SELECTED_VIDEO = 'CLEAR_SELECTED_VIDEO'
@@ -46,12 +47,17 @@ export const clearVideo = () => {
   }
 };
 
-export const updateVideo = (id, updatedDetails, searchText) => {
+export const updateVideo = (userId, videoId, updatedDetails, searchText) => {
+  console.log('userId: ', userId, 'videoId: ', videoId, 'updatedDetails: ', updatedDetails)
   return dispatch => {
-    axios.put(`https://duette.herokuapp.com/api/video/${id}`, updatedDetails)
-      .then(() => dispatch(fetchVideos(searchText)))
+    axios.put(`https://duette.herokuapp.com/api/video/${videoId}/${userId}`, updatedDetails)
+      .then(() => {
+        dispatch(setErrorRegistered());
+        dispatch(fetchVideos(searchText));
+      })
       .catch(e => {
-        throw new Error('error in updateVideo thunk: ', e)
+        console.log('error in updateVideo: ', e)
+        dispatch(setError(e))
       })
   }
 }

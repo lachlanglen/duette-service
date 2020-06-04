@@ -7,6 +7,7 @@ import { displayUserInfoReducer } from './userInfo';
 import { userDuettesReducer } from './duettes';
 import { dataLoadedReducer } from './dataLoaded';
 import { requestReviewReducer } from './requestReview';
+import { errorReducer } from './error';
 
 const appReducer = combineReducers({
   videos: videosReducer,
@@ -17,6 +18,7 @@ const appReducer = combineReducers({
   userDuettes: userDuettesReducer,
   dataLoaded: dataLoadedReducer,
   requestReview: requestReviewReducer,
+  error: errorReducer,
 })
 
 export default appReducer;

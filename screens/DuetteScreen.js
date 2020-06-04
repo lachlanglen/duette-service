@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
 });
 
 
-const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user, dataLoaded }) => {
+const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user, dataLoaded, error }) => {
   return {
     videos,
     cats,
@@ -249,6 +249,7 @@ const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user, dataLoad
     user,
     displayUserInfo,
     dataLoaded,
+    error,
   }
 }
 

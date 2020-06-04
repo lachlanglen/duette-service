@@ -36,7 +36,7 @@ const VideoItem = (props) => {
       'Are you sure you want to delete this video?',
       `This cannot be undone.${Platform.OS === 'ios' ? ' 💀' : ''}`,
       [
-        { text: 'Yes, delete it!', onPress: () => props.deleteVideo(id, searchText) },
+        { text: 'Yes, delete it!', onPress: () => props.deleteVideo(props.user.id, id, searchText) },
         { text: 'Cancel', onPress: () => { } }
       ],
       { cancelable: false }
@@ -239,7 +239,7 @@ const mapState = ({ user }) => {
 
 const mapDispatch = dispatch => {
   return {
-    deleteVideo: (id, searchText) => dispatch(deleteVideo(id, searchText)),
+    deleteVideo: (userId, videoId, searchText) => dispatch(deleteVideo(userId, videoId, searchText)),
     setVideo: id => dispatch(setVideo(id)),
   }
 };

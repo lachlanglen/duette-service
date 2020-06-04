@@ -39,12 +39,18 @@ export const postVideo = (details) => {
   };
 };
 
-export const deleteVideo = (id, searchText) => {
-  console.log('id: ', id)
+export const deleteVideo = (userId, videoId, searchText) => {
+  console.log('userId: ', userId, 'videoId: ', videoId)
   return dispatch => {
-    axios.delete(`https://duette.herokuapp.com/api/video/${id}`)
-      .then(() => axios.delete(`https://duette.herokuapp.com/api/aws/${id}.mov`))
-      .then(() => axios.delete(`https://duette.herokuapp.com/api/aws/${id}thumbnail.mov`))
+    axios.delete(`https://duette.herokuapp.com/api/video/${videoId}/${userId}`)
+      .then(() => {
+        console.log('line 46')
+        axios.delete(`https://duette.herokuapp.com/api/aws/${videoId}.mov`)
+      })
+      .then(() => {
+        console.log('line 50')
+        axios.delete(`https://duette.herokuapp.com/api/aws/${videoId}thumbnail.mov`)
+      })
       .then(() => {
         if (searchText) {
           dispatch(fetchVideos(searchText));

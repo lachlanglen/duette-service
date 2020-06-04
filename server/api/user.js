@@ -52,73 +52,81 @@ router.post('/', async (req, res, next) => {
     email
   } = req.body;
 
-  User.findOne({
-    where: {
-      facebookId,
-    }
-  })
-    .then(user => {
-      // user already exists
-      // update user with lastLogin and other info to ensure it's up to date
-      if (user) {
-        user.update({
-          name,
-          facebookId,
-          expires: expires.toString(),
-          pictureUrl,
-          pictureWidth,
-          pictureHeight,
-          lastLogin: lastLogin.toString(),
-          email,
-        })
-          .then(updatedUser => {
-            res.status(200).send(updatedUser);
-          })
-          .catch(e => {
-            console.log('error updating user: ', e);
-            res.status(400).send(e);
-          })
-      } else {
-        // user doesn't exist
-        // create user
-        User.create({
-          name,
-          facebookId,
-          expires: expires.toString(),
-          pictureUrl,
-          pictureWidth,
-          pictureHeight,
-          lastLogin: lastLogin.toString(),
-          email,
-        })
-          .then(newUser => res.status(201).send(newUser))
-          .catch(e => {
-            console.log('error creating new user: ', e);
-            res.status(400).send(e)
-          })
+  if (email.length > 255) {
+    res.status(400).send('Email too long')
+  } else {
+    User.findOne({
+      where: {
+        facebookId,
       }
     })
+      .then(user => {
+        // user already exists
+        // update user with lastLogin and other info to ensure it's up to date
+        if (user) {
+          user.update({
+            name,
+            facebookId,
+            expires: expires.toString(),
+            pictureUrl,
+            pictureWidth,
+            pictureHeight,
+            lastLogin: lastLogin.toString(),
+            email,
+          })
+            .then(updatedUser => {
+              res.status(200).send(updatedUser);
+            })
+            .catch(e => {
+              console.log('error updating user: ', e);
+              res.status(400).send(e);
+            })
+        } else {
+          // user doesn't exist
+          // create user
+          User.create({
+            name,
+            facebookId,
+            expires: expires.toString(),
+            pictureUrl,
+            pictureWidth,
+            pictureHeight,
+            lastLogin: lastLogin.toString(),
+            email,
+          })
+            .then(newUser => res.status(201).send(newUser))
+            .catch(e => {
+              console.log('error creating new user: ', e);
+              res.status(400).send(e)
+            })
+        }
+      })
+  }
 });
 
 router.put('/:userId', (req, res, next) => {
   const { userId } = req.params;
-  User.findOne({
-    where: {
-      id: userId,
-    }
-  })
-    .then(user => {
-      if (user) {
-        user.update({
-          ...user,
-          ...req.body,
-        })
-          .then(updated => res.status(200).send(updated))
-          .catch(e => res.status(400).send('error updating user: ', e))
-      } else {
-        res.status(404).send(`User #${userId} not found.`)
+  if (req.body.email && req.body.email.length > 255) {
+    res.status(400).send('Email too long')
+  } else {
+    User.findOne({
+      where: {
+        id: userId,
       }
     })
+      .then(user => {
+        if (user) {
+          user.update({
+            ...user,
+            ...req.body,
+          })
+            .then(updated => res.status(200).send(updated))
+            .catch(e => res.status(400).send('error updating user: ', e))
+        } else {
+          res.status(404).send(`User #${userId} not found.`)
+        }
+      })
+  }
 });
 
 router.delete('/:userId', (req, res, next) => {

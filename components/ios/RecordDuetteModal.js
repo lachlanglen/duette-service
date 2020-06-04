@@ -119,6 +119,7 @@ const RecordDuetteModal = (props) => {
       setCountdownActive(false);
       cancel = true;
       cameraRef.stopRecording();
+      setRecording(false);
       await vidRef.current.unloadAsync();
       setShowRecordDuetteModal(false);
     } catch (e) {

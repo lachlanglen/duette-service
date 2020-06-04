@@ -56,14 +56,74 @@ const Form = (props) => {
     } else {
       Alert.alert(
         'Too long',
-        "Notes must be less than 250 characters",
+        "Notes must be 250 characters or less",
         [
           { text: 'OK', onPress: () => { } },
         ],
         { cancelable: false }
       );
     }
-  }
+  };
+
+  const handleSetTitle = val => {
+    if (val.length <= 50) {
+      setTitle(val);
+    } else {
+      Alert.alert(
+        'Too long',
+        "Title must be 50 characters or less",
+        [
+          { text: 'OK', onPress: () => { } },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  const handleSetComposer = val => {
+    if (val.length <= 30) {
+      setComposer(val);
+    } else {
+      Alert.alert(
+        'Too long',
+        "Composer must be 20 characters or less",
+        [
+          { text: 'OK', onPress: () => { } },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  const handleSetSongKey = val => {
+    if (val.length <= 20) {
+      setSongKey(val);
+    } else {
+      Alert.alert(
+        'Too long',
+        "Key must be 10 characters or less",
+        [
+          { text: 'OK', onPress: () => { } },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  const handleSetPerformer = val => {
+    if (val.length <= 50) {
+      setPerformer(val);
+    } else {
+      Alert.alert(
+        'Too long',
+        "Performer must be 50 characters or less",
+        [
+          { text: 'OK', onPress: () => { } },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -71,28 +131,28 @@ const Form = (props) => {
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
-        onChangeText={val => setTitle(val)}
+        onChangeText={val => handleSetTitle(val)}
         value={title}
         label="Title (required)"
         placeholder="e.g. Barcarolle" />
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
-        onChangeText={val => setComposer(val)}
+        onChangeText={val => handleSetComposer(val)}
         value={composer}
         label="Composer (optional, but recommended)"
         placeholder="e.g. Offenbach" />
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
-        onChangeText={val => setSongKey(val)}
+        onChangeText={val => handleSetSongKey(val)}
         value={songKey}
         label="Key (optional, but recommended)"
         placeholder="e.g. B-flat major" />
       <Input
         labelStyle={styles.labelText}
         containerStyle={styles.inputField}
-        onChangeText={val => setPerformer(val)}
+        onChangeText={val => handleSetPerformer(val)}
         value={performer}
         label="Performer (required)"
         placeholder="Enter your name here!" />
