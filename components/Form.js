@@ -169,7 +169,7 @@ const Form = (props) => {
         style={{
           ...buttonStyles.regularButton,
           height: 50,
-          width: '30%',
+          width: '40%',
           backgroundColor: !title || !performer ? 'grey' : '#0047B9',
           marginBottom: 14,
         }}>
@@ -181,7 +181,7 @@ const Form = (props) => {
         onPress={handleBack}
         style={{
           ...buttonStyles.regularButton,
-          width: '30%',
+          width: '40%',
           height: 50,
         }}>
         <Text style={{

@@ -6,6 +6,7 @@ const SET_SELECTED_VIDEO = 'SET_SELECTED_VIDEO';
 const CLEAR_SELECTED_VIDEO = 'CLEAR_SELECTED_VIDEO'
 
 const setSelectedVideo = video => {
+  console.log('in setSelectedVideo')
   return {
     type: SET_SELECTED_VIDEO,
     video
@@ -32,10 +33,16 @@ export const singleVideoReducer = (state = {}, action) => {
 }
 
 export const setVideo = id => {
+  console.log('in setVideo')
   return dispatch => {
+    console.log('line 38 in setVideo')
     axios.get(`https://duette.herokuapp.com/api/video/${id}`)
-      .then(video => dispatch(setSelectedVideo(video.data)))
+      .then(video => {
+        console.log('video: ', video.data)
+        dispatch(setSelectedVideo(video.data))
+      })
       .catch(e => {
+        console.log('error in setVideo: ', e)
         throw new Error('error in setVideo thunk: ', e)
       })
   }
@@ -48,7 +55,6 @@ export const clearVideo = () => {
 };
 
 export const updateVideo = (userId, videoId, updatedDetails, searchText) => {
-  console.log('userId: ', userId, 'videoId: ', videoId, 'updatedDetails: ', updatedDetails)
   return dispatch => {
     axios.put(`https://duette.herokuapp.com/api/video/${videoId}/${userId}`, updatedDetails)
       .then(() => {

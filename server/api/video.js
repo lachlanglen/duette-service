@@ -49,6 +49,7 @@ router.get('/:id', (req, res, next) => {
       }
     })
       .then(video => {
+        console.log('video: ', video)
         if (video) {
           res.status(200).send(video)
         } else {
@@ -153,4 +154,4 @@ router.delete('/:videoId/:userId', (req, res, next) => {
   }
 });
 
-module.exports = router;
+module.exports = router; 
