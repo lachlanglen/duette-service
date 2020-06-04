@@ -16,10 +16,10 @@ router.post('/', (req, res, next) => {
 
   if (
     title.length > 50 ||
-    composer.length > 20 ||
-    key.length > 10 ||
+    composer && composer.length > 20 ||
+    key && key.length > 10 ||
     performer.length > 50 ||
-    notes.length > 250
+    notes && notes.length > 250
   ) {
     res.status(400).send('Fields must adhere to maximum length requirements')
   } else {
