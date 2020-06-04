@@ -136,8 +136,8 @@ router.put('/:id', (req, res, next) => {
   }
 });
 
-router.delete('/', (req, res, next) => {
-  const { videoId, userId } = req.body;
+router.delete('/:videoId/:userId', (req, res, next) => {
+  const { videoId, userId } = req.params;
   console.log('videoId: ', videoId, 'userId: ', userId)
   if (!videoId || !userId) {
     console.log('something is falsey')
