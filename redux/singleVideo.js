@@ -51,7 +51,10 @@ export const updateVideo = (userId, videoId, updatedDetails, searchText) => {
   return dispatch => {
     axios.put(`https://duette.herokuapp.com/api/video/${videoId}/${userId}`, updatedDetails)
       .then(() => dispatch(fetchVideos(searchText)))
-      .catch(e => dispatch(setError(e)))
+      .catch(e => {
+        console.log('error')
+        dispatch(setError(e))
+      })
   }
 }
 

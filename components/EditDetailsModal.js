@@ -31,15 +31,44 @@ const EditDetailsModal = (props) => {
   const [songKey, setSongKey] = useState(origSongKey);
   const [performer, setPerformer] = useState(origPerformer);
   const [notes, setNotes] = useState(origNotes);
+  const [updatesSubmitted, setUpdatesSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (updatesSubmitted && props.error.errorRegistered) {
+      console.log('line 38: ', props.error)
+      if (!props.error.isError) {
+        Alert.alert(
+          'Updated!',
+          "Your updates have been successfully saved.",
+          [
+            { text: 'OK', onPress: () => handleDone() },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        Alert.alert(
+          'Oops...',
+          "We could not save your updates. Please try again later.",
+          [
+            { text: 'OK', onPress: () => handleDone(props.error.message) },
+          ],
+          { cancelable: false }
+        );
+      }
+    }
+  })
 
   const handleDone = (msg) => {
+    setUpdatesSubmitted(false);
     props.clearVideo();
     setShowEditDetailsModal(false);
     if (msg) {
       props.clearError();
-      throw new Error('Error saving video updates: ', msg)
+      // throw new Error('Error saving video updates: ', msg)
     }
   };
+
+  console.log('props.error: ', props.error)
 
   const handleNotify = () => {
     if (!props.error.isError) {
@@ -65,7 +94,7 @@ const EditDetailsModal = (props) => {
 
   const handleUpdate = () => {
     props.updateVideoDetails(props.user.id, id, { title, composer, key: songKey, performer, notes }, searchText);
-    handleNotify();
+    setUpdatesSubmitted(true);
   }
 
   return (
@@ -134,7 +163,7 @@ const mapDispatch = dispatch => {
     postVideo: details => dispatch(postVideo(details)),
     updateVideoDetails: (userId, videoId, newDetails, text) => dispatch(updateVideo(userId, videoId, newDetails, text)),
     clearVideo: () => dispatch(clearVideo()),
-    clearError: () => dispatch(clearError),
+    clearError: () => dispatch(clearError()),
   }
 }
 
