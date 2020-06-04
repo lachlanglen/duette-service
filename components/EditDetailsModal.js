@@ -35,7 +35,6 @@ const EditDetailsModal = (props) => {
 
   useEffect(() => {
     if (updatesSubmitted && props.error.errorRegistered) {
-      console.log('props.error in EditDetailsModal: ', props.error)
       if (!props.error.isError) {
         Alert.alert(
           'Updated!',
