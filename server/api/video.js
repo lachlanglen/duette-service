@@ -138,9 +138,7 @@ router.put('/:id', (req, res, next) => {
 
 router.delete('/:videoId/:userId', (req, res, next) => {
   const { videoId, userId } = req.params;
-  console.log('videoId: ', videoId, 'userId: ', userId)
   if (!videoId || !userId) {
-    console.log('something is falsey')
     res.status(400).send('video id or user id not valid')
   } else {
     Video.destroy({
@@ -149,14 +147,8 @@ router.delete('/:videoId/:userId', (req, res, next) => {
         userId
       }
     })
-      .then(() => {
-        console.log('video deleted!')
-        res.status(200).send('Video deleted!')
-      })
-      .catch(e => {
-        console.log('error deleting video: ', e)
-        res.status(404).send('error deleting video: ', e)
-      })
+      .then(() => res.status(200).send('Video deleted!'))
+      .catch(e => res.status(404).send('error deleting video: ', e))
   }
 });
 
