@@ -35,7 +35,7 @@ const EditDetailsModal = (props) => {
 
   useEffect(() => {
     if (updatesSubmitted && props.error.errorRegistered) {
-      console.log('line 38: ', props.error)
+      console.log('props.error in EditDetailsModal: ', props.error)
       if (!props.error.isError) {
         Alert.alert(
           'Updated!',
@@ -61,34 +61,10 @@ const EditDetailsModal = (props) => {
   const handleDone = (msg) => {
     setUpdatesSubmitted(false);
     props.clearVideo();
+    props.clearError();
     setShowEditDetailsModal(false);
     if (msg) {
-      props.clearError();
-      // throw new Error('Error saving video updates: ', msg)
-    }
-  };
-
-  console.log('props.error: ', props.error)
-
-  const handleNotify = () => {
-    if (!props.error.isError) {
-      Alert.alert(
-        'Updated!',
-        "Your updates have been successfully saved.",
-        [
-          { text: 'OK', onPress: () => handleDone() },
-        ],
-        { cancelable: false }
-      );
-    } else {
-      Alert.alert(
-        'Oops...',
-        "We could not save your updates. Please try again later.",
-        [
-          { text: 'OK', onPress: () => handleDone(props.error.message) },
-        ],
-        { cancelable: false }
-      );
+      throw new Error('Error saving video updates: ', msg)
     }
   };
 

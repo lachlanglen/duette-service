@@ -103,6 +103,8 @@ router.put('/:videoId/:userId', (req, res, next) => {
     performer,
     notes,
   } = req.body;
+  console.log('req.params: ', req.params);
+  console.log('req.body: ', req.body)
   if (!title || !performer) {
     res.status(400).send('Title & performer fields must not be null!');
   } else if (
