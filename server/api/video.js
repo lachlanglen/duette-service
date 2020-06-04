@@ -103,8 +103,6 @@ router.put('/:videoId/:userId', (req, res, next) => {
     performer,
     notes,
   } = req.body;
-  console.log('req.params: ', req.params);
-  console.log('req.body: ', req.body)
   if (!title || !performer) {
     res.status(400).send('Title & performer fields must not be null!');
   } else if (
@@ -114,15 +112,8 @@ router.put('/:videoId/:userId', (req, res, next) => {
     performer && performer.length > 50 ||
     notes && notes.length > 250
   ) {
-    console.log('an error in here...')
-    console.log('title && title.length > 50: ', title && title.length > 50)
-    console.log('composer && composer.length > 20: ', composer && composer.length > 30);
-    console.log('key && key.length > 10: ', key && key.length > 20);
-    console.log('performer && performer.length > 50: ', performer && performer.length > 50);
-    console.log('notes && notes.length > 250: ', notes && notes.length > 250)
     res.status(400).send('Update Video fields must adhere to maximum length requirements');
   } else {
-    console.log('passed the test!')
     Video.update(
       {
         title,

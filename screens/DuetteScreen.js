@@ -112,8 +112,6 @@ const DuetteScreen = (props) => {
     setFilteredVideos(text);
   };
 
-  console.log('props.error in DuetteScreen: ', props.error)
-
   return (
     !props.user.id ? (
       !props.dataLoaded ? (
