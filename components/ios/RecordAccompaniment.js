@@ -103,16 +103,21 @@ const RecordAccompaniment = (props) => {
             </View>
             {
               countdownActive &&
-              <View style={{
-                height: 300,
-                marginTop: deviceType === 2 ? screenHeight / 5 : 0,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                <Text style={{
-                  color: '#0047B9',
-                  fontSize: deviceType === 2 ? 200 : 110,
-                }}>{countdown}</Text>
+              <View
+                style={{
+                  height: 300,
+                  marginTop: deviceType === 2 ? screenHeight / 5 : 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: '#0047B9',
+                    fontSize: deviceType === 2 ? 200 : 110,
+                  }}
+                >
+                  {countdown}
+                </Text>
               </View>
             }
             <View
@@ -129,7 +134,8 @@ const RecordAccompaniment = (props) => {
                 textAlign: 'center',
                 textTransform: 'uppercase',
                 fontSize: 14,
-              }}>{recording || countdownActive ? '' : 'record'}</Text>
+              }}>{recording || countdownActive ? '' : 'record'}
+              </Text>
               <TouchableOpacity
                 onPress={!recording ? startCountdown : toggleRecord}
                 disabled={countdownActive}

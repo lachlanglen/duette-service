@@ -1,5 +1,5 @@
 /* eslint-disable complexity */
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, TouchableOpacity, View, Dimensions, Modal } from 'react-native';
 import { Camera } from 'expo-camera';
 
@@ -10,17 +10,29 @@ const RecordAccompaniment = (props) => {
     setCameraRef,
     handleRecordExit,
     recording,
+    startCountdown,
+    countdown,
+    countdownActive,
     toggleRecord,
     screenOrientation,
+    secs,
+    deviceType,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
+  const getColor = () => {
+    if (!recording) return 'yellow';
+    if (secs > 59) return 'green';
+    if (secs > 14 && secs <= 59) return 'yellow';
+    if (secs <= 14) return 'red';
+  }
+
   return (
     <Modal
       animationType="fade"
-      supportedOrientations={['portrait', 'portrait-upside-down', 'landscape', 'landscape-left', 'landscape-right']}
+      supportedOrientations={['portrait', 'portrait-upside-down', 'landscape-right']}
     >
       <View style={{
         flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
@@ -45,24 +57,70 @@ const RecordAccompaniment = (props) => {
               height: '100%',
             }}
             ratio="16:9"
-            type={Camera.Constants.Type.front} ref={ref => setCameraRef(ref)}>
+            type={Camera.Constants.Type.front}
+            ref={ref => setCameraRef(ref)}
+          >
             {
               screenOrientation === 'LANDSCAPE' ? (
                 <View style={{ flexDirection: 'row', height: '100%', width: '100%', justifyContent: 'space-between' }}>
-                  <View style={{ backgroundColor: 'black', width: '25%', height: '100%', justifyContent: 'center' }}>
+                  <View style={{ flexDirection: 'row', backgroundColor: 'black', width: '25%', height: '100%', justifyContent: 'center' }}>
                     <TouchableOpacity
                       onPress={handleRecordExit}
                     >
                       <Text style={{
                         color: 'red',
                         fontSize: recording ? 15 : 20,
+                        paddingLeft: 20,
+                        paddingTop: 20,
                         fontWeight: recording ? 'bold' : 'normal',
                         textAlign: 'center',
                       }}
                       >
-                        {recording ? 'Recording' : 'Cancel'}
+                        {recording ? 'REC' : 'Cancel'}
+                      </Text>
+                      {
+                        recording &&
+                        <View
+                          style={{
+                            width: 10,
+                            height: 10,
+                            backgroundColor: 'red',
+                            borderRadius: 50,
+                            marginLeft: 7,
+                            marginTop: 24,
+                          }} />
+                      }
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginBottom: 30 }}>
+                      <Text style={{
+                        color: getColor(),
+                        fontSize: 20,
+                        paddingTop: 20,
+                        paddingRight: 20,
+                        fontWeight: secs > 59 ? 'normal' : 'bold',
+                      }}>
+                        {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
                       </Text>
                     </TouchableOpacity>
+                    {
+                      countdownActive &&
+                      <View
+                        style={{
+                          height: 300,
+                          marginTop: deviceType === 2 ? screenHeight / 5 : 0,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <Text
+                          style={{
+                            color: '#0047B9',
+                            fontSize: deviceType === 2 ? 200 : 110,
+                          }}
+                        >
+                          {countdown}
+                        </Text>
+                      </View>
+                    }
                   </View>
                   <View style={{ flexDirection: 'row', backgroundColor: 'black', width: '25%', height: '100%', justifyContent: 'center' }}>
                     <TouchableOpacity
