@@ -137,13 +137,13 @@ router.put('/:id', (req, res, next) => {
 });
 
 router.delete('/', (req, res, next) => {
-  const { id, userId } = req.body;
-  if (!id || !userId) {
+  const { videoId, userId } = req.body;
+  if (!videoId || !userId) {
     res.status(400).send('video id or user id not valid')
   } else {
     Video.destroy({
       where: {
-        id,
+        id: videoId,
         userId
       }
     })

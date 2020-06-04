@@ -36,7 +36,7 @@ const EditDetailsModal = (props) => {
   }
 
   const handleUpdate = () => {
-    props.updateVideoDetails(id, { title, composer, key: songKey, performer }, searchText);
+    props.updateVideoDetails(id, { title, composer, key: songKey, performer, notes }, searchText);
     // FIXME: below will fire even updates have not successfully saved
     Alert.alert(
       'Updated!',
