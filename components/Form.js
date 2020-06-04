@@ -81,7 +81,7 @@ const Form = (props) => {
   };
 
   const handleSetComposer = val => {
-    if (val.length <= 20) {
+    if (val.length <= 30) {
       setComposer(val);
     } else {
       Alert.alert(
@@ -96,7 +96,7 @@ const Form = (props) => {
   };
 
   const handleSetSongKey = val => {
-    if (val.length <= 10) {
+    if (val.length <= 20) {
       setSongKey(val);
     } else {
       Alert.alert(

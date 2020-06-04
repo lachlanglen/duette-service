@@ -15,14 +15,14 @@ const Video = connection.define('video', {
     },
   },
   composer: {
-    type: Sequelize.STRING(20),
+    type: Sequelize.STRING(30),
     allowNull: true,
     validate: {
       notEmpty: true,
     },
   },
   key: {
-    type: Sequelize.STRING(10),
+    type: Sequelize.STRING(20),
     allowNull: true,
     validate: {
       notEmpty: true,
