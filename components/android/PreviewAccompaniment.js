@@ -2,12 +2,13 @@
 import React from 'react';
 import { Text, TouchableOpacity, View, Dimensions, Modal, StyleSheet } from 'react-native';
 import { Video } from 'expo-av';
+import buttonStyles from '../../styles/button';
 
 const PreviewAccompaniment = (props) => {
   const {
     dataUri,
     handleSave,
-    handleRedo,
+    handleRefresh,
     screenOrientation,
   } = props;
 
@@ -37,7 +38,14 @@ const PreviewAccompaniment = (props) => {
             alignItems: 'center',
             backgroundColor: 'black',
           }}>
-          <Video
+          <View
+            style={{
+              backgroundColor: 'pink',
+              width: screenOrientation === 'PORTRAIT' ? '100%' : screenHeight / 9 * 8 * 0.9,
+              height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight * 0.9,
+            }}
+          />
+          {/* <Video
             source={{ uri: dataUri }}
             rate={1.0}
             volume={1.0}
@@ -51,7 +59,7 @@ const PreviewAccompaniment = (props) => {
               width: screenOrientation === 'PORTRAIT' ? '100%' : screenHeight / 9 * 8 * 0.9,
               height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight * 0.9,
             }}
-          />
+          /> */}
           <View style={{
             flexDirection: screenOrientation === 'PORTRAIT' ? 'row' : 'column',
             marginTop: screenOrientation === 'PORTRAIT' ? 20 : 0,
@@ -59,23 +67,25 @@ const PreviewAccompaniment = (props) => {
           }}>
             <TouchableOpacity
               style={{
-                ...styles.button,
+                ...buttonStyles.regularButton,
+                width: screenOrientation === 'PORTRAIT' ? '30%' : 100,
                 marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
                 marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
               }}
               onPress={handleSave}>
-              <Text style={styles.overlayText}
+              <Text style={buttonStyles.regularButtonText}
               >Save
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
-                ...styles.button,
+                ...buttonStyles.regularButton,
+                width: screenOrientation === 'PORTRAIT' ? '30%' : 100,
                 marginVertical: screenOrientation === 'PORTRAIT' ? 0 : 25,
                 marginHorizontal: screenOrientation === 'PORTRAIT' ? 20 : 0,
               }}
-              onPress={handleRedo}>
-              <Text style={styles.overlayText}
+              onPress={handleRefresh}>
+              <Text style={buttonStyles.regularButtonText}
               >Redo
               </Text>
             </TouchableOpacity>

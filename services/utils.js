@@ -12,6 +12,7 @@ const Auth = new AuthService;
 export const handleLogin = async () => {
   const permissionsObj = await Auth.loginWithFacebook();
   if (permissionsObj.type === 'success') {
+    // console.log('permissionsObj: ', permissionsObj)
     const { declinedPermissions, expires, permissions, token } = permissionsObj;
     try {
       const basicInfo = await fetch(`https://graph.facebook.com/me?access_token=${token}`);

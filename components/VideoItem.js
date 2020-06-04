@@ -34,7 +34,7 @@ const VideoItem = (props) => {
   const handleDelete = () => {
     Alert.alert(
       'Are you sure you want to delete this video?',
-      `This cannot be undone.${Platform.OS === 'ios' && ' 💀'}`,
+      `This cannot be undone.${Platform.OS === 'ios' ? ' 💀' : ''}`,
       [
         { text: 'Yes, delete it!', onPress: () => props.deleteVideo(id, searchText) },
         { text: 'Cancel', onPress: () => { } }

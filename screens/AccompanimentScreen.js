@@ -252,6 +252,12 @@ const AccompanimentScreen = (props) => {
                     recording={recording}
                     toggleRecord={toggleRecord}
                     screenOrientation={screenOrientation}
+                    startCountdown={startCountdown}
+                    secs={secs}
+                    setSecs={setSecs}
+                    countdown={countdown}
+                    countdownActive={countdownActive}
+                    deviceType={deviceType}
                   />
                 ) : (
                     <RecordAccompanimentIos
@@ -320,7 +326,7 @@ const AccompanimentScreen = (props) => {
                   <PreviewAccompanimentAndroid
                     dataUri={dataUri}
                     handleSave={handleSave}
-                    handleRedo={handleRedo}
+                    handleRefresh={handleRefresh}
                     screenOrientation={screenOrientation}
                   />
                 ) : (

@@ -63,6 +63,7 @@ export default function App(props) {
           'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
           'Gill Sans': require('./assets/fonts/gillsans.ttf'),
         });
+
         // check for accessToken and expiry on secure store
         const accessToken = await SecureStore.getItemAsync('accessToken');
         if (accessToken) {
