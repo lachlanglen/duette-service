@@ -147,8 +147,14 @@ router.delete('/', (req, res, next) => {
         userId
       }
     })
-      .then(() => res.status(200).send('Video deleted!'))
-      .catch(e => res.status(404).send('error deleting video: ', e))
+      .then(() => {
+        console.log('video deleted!')
+        res.status(200).send('Video deleted!')
+      })
+      .catch(e => {
+        console.log('error deleting video: ', e)
+        res.status(404).send('error deleting video: ', e)
+      })
   }
 });
 
