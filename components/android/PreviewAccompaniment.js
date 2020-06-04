@@ -15,6 +15,8 @@ const PreviewAccompaniment = (props) => {
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
+  console.log('dataUri: ', dataUri)
+
   return (
     <Modal
       animationType="fade"
@@ -38,28 +40,33 @@ const PreviewAccompaniment = (props) => {
             alignItems: 'center',
             backgroundColor: 'black',
           }}>
-          <View
-            style={{
-              backgroundColor: 'pink',
-              width: screenOrientation === 'PORTRAIT' ? '100%' : screenHeight / 9 * 8 * 0.9,
-              height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight * 0.9,
-            }}
-          />
-          {/* <Video
-            source={{ uri: dataUri }}
-            rate={1.0}
-            volume={1.0}
-            isMuted={false}
-            resizeMode="cover"
-            shouldPlay
-            positionMillis={50}
-            useNativeControls={true}
-            isLooping={false}
-            style={{
-              width: screenOrientation === 'PORTRAIT' ? '100%' : screenHeight / 9 * 8 * 0.9,
-              height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight * 0.9,
-            }}
-          /> */}
+          {
+            !dataUri ? (
+              <View
+                style={{
+                  backgroundColor: 'black',
+                  width: screenOrientation === 'PORTRAIT' ? '100%' : screenHeight / 9 * 8 * 0.9,
+                  height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight * 0.9,
+                }}
+              />
+            ) : (
+                <Video
+                  source={{ uri: dataUri }}
+                  rate={1.0}
+                  volume={1.0}
+                  isMuted={false}
+                  resizeMode="cover"
+                  shouldPlay
+                  positionMillis={50}
+                  useNativeControls={true}
+                  isLooping={false}
+                  style={{
+                    width: screenOrientation === 'PORTRAIT' ? '100%' : screenHeight / 9 * 8 * 0.9,
+                    height: screenOrientation === 'PORTRAIT' ? screenWidth / 8 * 9 : screenHeight * 0.9,
+                  }}
+                />
+              )
+          }
           <View style={{
             flexDirection: screenOrientation === 'PORTRAIT' ? 'row' : 'column',
             marginTop: screenOrientation === 'PORTRAIT' ? 20 : 0,

@@ -6,6 +6,7 @@ import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import { deleteVideo } from '../redux/videos';
 import { setVideo } from '../redux/singleVideo';
+import buttonStyles from '../styles/button';
 
 const VideoItem = (props) => {
 
@@ -94,7 +95,8 @@ const VideoItem = (props) => {
       <Text
         style={{
           ...styles.title,
-          width: screenWidth * 0.8
+          width: screenWidth * 0.8,
+          fontWeight: Platform.OS === 'android' ? 'bold' : '400'
         }}>
         "{title}"
       </Text>
@@ -109,7 +111,7 @@ const VideoItem = (props) => {
       <Text
         style={{
           ...styles.details,
-          fontWeight: '400'
+          fontWeight: Platform.OS === 'android' ? 'bold' : '400'
         }}>
         Performed by {performer}
       </Text>
@@ -117,10 +119,13 @@ const VideoItem = (props) => {
         onPress={() => handleUse(id)}
         style={{
           ...styles.button,
+          // ...buttonStyles.regularButton,
           width: loading.isLoading && loading.id === id ? '85%' : '70%',
         }}>
         <Text style={{
           ...styles.buttonText,
+          // ...buttonStyles.regularButtonText,
+          fontWeight: Platform.OS === 'ios' ? 'normal' : 'bold',
           fontSize: loading.isLoading && loading.id === id ? 25 : 30,
         }}>
           {loading.isLoading && loading.id === id ? 'Loading, please wait...' : 'Record Duette!'}

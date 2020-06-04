@@ -63,12 +63,16 @@ const DuetteScreen = (props) => {
     } else {
       setBluetooth(false);
     }
+    console.log('id line 66: ', id)
     props.setVideo(id);
+    console.log('line 68')
     try {
+      console.log('line 70')
       const { uri } = await FileSystem.downloadAsync(
         getAWSVideoUrl(id),
         FileSystem.documentDirectory + `${id}.mov`
       );
+      console.log('line 75')
       setBaseTrackUri(uri);
       setLoading({ isLoading: false, id: '' });
       setShowRecordDuetteModal(true);
@@ -88,6 +92,7 @@ const DuetteScreen = (props) => {
   }
 
   const handleUse = (id) => {
+    console.log('in handleUse')
     Alert.alert(
       'Are you using bluetooth or wired headphones?',
       `This helps us sync your video perfectly${Platform.OS === 'ios' && deviceType !== 2 ? ` 🥰` : `!`}`,
@@ -111,6 +116,11 @@ const DuetteScreen = (props) => {
     setSearchText(text);
     setFilteredVideos(text);
   };
+
+  // console.log('showEditDetailsModal: ', showEditDetailsModal)
+  console.log('props.selectedVideo.id: ', props.selectedVideo.id)
+  console.log('showRecordDuetteModal: ', showRecordDuetteModal)
+  // console.log('Platform.OS: ', Platform.OS)
 
   return (
     !props.user.id ? (
@@ -142,6 +152,8 @@ const DuetteScreen = (props) => {
                       bluetooth={bluetooth}
                       setShowRecordDuetteModal={setShowRecordDuetteModal}
                       screenOrientation={screenOrientation}
+                      baseTrackUri={baseTrackUri}
+                      setSearchText={setSearchText}
                     />
                   ) : (
                       <RecordDuetteModalIos

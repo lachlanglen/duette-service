@@ -20,6 +20,7 @@ const RecordDuettePortrait = (props) => {
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
+  console.log('in RecordDuettePortrait')
   return (
     <View style={styles.container}>
       <View style={styles.recordingOrCancelContainer}>
