@@ -94,46 +94,48 @@ router.get('/', (req, res, next) => {
   }
 });
 
-router.put('/:id', (req, res, next) => {
-  const { id } = req.params;
-  const {
-    title,
-    composer,
-    key,
-    performer,
-    notes,
-  } = req.body;
-  if (!title || !performer) {
-    res.status(400).send('Title & performer fields must not be null!');
-  } else if (
-    title && title.length > 50 ||
-    composer && composer.length > 20 ||
-    key && key.length > 10 ||
-    performer && performer.length > 50 ||
-    notes && notes.length > 250
-  ) {
-    res.status(400).send('Update Video fields must adhere to maximum length requirements');
-  } else {
-    Video.update(
-      {
-        title,
-        composer,
-        key,
-        performer,
-        notes,
-      },
-      {
-        where: {
-          id,
-        },
-        returning: true,
-      }
-    )
-      .then(updated => res.status(200).send(updated))
-      .catch(e => {
-        res.status(404).send('Error updating video record: ', e);
-      })
-  }
+router.put('/:videoId/:userId', (req, res, next) => {
+  res.status(400).send('error!')
+  // const { videoId, userId } = req.params;
+  // const {
+  //   title,
+  //   composer,
+  //   key,
+  //   performer,
+  //   notes,
+  // } = req.body;
+  // if (!title || !performer) {
+  //   res.status(400).send('Title & performer fields must not be null!');
+  // } else if (
+  //   title && title.length > 50 ||
+  //   composer && composer.length > 20 ||
+  //   key && key.length > 10 ||
+  //   performer && performer.length > 50 ||
+  //   notes && notes.length > 250
+  // ) {
+  //   res.status(400).send('Update Video fields must adhere to maximum length requirements');
+  // } else {
+  //   Video.update(
+  //     {
+  //       title,
+  //       composer,
+  //       key,
+  //       performer,
+  //       notes,
+  //     },
+  //     {
+  //       where: {
+  //         id: videoId,
+  //         userId
+  //       },
+  //       returning: true,
+  //     }
+  //   )
+  //     .then(updated => res.status(200).send(updated))
+  //     .catch(e => {
+  //       res.status(404).send('Error updating video record: ', e);
+  //     })
+  // }
 });
 
 router.delete('/:videoId/:userId', (req, res, next) => {
