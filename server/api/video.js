@@ -124,6 +124,7 @@ router.put('/:id', (req, res, next) => {
 
 router.delete('/:videoId/:userId', (req, res, next) => {
   const { videoId, userId } = req.params;
+  console.log('videoId: ', videoId, 'userId: ', userId)
   Video.destroy({
     where: {
       id: videoId,
@@ -131,7 +132,10 @@ router.delete('/:videoId/:userId', (req, res, next) => {
     }
   })
     .then(() => res.status(200).send('Video deleted!'))
-    .catch(e => res.status(404).send('error deleting video: ', e))
+    .catch(e => {
+      console.log('error deleting video: ', e)
+      res.status(404).send('error deleting video: ', e)
+    })
 })
 
 module.exports = router; 
