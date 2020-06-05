@@ -6,7 +6,6 @@ const SET_SELECTED_VIDEO = 'SET_SELECTED_VIDEO';
 const CLEAR_SELECTED_VIDEO = 'CLEAR_SELECTED_VIDEO'
 
 const setSelectedVideo = video => {
-  console.log('in setSelectedVideo')
   return {
     type: SET_SELECTED_VIDEO,
     video
@@ -33,9 +32,7 @@ export const singleVideoReducer = (state = {}, action) => {
 }
 
 export const setVideo = id => {
-  console.log('in setVideo')
   return dispatch => {
-    console.log('line 38 in setVideo')
     axios.get(`https://duette.herokuapp.com/api/video/${id}`)
       .then(video => {
         dispatch(setSelectedVideo(video.data))

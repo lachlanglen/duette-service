@@ -50,7 +50,6 @@ router.get('/:id', (req, res, next) => {
       }
     })
       .then(video => {
-        console.log('video: ', video)
         if (video) {
           res.status(200).send(video)
         } else {
@@ -85,11 +84,9 @@ router.get('/', (req, res, next) => {
       ]
     })
       .then(videos => {
-        console.log('got videos: ', videos)
         res.status(200).send(videos)
       })
       .catch(e => {
-        console.log('error getting videos by search value: ', e)
         res.status(400).send('error finding videos by search value: ', e);
       })
   } else {
@@ -106,11 +103,9 @@ router.get('/', (req, res, next) => {
       }
     )
       .then(videos => {
-        console.log('yay!')
         res.status(200).send(videos)
       })
       .catch(e => {
-        console.log('error getting all videos: ', e)
         res.status(404).send('Error finding all videos: ', e)
       })
   }
@@ -176,14 +171,8 @@ router.delete('/:videoId/:userId', (req, res, next) => {
         returning: true,
       }
     )
-      .then((updated) => {
-        console.log('successfully updated!: ', updated)
-        res.status(200).send('Video hidden!')
-      })
-      .catch(e => {
-        console.log('error hiding video: ', e)
-        res.status(404).send('error hiding video: ', e)
-      })
+      .then(() => res.status(200).send('Video hidden!'))
+      .catch(e => res.status(404).send('error hiding video: ', e))
   }
 });
 

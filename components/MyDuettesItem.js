@@ -143,8 +143,6 @@ const MyDuettesItem = props => {
     }
   };
 
-  console.log('url: ', getAWSThumbnailUrl(`duette/${combinedKey}`))
-
   return (
     <View
       style={{
