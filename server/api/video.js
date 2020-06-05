@@ -168,7 +168,7 @@ router.delete('/:videoId/:userId', (req, res, next) => {
         returning: true,
       }
     )
-      .then((updated) => res.status(200).send('Video hidden!: ', updated))
+      .then((updated) => res.send('Video hidden!: ', updated))
       .catch(e => res.status(404).send('error hiding video: ', e))
   }
 });

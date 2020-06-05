@@ -40,6 +40,7 @@ export const postVideo = (details) => {
 };
 
 export const deleteVideo = (userId, videoId, searchText) => {
+  console.log('videoId: ', videoId, 'userId: ', userId)
   return dispatch => {
     axios.delete(`https://duette.herokuapp.com/api/video/${videoId}/${userId}`)
       .then(() => axios.delete(`https://duette.herokuapp.com/api/aws/${videoId}.mov`))
