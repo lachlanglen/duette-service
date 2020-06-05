@@ -7,6 +7,11 @@ const Video = connection.define('video', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
   },
+  isHidden: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   title: {
     type: Sequelize.STRING(50),
     allowNull: false,

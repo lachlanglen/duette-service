@@ -166,63 +166,70 @@ const DuetteScreen = (props) => {
               </View>
             ) : (
                 // VIEW VIDEOS
-                <SafeAreaView
-                  onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
+                <View
                   style={styles.listContainer}>
-                  <Searchbar
-                    placeholder="Try 'No Such Thing'"
-                    onChangeText={handleSearch}
-                    style={styles.searchbar}
-                  />
-                  {
-                    !searchText ? (
-                      <View>
-                        <Text style={styles.text}>
-                          {"Search for a base track by title, composer, performer or key!"}
-                        </Text>
-                      </View>
-                    ) : (
-                        // SEARCH YIELDED NO RESULTS
-                        props.videos.length > 0 ? (
-                          <View style={{ flex: 1, paddingBottom: 10 }}>
-                            <FlatList
-                              data={props.videos}
-                              renderItem={({ item }) => (
-                                <VideoItem
-                                  id={item.id}
-                                  title={item.title}
-                                  performer={item.performer}
-                                  composer={item.composer}
-                                  theKey={item.key}
-                                  userId={item.userId}
-                                  previewVid={previewVid}
-                                  setPreviewVid={setPreviewVid}
-                                  handlePreview={handlePreview}
-                                  handleUse={handleUse}
-                                  setShowEditDetailsModal={setShowEditDetailsModal}
-                                  showEditDetailsModal={showEditDetailsModal}
-                                  loading={loading}
-                                  searchText={searchText}
-                                />
-                              )}
-                              keyExtractor={item => item.id}
-                              viewabilityConfig={{}}
-                            />
-                          </View>
-                        ) : (
-                            <View>
-                              <Text style={styles.text}>
-                                No base tracks found matching "{searchText}" 😿
-                              </Text>
+                  <SafeAreaView
+                    onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
+                    style={styles.listContainer}
+                  >
+                    <Searchbar
+                      placeholder="Try 'No Such Thing'"
+                      onChangeText={handleSearch}
+                      style={styles.searchbar}
+                    />
+                    {
+                      !searchText ? (
+                        <View
+                          onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
+                        >
+                          <Text style={styles.text}>
+                            {"Search for a base track by title, composer, performer or key!"}
+                          </Text>
+                        </View>
+                      ) : (
+                          // SEARCH YIELDED NO RESULTS
+                          props.videos.length > 0 ? (
+                            <View
+                              style={{ flex: 1, paddingBottom: 10 }}>
+                              <FlatList
+                                data={props.videos}
+                                renderItem={({ item }) => (
+                                  <VideoItem
+                                    id={item.id}
+                                    title={item.title}
+                                    performer={item.performer}
+                                    composer={item.composer}
+                                    theKey={item.key}
+                                    userId={item.userId}
+                                    previewVid={previewVid}
+                                    setPreviewVid={setPreviewVid}
+                                    handlePreview={handlePreview}
+                                    handleUse={handleUse}
+                                    setShowEditDetailsModal={setShowEditDetailsModal}
+                                    showEditDetailsModal={showEditDetailsModal}
+                                    loading={loading}
+                                    searchText={searchText}
+                                  />
+                                )}
+                                keyExtractor={item => item.id}
+                                viewabilityConfig={{}}
+                              />
                             </View>
-                          )
-                      )
-                  }
+                          ) : (
+                              <View>
+                                <Text style={styles.text}>
+                                  No base tracks found matching "{searchText}" 😿
+                              </Text>
+                              </View>
+                            )
+                        )
+                    }
+                  </SafeAreaView>
                   {
                     props.displayUserInfo &&
                     <UserInfoMenu />
                   }
-                </SafeAreaView>
+                </View>
               )
           )
       )

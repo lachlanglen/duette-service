@@ -45,7 +45,8 @@ router.get('/:id', (req, res, next) => {
   if (id) {
     Video.findOne({
       where: {
-        id
+        id,
+        isHidden: false,
       }
     })
       .then(video => {
@@ -64,13 +65,18 @@ router.get('/', (req, res, next) => {
   if (val) {
     Video.findAll({
       where: {
-        [Op.or]: [
-          { title: { [Op.iLike]: `%${val}%` } },
-          { composer: { [Op.iLike]: `%${val}%` } },
-          { key: { [Op.iLike]: `%${val}%` } },
-          { performer: { [Op.iLike]: `%${val}%` } },
-          // TODO: add Id
-        ],
+        [Op.and]: [
+          { isHidden: false },
+          {
+            [Op.or]: [
+              { title: { [Op.iLike]: `%${val}%` } },
+              { composer: { [Op.iLike]: `%${val}%` } },
+              { key: { [Op.iLike]: `%${val}%` } },
+              { performer: { [Op.iLike]: `%${val}%` } },
+              // TODO: add Id
+            ],
+          }
+        ]
       },
       order: [
         ['createdAt', 'DESC']
@@ -81,11 +87,18 @@ router.get('/', (req, res, next) => {
         res.status(400).send('error finding videos by search value: ', e);
       })
   } else {
-    Video.findAll({
-      order: [
-        ['createdAt', 'DESC']
-      ]
-    })
+    Video.findAll(
+      {
+        where: {
+          isHidden: false
+        }
+      },
+      {
+        order: [
+          ['createdAt', 'DESC']
+        ]
+      }
+    )
       .then(videos => {
         res.status(200).send(videos)
       })
@@ -143,14 +156,20 @@ router.delete('/:videoId/:userId', (req, res, next) => {
   if (!videoId || !userId) {
     res.status(400).send('video id or user id not valid')
   } else {
-    Video.destroy({
-      where: {
-        id: videoId,
-        userId
+    Video.update(
+      {
+        isHidden: true,
+      },
+      {
+        where: {
+          id: videoId,
+          userId
+        },
+        returning: true,
       }
-    })
-      .then(() => res.status(200).send('Video deleted!'))
-      .catch(e => res.status(404).send('error deleting video: ', e))
+    )
+      .then((updated) => res.status(200).send('Video hidden!: ', updated))
+      .catch(e => res.status(404).send('error hiding video: ', e))
   }
 });
 

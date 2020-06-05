@@ -55,16 +55,18 @@ const RecordDuetteModal = (props) => {
     getDeviceType();
   }, []);
 
-  if (props.selectedVideo.notes && !displayedNotes && vidLoaded && vidDoneBuffering) {
-    Alert.alert(
-      `Notes from ${props.selectedVideo.performer.split(' ')[0]}`,
-      props.selectedVideo.notes,
-      [
-        { text: 'OK', onPress: () => setDisplayedNotes(true) },
-      ],
-      { cancelable: false }
-    );
-  }
+  useEffect(() => {
+    if (props.selectedVideo.notes && !displayedNotes && vidLoaded && vidDoneBuffering) {
+      Alert.alert(
+        `Notes from ${props.selectedVideo.performer.split(' ')[0]}`,
+        props.selectedVideo.notes,
+        [
+          { text: 'OK', onPress: () => setDisplayedNotes(true) },
+        ],
+        { cancelable: false }
+      );
+    }
+  })
 
   const record = async () => {
     if (duetteUri) setDuetteUri('');

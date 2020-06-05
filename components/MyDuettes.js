@@ -51,11 +51,12 @@ const MyDuettes = (props) => {
               // borderWidth: 1,
             }}>Duettes available for 30 days</Text>
             <FlatList
-              data={props.userDuettes.filter(duette => duette.videoId)}
+              // data={props.userDuettes.filter(duette => duette.videoId)}
+              data={props.userDuettes}
               renderItem={({ item }) => (
                 <MyDuettesItem
                   videoId={item.videoId}
-                  videoTitle={item.video.title}
+                  videoTitle={item.video ? item.video.title : ''}
                   duetteId={item.id}
                   selectedDuette={selectedDuette}
                   setSelectedDuette={setSelectedDuette}

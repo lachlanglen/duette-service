@@ -247,7 +247,6 @@ const AccompanimentScreen = (props) => {
         !preview ? (
           // record video:
           <View
-            onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
             style={styles.container}>
             {
               record && hasAudioPermission && hasCameraPermission ? (
@@ -284,7 +283,9 @@ const AccompanimentScreen = (props) => {
                   // landing page ('Record!' button not clicked)
                   <ScrollView
                     style={styles.landingPage}>
-                    <View style={styles.logoAndButtonsContainer}>
+                    <View
+                      onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
+                      style={styles.logoAndButtonsContainer}>
                       <Image
                         source={require('../assets/images/duette-logo-HD.png')}
                         style={styles.logo} />
