@@ -8,6 +8,7 @@ import { userDuettesReducer } from './duettes';
 import { dataLoadedReducer } from './dataLoaded';
 import { requestReviewReducer } from './requestReview';
 import { errorReducer } from './error';
+import { displayUpgradeOverlay } from './upgradeOverlay';
 
 const appReducer = combineReducers({
   videos: videosReducer,
@@ -15,6 +16,7 @@ const appReducer = combineReducers({
   cats: catsReducer,
   user: userReducer,
   displayUserInfo: displayUserInfoReducer,
+  displayUpgradeOverlay: displayUpgradeOverlay,
   userDuettes: userDuettesReducer,
   dataLoaded: dataLoadedReducer,
   requestReview: requestReviewReducer,

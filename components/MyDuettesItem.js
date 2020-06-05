@@ -24,6 +24,7 @@ const MyDuettesItem = props => {
     screenHeight,
     showPreview,
     setShowPreview,
+    handleToggleUpgradeOverlay,
   } = props;
 
   // let screenWidth = Math.round(Dimensions.get('window').width);
@@ -153,7 +154,7 @@ const MyDuettesItem = props => {
         borderWidth: 1,
         borderColor: 'darkgrey',
         paddingVertical: 10,
-        height: screenWidth / 16 * 9 + 50,
+        height: screenWidth / 16 * 9 + 70,
         width: screenWidth - 30,
         alignItems: 'center',
       }}>
@@ -221,6 +222,7 @@ const MyDuettesItem = props => {
             ...buttonStyles.regularButton,
             width: screenWidth * 0.85,
             marginTop: 10,
+            marginBottom: 0,
             backgroundColor: loading || savingToCameraRoll ? 'lightgrey' : '#0047B9',
             borderColor: loading || savingToCameraRoll ? 'white' : 'darkblue',
           }}>
@@ -242,6 +244,16 @@ const MyDuettesItem = props => {
                 </View>
               )
           }
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleToggleUpgradeOverlay}
+          style={{
+            marginTop: 7,
+          }}>
+          <Text
+            style={{
+              color: '#0047B9',
+            }}>Save without Duette logo</Text>
         </TouchableOpacity>
       </View>
     </View >

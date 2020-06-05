@@ -6,6 +6,7 @@ import { Video } from 'expo-av';
 import { getAWSVideoUrl, getAWSThumbnailUrl } from '../constants/urls';
 import { deleteVideo } from '../redux/videos';
 import { setVideo } from '../redux/singleVideo';
+import { toggleUpgradeOverlay } from '../redux/upgradeOverlay';
 import buttonStyles from '../styles/button';
 
 const VideoItem = (props) => {
@@ -47,6 +48,10 @@ const VideoItem = (props) => {
   const handleEdit = () => {
     props.setVideo(id);
     setShowEditDetailsModal(true);
+  };
+
+  const handleToggleUpgradeOverlay = () => {
+    props.toggleUpgradeOverlay(!props.displayUpgradeOverlay);
   };
 
   return (
@@ -91,6 +96,31 @@ const VideoItem = (props) => {
               </View>
             )
         }
+        <TouchableOpacity
+          onPress={handleToggleUpgradeOverlay}
+          style={{
+            width: 80,
+            backgroundColor: '#e43',
+            position: 'absolute',
+            top: -10,
+            right: 0,
+            borderTopRightRadius: 9,
+            borderBottomLeftRadius: 10,
+            // letterSpacing: 1,
+            // transform: [{ rotate: '45deg' }],
+          }}>
+          <Text
+            style={{
+              color: 'white',
+              textAlign: 'center',
+              lineHeight: 50,
+              fontSize: 20,
+              textTransform: 'uppercase',
+              fontWeight: 'bold',
+            }}>
+            pro
+            </Text>
+        </TouchableOpacity>
       </View>
       <Text
         style={{
@@ -236,8 +266,9 @@ const styles = StyleSheet.create({
   }
 });
 
-const mapState = ({ user }) => {
+const mapState = ({ user, displayUpgradeOverlay }) => {
   return {
+    displayUpgradeOverlay,
     user,
   }
 };
@@ -246,6 +277,7 @@ const mapDispatch = dispatch => {
   return {
     deleteVideo: (userId, videoId, searchText) => dispatch(deleteVideo(userId, videoId, searchText)),
     setVideo: id => dispatch(setVideo(id)),
+    toggleUpgradeOverlay: bool => dispatch(toggleUpgradeOverlay(bool)),
   }
 };
 

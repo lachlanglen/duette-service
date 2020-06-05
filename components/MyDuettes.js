@@ -4,6 +4,8 @@ import { Text, View, SafeAreaView, FlatList, StyleSheet, Dimensions } from 'reac
 import * as ScreenOrientation from 'expo-screen-orientation';
 import MyDuettesItem from './MyDuettesItem';
 import { fetchDuettes } from '../redux/duettes';
+import { toggleUpgradeOverlay } from '../redux/upgradeOverlay';
+import SubscriptionOverlay from './SubscriptionOverlay';
 
 const MyDuettes = (props) => {
   const [selectedDuette, setSelectedDuette] = useState('');
@@ -32,7 +34,11 @@ const MyDuettes = (props) => {
 
   useEffect(() => {
     props.setDuettes(props.user.id)
-  }, [])
+  }, []);
+
+  const handleToggleUpgradeOverlay = () => {
+    props.toggleUpgradeOverlay(!props.displayUpgradeOverlay);
+  };
 
   return (
     <SafeAreaView
@@ -40,6 +46,9 @@ const MyDuettes = (props) => {
       {
         props.userDuettes.length > 0 ? (
           <View style={{ flex: 1, paddingBottom: 10 }}>
+            <SubscriptionOverlay
+              screenOrientation={screenOrientation}
+            />
             <Text style={{
               color: '#0047B9',
               fontSize: 20,
@@ -62,6 +71,7 @@ const MyDuettes = (props) => {
                   screenHeight={screenHeight}
                   showPreview={showPreview}
                   setShowPreview={setShowPreview}
+                  handleToggleUpgradeOverlay={handleToggleUpgradeOverlay}
                 />
               )}
               keyExtractor={item => item.id}
@@ -94,16 +104,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapState = ({ userDuettes, user }) => {
+const mapState = ({ userDuettes, user, displayUpgradeOverlay }) => {
   return {
     userDuettes,
     user,
+    displayUpgradeOverlay,
   }
 };
 
 const mapDispatch = dispatch => {
   return {
     setDuettes: userId => dispatch(fetchDuettes(userId)),
+    toggleUpgradeOverlay: bool => dispatch(toggleUpgradeOverlay(bool)),
   }
 }
 

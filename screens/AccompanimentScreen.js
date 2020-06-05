@@ -19,6 +19,7 @@ import PreviewAccompanimentIos from '../components/ios/PreviewAccompaniment';
 import buttonStyles from '../styles/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { toggleUserInfo } from '../redux/userInfo';
+import SubscriptionOverlay from '../components/SubscriptionOverlay';
 
 let timerIntervalId;
 let countdownIntervalId;
@@ -34,7 +35,7 @@ const AccompanimentScreen = (props) => {
   const [preview, setPreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
-  const [secs, setSecs] = useState(540);  // start with 9 mins remaining
+  const [secs, setSecs] = useState(210);  // start with 9 mins remaining
   const [countdown, setCountdown] = useState(3);  // start with 3 secs remaining
   const [countdownActive, setCountdownActive] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
@@ -248,6 +249,9 @@ const AccompanimentScreen = (props) => {
           // record video:
           <View
             style={styles.container}>
+            <SubscriptionOverlay
+              screenOrientation={screenOrientation}
+            />
             {
               record && hasAudioPermission && hasCameraPermission ? (
                 // user has clicked 'Record!' button
@@ -283,6 +287,7 @@ const AccompanimentScreen = (props) => {
                   // landing page ('Record!' button not clicked)
                   <ScrollView
                     style={styles.landingPage}>
+                    <SubscriptionOverlay />
                     <View
                       onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
                       style={styles.logoAndButtonsContainer}>
@@ -371,18 +376,18 @@ const styles = StyleSheet.create({
   }
 })
 
-const mapDispatch = dispatch => {
-  return {
-    fetchVideos: () => dispatch(fetchVideos()),
-    toggleUserInfo: bool => dispatch(toggleUserInfo(bool)),
-  }
-};
-
 const mapState = ({ user, displayUserInfo, dataLoaded }) => {
   return {
     user,
     displayUserInfo,
     dataLoaded,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    fetchVideos: () => dispatch(fetchVideos()),
+    toggleUserInfo: bool => dispatch(toggleUserInfo(bool)),
   }
 };
 

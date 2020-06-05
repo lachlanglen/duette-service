@@ -5,13 +5,18 @@ import { connect } from 'react-redux'
 import { handleLogout } from '../services/utils';
 import { toggleUserInfo } from '../redux/userInfo';
 import buttonStyles from '../styles/button';
+import { toggleUpgradeOverlay } from '../redux/upgradeOverlay';
 
 const UserInfoMenu = (props) => {
 
   const navigation = useNavigation();
 
   const handlePress = (type) => {
-    navigation.navigate(type === 'duettes' ? 'My Duettes' : 'Settings');
+    if (type === 'duettes' || type === 'settings') {
+      navigation.navigate(type === 'duettes' ? 'My Duettes' : 'Settings');
+    } else if (type === 'upgrade') {
+      props.toggleUpgradeOverlay(!props.displayUpgradeOverlay);
+    }
     props.toggleUserInfo(!props.displayUserInfo);
   }
 
@@ -51,10 +56,27 @@ const UserInfoMenu = (props) => {
           ...styles.optionContainer,
           borderRadius: 0,
         }}
-        onPress={() => handlePress('Settings')}
+        onPress={() => handlePress('settings')}
       >
         <Text
           style={styles.optionText}>Settings
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          ...styles.optionContainer,
+          borderRadius: 0,
+          backgroundColor: '#e43'
+        }}
+        onPress={() => handlePress('upgrade')}
+      >
+        <Text
+          style={{
+            ...styles.optionText,
+            // textTransform: 'uppercase',
+            // fontWeight: 'bold',
+            color: 'white',
+          }}>Duette Pro
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -96,16 +118,18 @@ const styles = StyleSheet.create({
   }
 })
 
-const mapState = ({ user, displayUserInfo }) => {
+const mapState = ({ user, displayUserInfo, displayUpgradeOverlay }) => {
   return {
     user,
-    displayUserInfo
+    displayUserInfo,
+    displayUpgradeOverlay,
   }
 };
 
 const mapDispatch = dispatch => {
   return {
     toggleUserInfo: bool => dispatch(toggleUserInfo(bool)),
+    toggleUpgradeOverlay: bool => dispatch(toggleUpgradeOverlay(bool)),
   }
 };
 

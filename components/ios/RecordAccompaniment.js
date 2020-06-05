@@ -1,7 +1,10 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { Text, TouchableOpacity, View, Dimensions, Modal } from 'react-native';
 import { Camera } from 'expo-camera';
+import { toggleUpgradeOverlay } from '../../redux/upgradeOverlay';
+import SubscriptionOverlay from '../SubscriptionOverlay';
 
 // iOS
 
@@ -32,7 +35,11 @@ const RecordAccompaniment = (props) => {
     if (secs > 59) return 'green';
     if (secs > 14 && secs <= 59) return 'yellow';
     if (secs <= 14) return 'red';
-  }
+  };
+
+  const handleToggleUpgradeOverlay = () => {
+    props.toggleUpgradeOverlay(!props.displayUpgradeOverlay);
+  };
 
   return (
     <Modal
@@ -40,6 +47,9 @@ const RecordAccompaniment = (props) => {
       onOrientationChange={e => handleModalOrientationChange(e)}
       supportedOrientations={['portrait', 'portrait-upside-down', 'landscape-right']}
     >
+      <SubscriptionOverlay
+        screenOrientation={screenOrientation}
+      />
       <View style={{
         flexDirection: screenOrientation === 'PORTRAIT' ? 'column' : 'row',
         justifyContent: 'center',
@@ -89,17 +99,57 @@ const RecordAccompaniment = (props) => {
                   }
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginBottom: 30 }}>
-                <Text style={{
-                  color: getColor(),
-                  fontSize: 20,
-                  paddingTop: 20,
-                  paddingRight: 20,
-                  fontWeight: secs > 59 ? 'normal' : 'bold',
+              <View
+                style={{
+                  flexDirection: 'row',
                 }}>
-                  {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  disabled
+                  style={{
+                    marginBottom: 30,
+                    // backgroundColor: 'green',
+                  }}>
+                  <Text style={{
+                    color: getColor(),
+                    fontSize: 20,
+                    paddingTop: 20,
+                    paddingRight: 10,
+                    // backgroundColor: 'purple',
+                    fontWeight: secs > 59 ? 'normal' : 'bold',
+                  }}>
+                    {!recording ? '3.5 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
+                  </Text>
+                </TouchableOpacity>
+                {
+                  !recording &&
+                  <TouchableOpacity
+                    onPress={handleToggleUpgradeOverlay}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      alignSelf: 'flex-end',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      backgroundColor: 'gray',
+                      marginRight: 10,
+                      marginBottom: 30,
+                      borderRadius: 50,
+                    }}>
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontSize: 14,
+                        height: 20,
+                        fontWeight: 'bold',
+                        // paddingTop: 20,
+                        // paddingRight: 20,
+                        // backgroundColor: 'purple',
+                        fontWeight: secs > 59 ? 'normal' : 'bold',
+                      }}
+                    >?</Text>
+                  </TouchableOpacity>
+                }
+              </View>
             </View>
             {
               countdownActive &&
@@ -156,6 +206,18 @@ const RecordAccompaniment = (props) => {
       </View>
     </Modal>
   )
-}
+};
 
-export default RecordAccompaniment;
+const mapState = ({ displayUpgradeOverlay }) => {
+  return {
+    displayUpgradeOverlay,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    toggleUpgradeOverlay: bool => dispatch(toggleUpgradeOverlay(bool)),
+  }
+};
+
+export default connect(mapState, mapDispatch)(RecordAccompaniment);
