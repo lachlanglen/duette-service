@@ -1,7 +1,9 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { Text, TouchableOpacity, View, Dimensions, Modal } from 'react-native';
 import { Camera } from 'expo-camera';
+import { toggleUpgradeOverlay } from '../../redux/upgradeOverlay';
 
 // ANDROID
 
@@ -27,7 +29,11 @@ const RecordAccompaniment = (props) => {
     if (secs > 59) return 'green';
     if (secs > 14 && secs <= 59) return 'yellow';
     if (secs <= 14) return 'red';
-  }
+  };
+
+  const handleToggleUpgradeOverlay = () => {
+    props.toggleUpgradeOverlay(!props.displayUpgradeOverlay);
+  };
 
   return (
     <Modal
@@ -108,25 +114,56 @@ const RecordAccompaniment = (props) => {
                         }
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity
+                    <View
                       style={{
-                        // backgroundColor: 'purple',
-                        alignItems: 'center',
+                        flexDirection: 'row',
                       }}>
-                      <Text style={{
-                        color: getColor(),
-                        fontSize: 20,
-                        fontWeight: secs > 59 ? 'normal' : 'bold',
-                      }}>
-                        {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
-                      </Text>
-                    </TouchableOpacity>
+                      <TouchableOpacity
+                        style={{
+                          // backgroundColor: 'purple',
+                          alignItems: 'center',
+                        }}>
+                        <Text style={{
+                          color: getColor(),
+                          fontSize: 20,
+                          fontWeight: secs > 59 ? 'normal' : 'bold',
+                        }}>
+                          {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
+                        </Text>
+                      </TouchableOpacity>
+                      {
+                        recording &&
+                        <TouchableOpacity
+                          onPress={handleToggleUpgradeOverlay}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            alignSelf: 'flex-end',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'gray',
+                            marginRight: 10,
+                            marginLeft: 6,
+                            marginBottom: 30,
+                            borderRadius: 50,
+                          }}>
+                          <Text
+                            style={{
+                              color: 'white',
+                              fontSize: 14,
+                              height: 20,
+                              fontWeight: 'bold',
+                              fontWeight: secs > 59 ? 'normal' : 'bold',
+                            }}
+                          >?</Text>
+                        </TouchableOpacity>
+                      }
+                    </View>
                   </View>
                   {
                     countdownActive &&
                     <View
                       style={{
-                        // backgroundColor: 'green',
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginLeft: '25%',
@@ -158,7 +195,6 @@ const RecordAccompaniment = (props) => {
                       }}>
                       <Text style={{
                         color: 'red',
-                        // fontSize: 13,
                         fontWeight: 'bold',
                         textAlign: 'center',
                         textTransform: 'uppercase',
@@ -203,7 +239,6 @@ const RecordAccompaniment = (props) => {
                         justifyContent: 'space-between',
                         paddingHorizontal: 20,
                         alignItems: 'flex-end',
-                        // backgroundColor: 'green',
                         width: '100%'
                       }}>
                         <TouchableOpacity
@@ -232,20 +267,43 @@ const RecordAccompaniment = (props) => {
                             }
                           </View>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            // marginBottom: 30,
-                          }}>
-                          <Text style={{
-                            color: getColor(),
-                            fontSize: 20,
-                            // paddingTop: 20,
-                            // paddingRight: 20,
-                            fontWeight: secs > 59 || !recording ? 'normal' : 'bold',
-                          }}>
-                            {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
-                          </Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                          <TouchableOpacity>
+                            <Text style={{
+                              color: getColor(),
+                              fontSize: 20,
+                              fontWeight: secs > 59 || !recording ? 'normal' : 'bold',
+                            }}>
+                              {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
+                            </Text>
+                          </TouchableOpacity>
+                          {
+                            recording &&
+                            <TouchableOpacity
+                              onPress={handleToggleUpgradeOverlay}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: 'gray',
+                                marginRight: 10,
+                                marginLeft: 8,
+                                marginBottom: 2,
+                                borderRadius: 50,
+                              }}>
+                              <Text
+                                style={{
+                                  color: 'white',
+                                  fontSize: 14,
+                                  height: 20,
+                                  fontWeight: 'bold',
+                                  fontWeight: secs > 59 ? 'normal' : 'bold',
+                                }}
+                              >?</Text>
+                            </TouchableOpacity>
+                          }
+                        </View>
                       </View>
                     </View>
                     {
@@ -305,6 +363,18 @@ const RecordAccompaniment = (props) => {
       </View>
     </Modal>
   )
-}
+};
 
-export default RecordAccompaniment;
+const mapState = ({ displayUpgradeOverlay }) => {
+  return {
+    displayUpgradeOverlay,
+  }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    toggleUpgradeOverlay: bool => dispatch(toggleUpgradeOverlay(bool)),
+  }
+};
+
+export default connect(mapState, mapDispatch)(RecordAccompaniment);
