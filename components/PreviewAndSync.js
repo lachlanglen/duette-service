@@ -58,7 +58,7 @@ const PreviewAndSync = (props) => {
       ],
       { cancelable: false }
     );
-  }
+  };
 
   return (
     <ScrollView style={{
@@ -68,26 +68,38 @@ const PreviewAndSync = (props) => {
     }}>
       <View style={{
         flexDirection: 'row',
-        marginTop: screenOrientation === 'PORTRAIT' && !previewComplete ? 20 : 0,
+        marginTop: screenOrientation === 'PORTRAIT' && !previewComplete && Platform.OS === 'ios' ? 20 : 0,
       }}>
-        <Video
-          ref={ref => setVidARef(ref)}
-          source={{
-            uri: baseTrackUri,
-          }}
-          rate={1.0}
-          volume={1.0}
-          isMuted={false}
-          resizeMode="cover"
-          shouldPlay={false}
-          // positionMillis={0}
-          isLooping={false}
-          style={{
-            width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
-            height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
-          }}
-          onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update, 'vid1')}
-        />
+        {
+          !props.selectedVideo.id ? (
+            <View
+              style={{
+                backgroundColor: 'black',
+                width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+              }}
+            />
+          ) : (
+              <Video
+                ref={ref => setVidARef(ref)}
+                source={{
+                  uri: Platform.OS === 'ios' ? baseTrackUri : getAWSVideoUrl(props.selectedVideo.id),
+                }}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="cover"
+                shouldPlay={false}
+                // positionMillis={0}
+                isLooping={false}
+                style={{
+                  width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
+                  height: screenOrientation === 'LANDSCAPE' ? screenHeight : screenWidth / 16 * 9,
+                }}
+                onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update, 'vid1')}
+              />
+            )
+        }
         <Video
           ref={ref => setVidBRef(ref)}
           source={{
@@ -285,6 +297,7 @@ const PreviewAndSync = (props) => {
               alignSelf: 'center',
             } : {
                 ...styles.volumeControlsContainer,
+                marginBottom: Platform.OS === 'ios' ? 10 : 0,
               }}>
               <Text style={styles.volumeInstructionText}>Duette volume:</Text>
               <View style={styles.volumeButtonsContainer}>
@@ -403,9 +416,9 @@ const styles = StyleSheet.create({
   instruction: {
     color: 'white',
     marginTop: 10,
-    marginBottom: 15,
+    marginBottom: Platform.OS === 'ios' ? 15 : 5,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: Platform.OS === 'ios' ? 16 : 14,
   },
   syncIconsContainer: {
     flexDirection: 'row',
@@ -419,7 +432,7 @@ const styles = StyleSheet.create({
   },
   hintTitle: {
     fontStyle: 'italic',
-    marginTop: 10,
+    marginTop: Platform.OS === 'ios' ? 10 : 4,
     color: 'white',
     textAlign: 'center',
     fontSize: 16,

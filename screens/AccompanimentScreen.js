@@ -18,6 +18,7 @@ import PreviewAccompanimentAndroid from '../components/android/PreviewAccompanim
 import PreviewAccompanimentIos from '../components/ios/PreviewAccompaniment';
 import buttonStyles from '../styles/button';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { toggleUserInfo } from '../redux/userInfo';
 
 let timerIntervalId;
 let countdownIntervalId;
@@ -228,7 +229,11 @@ const AccompanimentScreen = (props) => {
       setCountdown(3);
       toggleRecord();
     }
-  }, [countdownActive, countdown])
+  }, [countdownActive, countdown]);
+
+  const handleHideUserInfo = () => {
+    props.toggleUserInfo(false);
+  };
 
   return (
     !props.user.id ? (
@@ -241,7 +246,9 @@ const AccompanimentScreen = (props) => {
         // ==> YES
         !preview ? (
           // record video:
-          <View style={styles.container}>
+          <View
+            onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
+            style={styles.container}>
             {
               record && hasAudioPermission && hasCameraPermission ? (
                 // user has clicked 'Record!' button
@@ -365,7 +372,8 @@ const styles = StyleSheet.create({
 
 const mapDispatch = dispatch => {
   return {
-    fetchVideos: () => dispatch(fetchVideos())
+    fetchVideos: () => dispatch(fetchVideos()),
+    toggleUserInfo: bool => dispatch(toggleUserInfo(bool)),
   }
 };
 

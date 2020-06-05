@@ -16,7 +16,10 @@ const UserInfoMenu = (props) => {
   }
 
   return (
-    <View style={{ position: 'absolute', alignSelf: 'flex-end' }}>
+    <View style={{
+      position: 'absolute',
+      alignSelf: 'flex-end',
+    }}>
       <View style={{
         ...styles.optionContainer,
         backgroundColor: 'white',
