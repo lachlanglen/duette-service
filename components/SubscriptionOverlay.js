@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Overlay } from 'react-native-elements';
+import * as Device from 'expo-device';
 import buttonStyles from '../styles/button';
 import { toggleUpgradeOverlay } from '../redux/upgradeOverlay';
 
@@ -11,8 +12,18 @@ const SubscriptionOverlay = (props) => {
     screenOrientation,
   } = props;
 
+  const [deviceType, setDeviceType] = useState(null);
+
   let screenWidth = Math.round(Dimensions.get('window').width);
   let screenHeight = Math.round(Dimensions.get('window').height);
+
+  useEffect(() => {
+    const getDeviceType = async () => {
+      const type = await Device.getDeviceTypeAsync();
+      setDeviceType(type);
+    };
+    getDeviceType();
+  }, [])
 
   return (
     !screenOrientation ? (
@@ -20,14 +31,21 @@ const SubscriptionOverlay = (props) => {
     ) : (
         <Overlay
           isVisible={props.displayUpgradeOverlay}
-          overlayStyle={{
+          overlayStyle={deviceType === 2 ? {
             backgroundColor: '#ffd12b',
             borderColor: '#187795',
             borderWidth: 2.5,
             borderRadius: 8,
-            width: screenOrientation === 'PORTRAIT' ? screenWidth * 0.9 : screenWidth * 0.7,
-            height: screenOrientation === 'PORTRAIT' ? screenHeight * 0.65 : screenHeight * 0.9,
-          }}
+            width: screenOrientation === 'PORTRAIT' ? screenWidth * 0.65 : screenWidth * 0.5,
+            height: screenOrientation === 'PORTRAIT' ? screenHeight * 0.4 : screenHeight * 0.6,
+          } : {
+              backgroundColor: '#ffd12b',
+              borderColor: '#187795',
+              borderWidth: 2.5,
+              borderRadius: 8,
+              width: screenOrientation === 'PORTRAIT' ? screenWidth * 0.9 : screenWidth * 0.7,
+              height: screenOrientation === 'PORTRAIT' ? screenHeight * 0.65 : screenHeight * 0.9,
+            }}
         >
           <View style={{
             ...styles.container,

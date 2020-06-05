@@ -114,13 +114,16 @@ const SettingsPage = (props) => {
         setShowPrivacyPolicyModal={setShowPrivacyPolicyModal}
       />
     ) : (
-        <ScrollView>
+        <ScrollView style={{ backgroundColor: '#ffd12b' }}>
           <View style={styles.container}>
             <Text style={styles.titleTextBlue}>Your account:</Text>
             <Text style={styles.tierText}>Free</Text>
             <Text style={styles.bulletText}>{'\u2022'} 3.5 min video length</Text>
             <Text style={styles.bulletText}>{'\u2022'} Save videos with Duette logo</Text>
-            <View style={styles.upgradeContainer}>
+            <View style={{
+              ...styles.upgradeContainer,
+              width: deviceType === 2 ? '60%' : '90%',
+            }}>
               <Text style={{
                 ...styles.tierText,
                 fontSize: 20,
@@ -136,7 +139,7 @@ const SettingsPage = (props) => {
                   ...buttonStyles.regularButton,
                   marginTop: 15,
                   marginBottom: 10,
-                  width: '100%',
+                  width: deviceType === 2 ? '80%' : '100%',
                   height: 60,
                 }}>
                 <Text
@@ -225,7 +228,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'flex-start',
-    backgroundColor: '#ffd12b',
     flex: 1,
   },
   lineContainer: {
@@ -256,22 +258,22 @@ const styles = StyleSheet.create({
   bulletText: {
     marginBottom: 5,
     fontStyle: 'italic',
+    fontSize: 18,
   },
   upgradeContainer: {
     marginTop: 15,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#e43',
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 10,
     borderColor: '#0047B9',
     borderWidth: 2,
-    width: '90%',
   },
   upgradeBulletText: {
     marginBottom: 5,
-    fontSize: 15,
+    fontSize: 18,
     // fontStyle: 'italic',
     fontWeight: 'bold',
   },
