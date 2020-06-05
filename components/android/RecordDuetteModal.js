@@ -1,18 +1,19 @@
 /* eslint-disable complexity */
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
-import { View, Modal, StyleSheet, Dimensions } from 'react-native';
+import { View, Modal, StyleSheet, Dimensions, Alert } from 'react-native';
 import { Camera } from 'expo-camera';
+import * as Device from 'expo-device';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import ReviewDuette from '../ReviewDuette';
 import RecordDuettePortrait from './RecordDuettePortrait';
 import RecordDuetteLandscape from './RecordDuetteLandscape';
+import { clearVideo } from '../../redux/singleVideo';
 
 let countdownIntervalId;
 let cancel;
 
 const RecordDuetteModal = (props) => {
-
-  console.log('hi')
 
   const {
     setShowRecordDuetteModal,
@@ -105,7 +106,7 @@ const RecordDuetteModal = (props) => {
 
   const handleCancel = async () => {
     try {
-      deleteLocalFile(baseTrackUri);
+      // deleteLocalFile(baseTrackUri);
       setDuetteUri('');
       clearInterval(countdownIntervalId);
       setCountdown(3);
@@ -113,6 +114,7 @@ const RecordDuetteModal = (props) => {
       cancel = true;
       cameraRef.stopRecording();
       setRecording(false);
+      props.clearVideo();
       await vidRef.current.unloadAsync();
       setShowRecordDuetteModal(false);
     } catch (e) {
@@ -176,8 +178,6 @@ const RecordDuetteModal = (props) => {
     }
   }, [countdownActive, countdown]);
 
-  console.log('in RecordDuetteModal')
-
   return (
     <View style={styles.container}>
       {
@@ -188,9 +188,9 @@ const RecordDuetteModal = (props) => {
             duetteUri={duetteUri}
             setShowPreviewModal={setShowPreviewModal}
             setDuetteUri={setDuetteUri}
-            screenOrientation={screenOrientation}
+            androidScreenOrientation={screenOrientation}
             playDelay={playDelay}
-            baseTrackUri={baseTrackUri}
+            // baseTrackUri={baseTrackUri}
             setSearchText={setSearchText}
             setHardRefresh={setHardRefresh}
           />
@@ -204,11 +204,15 @@ const RecordDuetteModal = (props) => {
                   <RecordDuettePortrait
                     recording={recording}
                     handleCancel={handleCancel}
-                    setVidRef={setVidRef}
+                    vidRef={vidRef}
                     handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
                     setCameraRef={setCameraRef}
                     toggleRecord={toggleRecord}
                     handleTryAgain={handleTryAgain}
+                    startCountdown={startCountdown}
+                    countdown={countdown}
+                    countdownActive={countdownActive}
+                    deviceType={deviceType}
                   />
                 ) : (
                     deviceType === 2 ? (
@@ -219,11 +223,15 @@ const RecordDuetteModal = (props) => {
                         <RecordDuetteLandscape
                           recording={recording}
                           handleCancel={handleCancel}
-                          setVidRef={setVidRef}
+                          vidRef={vidRef}
                           handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
                           setCameraRef={setCameraRef}
                           toggleRecord={toggleRecord}
                           handleTryAgain={handleTryAgain}
+                          startCountdown={startCountdown}
+                          countdown={countdown}
+                          countdownActive={countdownActive}
+                          deviceType={deviceType}
                         />
                       )
                   )
@@ -248,6 +256,12 @@ const mapState = ({ selectedVideo }) => {
   return {
     selectedVideo
   }
+};
+
+const mapDispatch = dispatch => {
+  return {
+    clearVideo: () => dispatch(clearVideo()),
+  }
 }
 
-export default connect(mapState)(RecordDuetteModal);
+export default connect(mapState, mapDispatch)(RecordDuetteModal);

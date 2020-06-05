@@ -16,6 +16,7 @@ import VideoItem from '../components/VideoItem';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EditDetailsModal from '../components/EditDetailsModal';
 import { getAWSVideoUrl } from '../constants/urls';
+import { toggleUserInfo } from '../redux/userInfo';
 
 const DuetteScreen = (props) => {
 
@@ -63,18 +64,16 @@ const DuetteScreen = (props) => {
     } else {
       setBluetooth(false);
     }
-    console.log('id line 66: ', id)
     props.setVideo(id);
-    console.log('line 68')
     try {
-      console.log('line 70')
-      const { uri } = await FileSystem.downloadAsync(
-        getAWSVideoUrl(id),
-        FileSystem.documentDirectory + `${id}.mov`
-      );
-      console.log('line 75')
-      setBaseTrackUri(uri);
-      setLoading({ isLoading: false, id: '' });
+      if (Platform.OS === 'ios') {
+        const { uri } = await FileSystem.downloadAsync(
+          getAWSVideoUrl(id),
+          FileSystem.documentDirectory + `${id}.mov`
+        );
+        setBaseTrackUri(uri);
+        setLoading({ isLoading: false, id: '' });
+      }
       setShowRecordDuetteModal(true);
     } catch (e) {
       Alert.alert(
@@ -117,10 +116,9 @@ const DuetteScreen = (props) => {
     setFilteredVideos(text);
   };
 
-  // console.log('showEditDetailsModal: ', showEditDetailsModal)
-  console.log('props.selectedVideo.id: ', props.selectedVideo.id)
-  console.log('showRecordDuetteModal: ', showRecordDuetteModal)
-  // console.log('Platform.OS: ', Platform.OS)
+  const handleHideUserInfo = () => {
+    props.toggleUserInfo(false);
+  };
 
   return (
     !props.user.id ? (
@@ -145,7 +143,8 @@ const DuetteScreen = (props) => {
         ) : (
             showRecordDuetteModal ? (
               // RECORD A DUETTE
-              <View style={styles.container}>
+              <View
+                style={styles.container}>
                 {
                   Platform.OS === 'android' ? (
                     <RecordDuetteModalAndroid
@@ -167,7 +166,9 @@ const DuetteScreen = (props) => {
               </View>
             ) : (
                 // VIEW VIDEOS
-                <SafeAreaView style={styles.listContainer}>
+                <SafeAreaView
+                  onTouchStart={props.displayUserInfo ? handleHideUserInfo : () => { }}
+                  style={styles.listContainer}>
                   <Searchbar
                     placeholder="Try 'No Such Thing'"
                     onChangeText={handleSearch}
@@ -268,7 +269,8 @@ const mapState = ({ videos, cats, selectedVideo, displayUserInfo, user, dataLoad
 const mapDispatch = dispatch => {
   return {
     setVideo: id => dispatch(setVideo(id)),
-    fetchVideos: (text) => dispatch(fetchVideos(text))
+    fetchVideos: (text) => dispatch(fetchVideos(text)),
+    toggleUserInfo: bool => dispatch(toggleUserInfo(bool)),
   }
 }
 

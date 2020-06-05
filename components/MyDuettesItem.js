@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Image, Alert, Text, View, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image, Alert, Text, View, Dimensions, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import * as MediaLibrary from 'expo-media-library';
 import * as StoreReview from 'expo-store-review';
 import * as FileSystem from 'expo-file-system';
@@ -194,14 +194,14 @@ const MyDuettesItem = props => {
                   fontSize: 30,
                   alignSelf: 'center',
                   fontFamily: 'Gill Sans',
-                  fontWeight: '600',
+                  fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
                   color: '#0047B9',
                 }}>"{videoTitle}"</Text>
                 <Text style={{
                   fontSize: 20,
                   alignSelf: 'center',
                   fontFamily: 'Gill Sans',
-                  fontWeight: '600',
+                  fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
                   color: 'black',
                   marginTop: 20,
                 }}>Touch to view</Text>
@@ -228,7 +228,7 @@ const MyDuettesItem = props => {
             !loading ? (
               <Text style={{
                 ...buttonStyles.regularButtonText,
-                fontWeight: 'normal',
+                fontWeight: Platform.OS === 'ios' ? 'normal' : 'bold',
               }}>Save to Camera Roll
               </Text>
             ) : (

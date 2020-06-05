@@ -38,7 +38,6 @@ export const setVideo = id => {
     console.log('line 38 in setVideo')
     axios.get(`https://duette.herokuapp.com/api/video/${id}`)
       .then(video => {
-        console.log('video: ', video.data)
         dispatch(setSelectedVideo(video.data))
       })
       .catch(e => {

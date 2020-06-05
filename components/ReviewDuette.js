@@ -2,7 +2,7 @@
 /* eslint-disable complexity */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { View, Modal, StyleSheet } from 'react-native';
+import { View, Modal, StyleSheet, Platform } from 'react-native';
 import PreviewAndSync from './PreviewAndSync';
 import { postDuette } from '../redux/duettes';
 import { deleteLocalFile } from '../services/utils';
@@ -24,6 +24,7 @@ const ReviewDuette = (props) => {
     setSearchText,
     handleReload,
     setHardRefresh,
+    androidScreenOrientation,
   } = props;
 
   const [screenOrientation, setScreenOrientation] = useState('');
@@ -345,7 +346,7 @@ const ReviewDuette = (props) => {
           ) : (
               !showAddEmailModal ? (
                 <PreviewAndSync
-                  screenOrientation={screenOrientation}
+                  screenOrientation={Platform.OS === 'ios' ? screenOrientation : androidScreenOrientation}
                   setVidARef={setVidARef}
                   setVidBRef={setVidBRef}
                   handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}

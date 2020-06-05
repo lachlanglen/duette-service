@@ -10,11 +10,15 @@ const RecordDuetteLandscape = (props) => {
   const {
     recording,
     handleCancel,
-    setVidRef,
+    vidRef,
     handlePlaybackStatusUpdate,
     setCameraRef,
     toggleRecord,
     handleTryAgain,
+    startCountdown,
+    countdown,
+    countdownActive,
+    deviceType,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
@@ -49,7 +53,7 @@ const RecordDuetteLandscape = (props) => {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={toggleRecord}
+            onPress={!recording ? startCountdown : toggleRecord}
             style={{
               ...styles.recordButton,
               borderColor: recording ? 'darkred' : 'darkred',
@@ -64,7 +68,8 @@ const RecordDuetteLandscape = (props) => {
         height: screenHeight,
       }}>
         <Video
-          ref={ref => setVidRef(ref)}
+          ref={vidRef}
+          // source={{ uri: getAWSVideoUrl(selectedVideoId) }}
           source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
           rate={1.0}
           volume={1.0}
@@ -108,6 +113,25 @@ const RecordDuetteLandscape = (props) => {
           </TouchableOpacity>
         }
       </View>
+      {
+        countdownActive &&
+        <View style={{
+          position: 'absolute',
+          height: 300,
+          width: screenWidth,
+          alignSelf: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Text style={{
+            color: '#0047B9',
+            fontSize: deviceType === 2 ? 100 : 70
+          }}
+          >
+            {countdown}
+          </Text>
+        </View>
+      }
     </View>
   )
 };

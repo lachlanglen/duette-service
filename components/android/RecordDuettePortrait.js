@@ -10,17 +10,20 @@ const RecordDuettePortrait = (props) => {
   const {
     recording,
     handleCancel,
-    setVidRef,
+    vidRef,
     handlePlaybackStatusUpdate,
     setCameraRef,
     toggleRecord,
     handleTryAgain,
+    startCountdown,
+    countdown,
+    countdownActive,
+    deviceType,
   } = props;
 
   let screenWidth = Math.floor(Dimensions.get('window').width);
   let screenHeight = Math.floor(Dimensions.get('window').height);
 
-  console.log('in RecordDuettePortrait')
   return (
     <View style={styles.container}>
       <View style={styles.recordingOrCancelContainer}>
@@ -34,7 +37,7 @@ const RecordDuettePortrait = (props) => {
             textAlign: 'center',
           }}
           >
-            {recording ? 'Recording' : 'Cancel'}
+            {recording ? 'RECORDING' : 'Cancel'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -48,20 +51,33 @@ const RecordDuettePortrait = (props) => {
             ...styles.videoOffset,
             height: (screenWidth / 9 * 8 - screenWidth / 16 * 9) / 2,
           }} />
-          <Video
-            ref={ref => setVidRef(ref)}
-            source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
-            rate={1.0}
-            volume={1.0}
-            isMuted={false}
-            resizeMode="cover"
-            progressUpdateIntervalMillis={50}
-            onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
-            style={{
-              width: screenWidth / 2,
-              height: screenWidth / 16 * 9,
-            }}
-          />
+          {
+            !props.selectedVideo.id ? (
+              <View
+                style={{
+                  backgroundColor: 'black',
+                  width: screenWidth / 2,
+                  height: screenWidth / 16 * 9,
+                }}
+              />
+            ) : (
+                <Video
+                  ref={vidRef}
+                  // source={{ uri: getAWSVideoUrl(selectedVideoId) }}
+                  source={{ uri: getAWSVideoUrl(props.selectedVideo.id) }}
+                  rate={1.0}
+                  volume={1.0}
+                  isMuted={false}
+                  resizeMode="cover"
+                  progressUpdateIntervalMillis={50}
+                  onPlaybackStatusUpdate={update => handlePlaybackStatusUpdate(update)}
+                  style={{
+                    width: screenWidth / 2,
+                    height: screenWidth / 16 * 9,
+                  }}
+                />
+              )
+          }
         </View>
         <View style={styles.cameraContainer}>
           {/* TODO: add codec to camera input? (e.g. .mov) */}
@@ -82,6 +98,25 @@ const RecordDuettePortrait = (props) => {
             </View>
           </Camera>
         </View>
+        {
+          countdownActive &&
+          <View style={{
+            position: 'absolute',
+            height: 300,
+            width: screenWidth,
+            alignSelf: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Text style={{
+              color: '#0047B9',
+              fontSize: deviceType === 2 ? 100 : 70
+            }}
+            >
+              {countdown}
+            </Text>
+          </View>
+        }
       </View>
       <View style={styles.recordButtonContainer}>
         <View style={styles.recordTextContainer}>
@@ -94,7 +129,7 @@ const RecordDuettePortrait = (props) => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          onPress={toggleRecord}
+          onPress={!recording ? startCountdown : toggleRecord}
           style={{
             ...styles.recordButton,
             borderColor: recording ? 'darkred' : 'darkred',
