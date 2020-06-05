@@ -66,7 +66,9 @@ router.get('/', (req, res, next) => {
     Video.findAll({
       where: {
         [Op.and]: [
-          { isHidden: false },
+          {
+            isHidden: false,
+          },
           {
             [Op.or]: [
               { title: { [Op.iLike]: `%${val}%` } },
@@ -82,8 +84,12 @@ router.get('/', (req, res, next) => {
         ['createdAt', 'DESC']
       ]
     })
-      .then(videos => res.status(200).send(videos))
+      .then(videos => {
+        console.log('got videos: ', videos)
+        res.status(200).send(videos)
+      })
       .catch(e => {
+        console.log('error getting videos by search value: ', e)
         res.status(400).send('error finding videos by search value: ', e);
       })
   } else {
@@ -100,9 +106,11 @@ router.get('/', (req, res, next) => {
       }
     )
       .then(videos => {
+        console.log('yay!')
         res.status(200).send(videos)
       })
       .catch(e => {
+        console.log('error getting all videos: ', e)
         res.status(404).send('Error finding all videos: ', e)
       })
   }
@@ -168,8 +176,14 @@ router.delete('/:videoId/:userId', (req, res, next) => {
         returning: true,
       }
     )
-      .then((updated) => res.send('Video hidden!: ', updated))
-      .catch(e => res.status(404).send('error hiding video: ', e))
+      .then((updated) => {
+        console.log('successfully updated!: ', updated)
+        res.status(200).send('Video hidden!')
+      })
+      .catch(e => {
+        console.log('error hiding video: ', e)
+        res.status(404).send('error hiding video: ', e)
+      })
   }
 });
 
