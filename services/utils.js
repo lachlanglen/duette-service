@@ -52,7 +52,7 @@ export const handleLogout = async (displayUserInfo) => {
   }
 };
 
-export const handleSubscribe = () => {
+export const handleSubscribe = (userId) => {
   Alert.alert(
     `Purchase`,
     "Here is where you will complete purchase flow.",

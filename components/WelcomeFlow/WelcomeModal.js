@@ -1,43 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { View, ScrollView, Text, Modal, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import buttonStyles from '../styles/button';
-import { handleLogin } from '../services/utils';
+import buttonStyles from '../../styles/button';
+import { handleLogin, handleSubscribe } from '../../services/utils';
 // import { Overlay } from 'react-native-elements'
 
 const NewUserModal = (props) => {
-
-  console.log('props.user in NewUserModal: ', props.user)
-
-  const handlePurchase = () => {
-    Alert.alert(
-      `Purchase`,
-      "Here is where you will purchase.",
-      [
-        { text: 'OK', onPress: () => { } },
-      ],
-      { cancelable: false }
-    )
-  };
 
   return (
     <Modal>
       <ScrollView
         contentContainerStyle={styles.container}>
         <Image
-          source={require('../assets/images/duette-logo-HD.png')}
+          source={require('../../assets/images/duette-logo-HD.png')}
           style={styles.logo} />
         <Text style={styles.titleText}>Welcome to Duette!</Text>
-        <Text style={styles.subTitleText}>Start your <Text style={{ fontWeight: 'bold' }}>1-week free trial</Text> and make amazing split-screen music videos in seconds!</Text>
-        <Text style={{
-          ...styles.subTitleText,
-          marginTop: 15,
-        }}>After your free trial ends, you will be charged $1.99/month.</Text>
-        <Text style={{
-          ...styles.subTitleText,
-          marginTop: 15,
-          fontWeight: 'bold',
-        }}>You can cancel anytime!</Text>
+        <Text style={styles.subTitleText}>Connect with Facebook and make amazing split-screen music videos in seconds!</Text>
         <TouchableOpacity
           onPress={handleLogin}
           style={{
@@ -50,17 +28,13 @@ const NewUserModal = (props) => {
           <Text style={{
             ...buttonStyles.regularButtonText,
             fontSize: 28,
-          }}>Sign up with Facebook</Text>
+          }}>Connect with Facebook</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleLogin}
           style={{
             marginTop: 10,
           }}>
-          <Text style={{
-            fontSize: 16,
-            color: '#0047B9',
-          }}>Already have an account? Sign In</Text>
         </TouchableOpacity>
       </ScrollView>
     </Modal>

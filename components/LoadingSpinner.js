@@ -1,14 +1,16 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, Modal } from 'react-native';
 
 const LoadingSpinner = () => {
   return (
-    <View style={styles.spinnerContainer}>
-      <ActivityIndicator
-        style={styles.spinner}
-        size="large"
-        color="#0047B9" />
-    </View>
+    <Modal>
+      <View style={styles.spinnerContainer}>
+        <ActivityIndicator
+          style={styles.spinner}
+          size="large"
+          color="#0047B9" />
+      </View>
+    </Modal>
   )
 };
 
@@ -18,6 +20,8 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#ffd12b',
+    flex: 1,
   },
   spinner: {
     marginBottom: 30,
