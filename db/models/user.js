@@ -7,6 +7,11 @@ const User = connection.define('user', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
   },
+  isSubscribed: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   facebookId: {
     type: Sequelize.STRING,
     allowNull: false,

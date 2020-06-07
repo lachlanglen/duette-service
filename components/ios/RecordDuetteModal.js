@@ -269,12 +269,12 @@ const RecordDuetteModal = (props) => {
                                   recording && deviceType !== 2 &&
                                   <View
                                     style={{
-                                      width: 10,
-                                      height: 10,
+                                      width: screenOrientation === 'LANDSCAPE' ? 14 : 10,
+                                      height: screenOrientation === 'LANDSCAPE' ? 14 : 10,
                                       backgroundColor: 'red',
                                       borderRadius: 50,
                                       marginLeft: 7,
-                                      marginTop: 16,
+                                      marginTop: screenOrientation === 'LANDSCAPE' ? 26 : 16,
                                     }} />
                                 }
                               </TouchableOpacity>

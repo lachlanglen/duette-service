@@ -91,7 +91,6 @@ const DuetteScreen = (props) => {
   }
 
   const handleUse = (id) => {
-    console.log('in handleUse')
     Alert.alert(
       'Are you using bluetooth or wired headphones?',
       `This helps us sync your video perfectly${Platform.OS === 'ios' && deviceType !== 2 ? ` 🥰` : `!`}`,
@@ -200,6 +199,7 @@ const DuetteScreen = (props) => {
                                     performer={item.performer}
                                     composer={item.composer}
                                     theKey={item.key}
+                                    notes={item.notes}
                                     userId={item.userId}
                                     previewVid={previewVid}
                                     setPreviewVid={setPreviewVid}
