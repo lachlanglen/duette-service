@@ -17,7 +17,6 @@ const RecordDuetteModal = (props) => {
 
   const {
     setShowRecordDuetteModal,
-    bluetooth,
     baseTrackUri,
     setSearchText,
     screenOrientation,
@@ -183,7 +182,6 @@ const RecordDuetteModal = (props) => {
       {
         showPreviewModal ? (
           <ReviewDuette
-            bluetooth={bluetooth}
             setShowRecordDuetteModal={setShowRecordDuetteModal}
             duetteUri={duetteUri}
             setShowPreviewModal={setShowPreviewModal}

@@ -20,7 +20,7 @@ import buttonStyles from '../styles/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { toggleUserInfo } from '../redux/userInfo';
 import SubscriptionOverlay from '../components/SubscriptionOverlay';
-import NewUserSignup from '../components/NewUserSignup';
+import WelcomeFlow from '../components/WelcomeFlow/WelcomeFlow';
 
 let timerIntervalId;
 let countdownIntervalId;
@@ -36,7 +36,7 @@ const AccompanimentScreen = (props) => {
   const [preview, setPreview] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [screenOrientation, setScreenOrientation] = useState('');
-  const [secs, setSecs] = useState(210);  // start with 9 mins remaining
+  const [secs, setSecs] = useState(540);  // start with 9 mins remaining
   const [countdown, setCountdown] = useState(3);  // start with 3 secs remaining
   const [countdownActive, setCountdownActive] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
@@ -246,7 +246,7 @@ const AccompanimentScreen = (props) => {
         <LoadingSpinner />
       ) : (
           // <FacebookSignin />
-          <NewUserSignup />
+          <WelcomeFlow />
         )
     ) : (
         // ==> user has an active subscription

@@ -66,7 +66,6 @@ export default function App(props) {
 
         // check for accessToken and expiry on secure store
         const accessToken = await SecureStore.getItemAsync('accessToken');
-        console.log('accessToken: ', accessToken)
         if (accessToken) {
           // check for expires
           const expires = await SecureStore.getItemAsync('expires');
