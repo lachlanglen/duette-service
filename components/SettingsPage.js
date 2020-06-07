@@ -117,10 +117,13 @@ const SettingsPage = (props) => {
         <ScrollView style={{ backgroundColor: '#ffd12b' }}>
           <View style={styles.container}>
             <Text style={styles.titleTextBlue}>Your account:</Text>
-            <Text style={styles.tierText}>Free</Text>
-            <Text style={styles.bulletText}>{'\u2022'} 3.5 min video length</Text>
-            <Text style={styles.bulletText}>{'\u2022'} Save videos with Duette logo</Text>
-            <View style={{
+            <Text style={{
+              ...styles.tierText,
+              marginBottom: 0,
+            }}>Free Trial</Text>
+            {/* <Text style={styles.bulletText}>{'\u2022'} 3.5 min video length</Text>
+            <Text style={styles.bulletText}>{'\u2022'} Save videos with Duette logo</Text> */}
+            {/* <View style={{
               ...styles.upgradeContainer,
               width: deviceType === 2 ? '60%' : '90%',
             }}>
@@ -145,7 +148,7 @@ const SettingsPage = (props) => {
                 <Text
                   style={buttonStyles.regularButtonText}>Upgrade for $1.99/month</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
             <Text style={styles.titleTextBlue}>Your email:</Text>
             <View style={styles.lineContainer}>
               {

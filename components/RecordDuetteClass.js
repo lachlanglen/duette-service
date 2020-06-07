@@ -99,7 +99,10 @@ class RecordDuetteClassModal extends Component {
       <View style={styles.container}>
         {
           this.state.showPreviewModal ? (
-            <PreviewModal handleCancel={handleCancel} bluetooth={bluetooth} showRecordDuetteModal={showRecordDuetteModal} setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
+            <PreviewModal
+              handleCancel={handleCancel}
+              showRecordDuetteModal={showRecordDuetteModal}
+              setShowRecordDuetteModal={setShowRecordDuetteModal} duetteUri={duetteUri} showPreviewModal={showPreviewModal} setShowPreviewModal={setShowPreviewModal} />
           ) : (
               <Modal
                 onRequestClose={this.handleCancel}

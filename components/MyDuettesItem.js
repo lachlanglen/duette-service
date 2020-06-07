@@ -154,7 +154,7 @@ const MyDuettesItem = props => {
         borderWidth: 1,
         borderColor: 'darkgrey',
         paddingVertical: 10,
-        height: screenWidth / 16 * 9 + 70,
+        height: screenWidth / 16 * 9 + 50,
         width: screenWidth - 30,
         alignItems: 'center',
       }}>
@@ -245,7 +245,7 @@ const MyDuettesItem = props => {
               )
           }
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={handleToggleUpgradeOverlay}
           style={{
             marginTop: 7,
@@ -254,7 +254,7 @@ const MyDuettesItem = props => {
             style={{
               color: '#0047B9',
             }}>Save without Duette logo</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View >
   )

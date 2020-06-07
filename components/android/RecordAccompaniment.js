@@ -131,7 +131,7 @@ const RecordAccompaniment = (props) => {
                           {!recording ? '9 mins max' : `${Math.floor(secs / 60) > 0 ? Math.floor(secs / 60) : ''}:${secs % 60 >= 10 ? secs % 60 : `0${secs % 60}`}`}
                         </Text>
                       </TouchableOpacity>
-                      {
+                      {/* {
                         recording &&
                         <TouchableOpacity
                           onPress={handleToggleUpgradeOverlay}
@@ -157,7 +157,7 @@ const RecordAccompaniment = (props) => {
                             }}
                           >?</Text>
                         </TouchableOpacity>
-                      }
+                      } */}
                     </View>
                   </View>
                   {
