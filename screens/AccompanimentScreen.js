@@ -20,6 +20,7 @@ import buttonStyles from '../styles/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { toggleUserInfo } from '../redux/userInfo';
 import SubscriptionOverlay from '../components/SubscriptionOverlay';
+import NewUserSignup from '../components/NewUserSignup';
 
 let timerIntervalId;
 let countdownIntervalId;
@@ -236,15 +237,19 @@ const AccompanimentScreen = (props) => {
     props.toggleUserInfo(false);
   };
 
+  // console.log('props.user: ', props.user)
+
   return (
-    !props.user.id ? (
+    // user does not have an active subscription
+    !props.user.isSubscribed ? (
       !props.dataLoaded ? (
         <LoadingSpinner />
       ) : (
-          <FacebookSignin />
+          // <FacebookSignin />
+          <NewUserSignup />
         )
     ) : (
-        // ==> YES
+        // ==> user has an active subscription
         !preview ? (
           // record video:
           <View

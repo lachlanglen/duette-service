@@ -1,7 +1,8 @@
 import * as SecureStore from 'expo-secure-store';
+import { Alert } from 'react-native';
 import store from '../redux/store';
 import * as FileSystem from 'expo-file-system';
-import { clearCurrentUser, createOrUpdateUser } from '../redux/user';
+import { clearCurrentUser, createOrUpdateUser, updateUser } from '../redux/user';
 import { toggleUserInfo } from '../redux/userInfo';
 import AuthService from './Auth';
 import axios from 'axios';
@@ -50,6 +51,17 @@ export const handleLogout = async (displayUserInfo) => {
     console.log('error deleting items from secure store: ', e)
   }
 };
+
+export const handleSubscribe = () => {
+  Alert.alert(
+    `Purchase`,
+    "Here is where you will complete purchase flow.",
+    [
+      { text: 'OK', onPress: () => store.dispatch(updateUser(userId, { isSubscribed: true })) }, // add userId and
+    ],
+    { cancelable: false }
+  )
+}
 
 export const deleteLocalFile = async fileName => {
   await FileSystem.deleteAsync(fileName, { idempotent: true });

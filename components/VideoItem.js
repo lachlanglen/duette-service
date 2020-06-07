@@ -16,6 +16,7 @@ const VideoItem = (props) => {
     title,
     composer,
     theKey,
+    notes,
     performer,
     userId,
     previewVid,
@@ -44,6 +45,17 @@ const VideoItem = (props) => {
       { cancelable: false }
     );
   };
+
+  const handleShowNotes = () => {
+    Alert.alert(
+      `Notes from ${performer.split(' ')[0]}:`,
+      `"${notes}"`,
+      [
+        { text: 'Dismiss', onPress: () => { } },
+      ],
+      { cancelable: false }
+    );
+  }
 
   const handleEdit = () => {
     props.setVideo(id);
@@ -145,6 +157,30 @@ const VideoItem = (props) => {
         }}>
         Performed by {performer}
       </Text>
+      {
+        notes ? (
+          <TouchableOpacity
+            onPress={handleShowNotes}
+            style={{
+              alignItems: 'center',
+              marginTop: 8,
+            }}>
+            <Text style={{
+              color: '#0047B9',
+            }}>View {performer.split(' ')[0]}'s notes</Text>
+          </TouchableOpacity>
+        ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                marginTop: 8,
+              }}>
+              <Text style={{
+                fontStyle: 'italic',
+              }}>No notes provided by {performer.split(' ')[0]}</Text>
+            </View>
+          )
+      }
       <TouchableOpacity
         onPress={() => handleUse(id)}
         style={{
