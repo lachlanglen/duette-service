@@ -96,7 +96,7 @@ const VideoItem = (props) => {
               </View>
             )
         }
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={handleToggleUpgradeOverlay}
           style={{
             width: 80,
@@ -120,7 +120,7 @@ const VideoItem = (props) => {
             }}>
             pro
             </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <Text
         style={{

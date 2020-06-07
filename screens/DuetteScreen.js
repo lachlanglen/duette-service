@@ -23,7 +23,6 @@ const DuetteScreen = (props) => {
   const [showRecordDuetteModal, setShowRecordDuetteModal] = useState(false);
   const [showEditDetailsModal, setShowEditDetailsModal] = useState(false);
   const [previewVid, setPreviewVid] = useState('');
-  const [bluetooth, setBluetooth] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [screenOrientation, setScreenOrientation] = useState('');
   const [baseTrackUri, setBaseTrackUri] = useState('');
@@ -55,15 +54,10 @@ const DuetteScreen = (props) => {
     getDeviceType();
   });
 
-  const loadVideo = async (bluetooth, id) => {
+  const loadVideo = async (id) => {
     // TODO: show error if not enough storage available?
     setLoading({ isLoading: true, id });
     if (previewVid) setPreviewVid('');
-    if (bluetooth) {
-      setBluetooth(true);
-    } else {
-      setBluetooth(false);
-    }
     props.setVideo(id);
     try {
       if (Platform.OS === 'ios') {
@@ -91,16 +85,7 @@ const DuetteScreen = (props) => {
   }
 
   const handleUse = (id) => {
-    console.log('in handleUse')
-    Alert.alert(
-      'Are you using bluetooth or wired headphones?',
-      `This helps us sync your video perfectly${Platform.OS === 'ios' && deviceType !== 2 ? ` 🥰` : `!`}`,
-      [
-        { text: 'Bluetooth', onPress: () => loadVideo(true, id) },
-        { text: 'Wired', onPress: () => loadVideo(false, id) },
-      ],
-      { cancelable: false }
-    );
+    loadVideo(id);
   };
 
   const handlePreview = (id) => {
@@ -148,7 +133,6 @@ const DuetteScreen = (props) => {
                 {
                   Platform.OS === 'android' ? (
                     <RecordDuetteModalAndroid
-                      bluetooth={bluetooth}
                       setShowRecordDuetteModal={setShowRecordDuetteModal}
                       screenOrientation={screenOrientation}
                       baseTrackUri={baseTrackUri}
@@ -156,7 +140,6 @@ const DuetteScreen = (props) => {
                     />
                   ) : (
                       <RecordDuetteModalIos
-                        bluetooth={bluetooth}
                         setShowRecordDuetteModal={setShowRecordDuetteModal}
                         baseTrackUri={baseTrackUri}
                         setSearchText={setSearchText}

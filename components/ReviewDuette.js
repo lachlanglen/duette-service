@@ -15,7 +15,6 @@ let date2 = 0;
 const ReviewDuette = (props) => {
 
   const {
-    bluetooth,
     duetteUri,
     setShowPreviewModal,
     setShowRecordDuetteModal,
@@ -334,7 +333,6 @@ const ReviewDuette = (props) => {
               type="duette"
               duetteUri={duetteUri}
               customOffset={customOffset}
-              bluetooth={bluetooth}
               baseTrackVolume={baseTrackVolume}
               duetteVolume={duetteVolume}
               date1={date1}
@@ -351,7 +349,6 @@ const ReviewDuette = (props) => {
                   setVidBRef={setVidBRef}
                   handlePlaybackStatusUpdate={handlePlaybackStatusUpdate}
                   duetteUri={duetteUri}
-                  bluetooth={bluetooth}
                   handleShowPreview={handleShowPreview}
                   previewComplete={previewComplete}
                   isPlaying={isPlaying}

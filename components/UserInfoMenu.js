@@ -62,7 +62,7 @@ const UserInfoMenu = (props) => {
           style={styles.optionText}>Settings
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{
           ...styles.optionContainer,
           borderRadius: 0,
@@ -78,7 +78,7 @@ const UserInfoMenu = (props) => {
             color: 'white',
           }}>Duette Pro
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         style={{
           ...styles.optionContainer,

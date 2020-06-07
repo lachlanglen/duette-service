@@ -15,7 +15,6 @@ const PreviewAndSync = (props) => {
     setVidBRef,
     handlePlaybackStatusUpdate,
     duetteUri,
-    bluetooth,
     handleShowPreview,
     previewComplete,
     isPlaying,
@@ -110,7 +109,6 @@ const PreviewAndSync = (props) => {
           isMuted={false}
           resizeMode="cover"
           shouldPlay={false}
-          // positionMillis={bluetooth ? 200 : 0}
           isLooping={false}
           style={{
             width: screenOrientation === 'LANDSCAPE' ? screenHeight / 9 * 8 : screenWidth / 2,
