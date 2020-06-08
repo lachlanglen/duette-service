@@ -43,8 +43,14 @@ const AddEmailModal = (props) => {
         'Is this correct?',
         `Please confirm your email address: ${email}`,
         [
-          { text: 'Yes, save it!', onPress: () => handleSaveEmail() },
-          { text: 'Cancel', onPress: () => { } }
+          {
+            text: 'Yes, save it!',
+            onPress: () => handleSaveEmail()
+          },
+          {
+            text: 'Cancel',
+            onPress: () => { },
+          }
         ],
         { cancelable: false }
       );

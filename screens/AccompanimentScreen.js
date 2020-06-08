@@ -303,16 +303,18 @@ const AccompanimentScreen = (props) => {
                         <TouchableOpacity
                           style={{
                             ...buttonStyles.regularButton,
-                            width: deviceType === 2 ? screenWidth * 0.5 : '75%'
+                            width: deviceType === 2 ? screenWidth * 0.5 : '75%',
+                            height: 60,
                           }}
                           onPress={() => setRecord(true)}
                         >
-                          <Text style={buttonStyles.regularButtonText}>Record a new base track 🦁</Text>
+                          <Text style={buttonStyles.regularButtonText}>Record a new base track</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={{
                             ...buttonStyles.regularButton,
-                            width: deviceType === 2 ? screenWidth * 0.5 : '60%'
+                            width: deviceType === 2 ? screenWidth * 0.5 : '60%',
+                            height: 60,
                           }}
                           onPress={() => props.navigation.navigate('Duette')}
                         >

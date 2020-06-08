@@ -51,7 +51,10 @@ const VideoItem = (props) => {
       `Notes from ${performer.split(' ')[0]}:`,
       `"${notes}"`,
       [
-        { text: 'Dismiss', onPress: () => { } },
+        {
+          text: 'Dismiss',
+          onPress: () => { },
+        },
       ],
       { cancelable: false }
     );
