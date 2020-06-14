@@ -120,7 +120,7 @@ router.put('/:userId', (req, res, next) => {
             ...user,
             ...req.body,
           })
-            .then(updated => res.status(200).send(updated))
+            .then(updated => res.send(updated))
             .catch(e => res.status(400).send('error updating user: ', e))
         } else {
           res.status(404).send(`User #${userId} not found.`)
