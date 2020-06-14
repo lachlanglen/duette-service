@@ -41,10 +41,10 @@ router.get('/facebookId/:facebookId', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
+  console.log('req.body: ', req.body)
   const {
     name,
     facebookId,
-    expires,
     pictureUrl,
     pictureWidth,
     pictureHeight,
@@ -63,11 +63,11 @@ router.post('/', async (req, res, next) => {
       .then(user => {
         // user already exists
         // update user with lastLogin and other info to ensure it's up to date
+        console.log('user exists')
         if (user) {
           user.update({
             name,
             facebookId,
-            expires: expires.toString(),
             pictureUrl,
             pictureWidth,
             pictureHeight,
@@ -84,10 +84,10 @@ router.post('/', async (req, res, next) => {
         } else {
           // user doesn't exist
           // create user
+          console.log("user doesn't exist")
           User.create({
             name,
             facebookId,
-            expires: expires.toString(),
             pictureUrl,
             pictureWidth,
             pictureHeight,

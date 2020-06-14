@@ -22,10 +22,7 @@ const User = connection.define('user', {
   },
   expires: {
     type: Sequelize.STRING,
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    }
+    allowNull: true,
   },
   name: {
     type: Sequelize.STRING,
