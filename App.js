@@ -1,4 +1,9 @@
 /* eslint-disable radix */
+import Constants from 'expo-constants';
+import * as manifest from './app.json';
+if (!Constants.manifest) {
+  Constants.manifest = manifest.expo
+}
 import React from 'react';
 import { Provider } from 'react-redux'
 import { Text, TextInput, Platform, StatusBar, StyleSheet, View, Vibration } from 'react-native';
@@ -11,9 +16,8 @@ import { Notifications } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as Sentry from 'sentry-expo';
+// import * as Sentry from 'sentry-expo';
 import axios from 'axios';
-import Constants from 'expo-constants';
 import ErrorBoundary from './ErrorBoundary';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
@@ -25,12 +29,12 @@ import MyDuettes from './components/MyDuettes';
 import DuetteScreen from './screens/DuetteScreen';
 import SettingsPage from './components/SettingsPage';
 
-Sentry.init({
-  enableInExpoDevelopment: true,
-  dsn: 'https://4f1d90283940486d93204bc6690934e2@o378963.ingest.sentry.io/5203127',
-});
+// Sentry.init({
+//   enableInExpoDevelopment: true,
+//   dsn: 'https://4f1d90283940486d93204bc6690934e2@o378963.ingest.sentry.io/5203127',
+// });
 
-Sentry.setRelease(Constants.manifest.revisionId);
+// Sentry.setRelease(Constants.manifest.revisionId);
 
 Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;

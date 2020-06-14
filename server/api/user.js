@@ -44,7 +44,6 @@ router.post('/', async (req, res, next) => {
   const {
     name,
     facebookId,
-    expires,
     pictureUrl,
     pictureWidth,
     pictureHeight,
@@ -67,7 +66,6 @@ router.post('/', async (req, res, next) => {
           user.update({
             name,
             facebookId,
-            expires: expires.toString(),
             pictureUrl,
             pictureWidth,
             pictureHeight,
@@ -87,7 +85,6 @@ router.post('/', async (req, res, next) => {
           User.create({
             name,
             facebookId,
-            expires: expires.toString(),
             pictureUrl,
             pictureWidth,
             pictureHeight,

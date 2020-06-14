@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Image } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
-import * as SecureStore from 'expo-secure-store';
 import TabBarIcon from '../components/TabBarIcon';
 import AccompanimentScreen from '../screens/AccompanimentScreen';
 // import Home from '../screens/snack/Home';
@@ -44,7 +43,6 @@ const BottomTabNavigator = (props) => {
         component={AccompanimentScreen}
         options={{
           title: 'Record a base track!',
-          style: { backgroundColor: 'pink' },
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-musical-note" />,
           // tabBarVisible: false,
         }}
