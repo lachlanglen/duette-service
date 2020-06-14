@@ -84,3 +84,4 @@ buck-out/
 # Expo
 .expo/*
 web-build/
+node_modules
