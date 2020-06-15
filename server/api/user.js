@@ -106,6 +106,8 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:userId', (req, res, next) => {
   const { userId } = req.params;
+  console.log('userId: ', userId);
+  console.log('req.body: ', req.body);
   if (req.body.email && req.body.email.length > 255) {
     res.status(400).send('Email too long')
   } else {
@@ -120,9 +122,15 @@ router.put('/:userId', (req, res, next) => {
             ...user,
             ...req.body,
           })
-            .then(updated => res.status(200).send(updated))
-            .catch(e => res.status(400).send('error updating user: ', e))
+            .then(updated => {
+              res.status(200).send(updated)
+            })
+            .catch(e => {
+              console.log('error updating user: ', e)
+              res.status(400).send('error updating user: ', e)
+            })
         } else {
+          console.log('could not find user to update')
           res.status(404).send(`User #${userId} not found.`)
         }
       })
