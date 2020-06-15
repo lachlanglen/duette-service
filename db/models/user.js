@@ -12,6 +12,11 @@ const User = connection.define('user', {
     allowNull: false,
     defaultValue: false,
   },
+  hasLapsed: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   facebookId: {
     type: Sequelize.STRING,
     allowNull: false,
