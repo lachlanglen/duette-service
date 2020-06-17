@@ -10,8 +10,9 @@ router.post('/', (req, res, next) => {
   }
   axios.post('https://sandbox.itunes.apple.com/verifyReceipt', receiptBody)
     .then(result => {
-      console.log('result: ', result)
-      res.status(200).send(result);
+      console.log('result: ', result.data);
+      console.log('latest_receipt_info: ', JSON.parse(result.data.latest_receipt_info));
+      res.status(200).send(result.data);
     })
     .catch(e => {
       console.log('error verifying receipt: ', e);
