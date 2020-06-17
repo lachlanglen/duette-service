@@ -106,8 +106,8 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:userId', (req, res, next) => {
   const { userId } = req.params;
-  console.log('userId: ', userId);
-  console.log('req.body: ', req.body);
+  // console.log('userId: ', userId);
+  // console.log('req.body: ', req.body);
   if (req.body.email && req.body.email.length > 255) {
     res.status(400).send('Email too long')
   } else {

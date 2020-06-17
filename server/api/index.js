@@ -11,6 +11,7 @@ router.use('/video', require('./video'));
 router.use('/aws', require('./aws/router'));
 router.use('/duette', require('./duette'));
 router.use('/user', require('./user'));
+router.use('/appStore', require('./appStore'));
 
 //error handling
 router.use((req, res, next) => {
