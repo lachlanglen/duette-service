@@ -2,9 +2,8 @@ const express = require('express')
 const router = express.Router();
 
 router.post('/', (req, res, next) => {
-  const { data } = req.body;
-  console.log('data: ', data)
-  res.status(200).send(data)
+  console.log('req.body: ', req.body)
+  res.status(200).send('success')
 })
 
 module.exports = router;
