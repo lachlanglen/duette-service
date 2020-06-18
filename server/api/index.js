@@ -12,6 +12,7 @@ router.use('/aws', require('./aws/router'));
 router.use('/duette', require('./duette'));
 router.use('/user', require('./user'));
 router.use('/appStore', require('./appStore'));
+router.use('/logger', require('./logger'));
 
 //error handling
 router.use((req, res, next) => {
