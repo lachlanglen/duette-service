@@ -52,55 +52,62 @@ router.post('/', async (req, res, next) => {
     email
   } = req.body;
 
-  if (email.length > 255) {
+  if (email && email.length > 255) {
     res.status(400).send('Email too long')
   } else {
-    User.findOne({
-      where: {
-        facebookId,
-      }
-    })
-      .then(user => {
-        // user already exists
-        // update user with lastLogin and other info to ensure it's up to date
-        console.log('user exists')
-        if (user) {
-          user.update({
-            name,
-            facebookId,
-            pictureUrl,
-            pictureWidth,
-            pictureHeight,
-            lastLogin: lastLogin.toString(),
-            email,
-          })
-            .then(updatedUser => {
-              res.status(200).send(updatedUser);
-            })
-            .catch(e => {
-              console.log('error updating user: ', e);
-              res.status(400).send(e);
-            })
-        } else {
-          // user doesn't exist
-          // create user
-          console.log("user doesn't exist")
-          User.create({
-            name,
-            facebookId,
-            pictureUrl,
-            pictureWidth,
-            pictureHeight,
-            lastLogin: lastLogin.toString(),
-            email,
-          })
-            .then(newUser => res.status(201).send(newUser))
-            .catch(e => {
-              console.log('error creating new user: ', e);
-              res.status(400).send(e)
-            })
+    // if an email is present, look for a user with the same email
+    // if an email is not present, look for a user with the same facebook id
+    let user;
+    if (email) {
+      user = await User.findOne({
+        where: {
+          email,
         }
       })
+    } else {
+      user = await User.findOne({
+        where: {
+          facebookId,
+        }
+      })
+    }
+    if (user) {
+      console.log('user exists')
+      try {
+        const updatedUser = await user.update({
+          name,
+          facebookId,
+          pictureUrl,
+          pictureWidth,
+          pictureHeight,
+          lastLogin: lastLogin.toString(),
+          email,
+        });
+        res.status(200).send(updatedUser);
+      } catch (e) {
+        console.log('error updating user: ', e);
+        res.status(400).send(e);
+      }
+    } else {
+      // user doesn't exist
+      // create user
+      console.log("user doesn't exist")
+      try {
+        const newUser = await User.create({
+          name,
+          facebookId,
+          pictureUrl,
+          pictureWidth,
+          pictureHeight,
+          lastLogin: lastLogin.toString(),
+          email,
+        })
+        res.status(201).send(newUser)
+      } catch (e) {
+        console.log('error creating new user: ', e);
+        res.status(400).send(e)
+      }
+    }
   }
 });
 
