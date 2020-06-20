@@ -34,4 +34,13 @@ router.post('/subscriptionUpdate', (req, res, next) => {
     })
 });
 
+router.get('/subscriptionUpdate', (req, res, next) => {
+  SubscriptionUpdate.findAll()
+    .then(updates => res.status(200).send(updates))
+    .catch(e => {
+      console.log('error finding all updates: ', e);
+      res.status(400).send(e)
+    })
+});
+
 module.exports = router;
