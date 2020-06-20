@@ -39,6 +39,7 @@ const User = connection.define('user', {
   email: {
     type: Sequelize.STRING,
     allowNull: true,
+    unique: true,
   },
   pictureUrl: {
     type: Sequelize.TEXT,

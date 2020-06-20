@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const axios = require('axios');
+const { SubscriptionUpdate } = require('../../db');
 
 router.post('/', (req, res, next) => {
   const { data } = req.body;
@@ -18,6 +19,19 @@ router.post('/', (req, res, next) => {
       console.log('error verifying receipt: ', e);
       res.status(400).send('error verifying receipt: ', e)
     })
-})
+});
+
+router.post('/subscriptionUpdate', (req, res, next) => {
+  console.log('req.body: ', req.body)
+  SubscriptionUpdate.create(req.body)
+    .then(update => {
+      console.log('successfully added update: ', update);
+      res.status(200).send('added update!');
+    })
+    .catch(e => {
+      console.log('error adding updaate: ', e);
+      res.status(400).send(e)
+    })
+});
 
 module.exports = router;
