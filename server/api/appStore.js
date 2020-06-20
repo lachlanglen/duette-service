@@ -23,7 +23,7 @@ router.post('/', (req, res, next) => {
 
 router.post('/subscriptionUpdate', (req, res, next) => {
   console.log('req.body: ', req.body)
-  SubscriptionUpdate.create(req.body)
+  SubscriptionUpdate.create({ json: req.body })
     .then(update => {
       console.log('successfully added update: ', update);
       res.status(200).send('added update!');
