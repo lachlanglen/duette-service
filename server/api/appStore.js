@@ -26,7 +26,7 @@ router.post('/subscriptionUpdate', (req, res, next) => {
   // const { object, type } = req.body;
   SubscriptionUpdate.create({ json: req.body })
     .then(update => {
-      console.log('successfully added update: ', update);
+      console.log('successfully added subscriptin update!');
       res.status(200).send('added update!');
     })
     .catch(e => {
