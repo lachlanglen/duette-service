@@ -16,8 +16,8 @@ router.post('/', (req, res, next) => {
 
   if (
     title.length > 50 ||
-    composer && composer.length > 20 ||
-    key && key.length > 10 ||
+    composer && composer.length > 30 ||
+    key && key.length > 20 ||
     performer.length > 50 ||
     notes && notes.length > 250
   ) {
