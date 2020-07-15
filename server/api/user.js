@@ -24,18 +24,18 @@ router.get('/:id?', (req, res, next) => {
   }
 });
 
-router.get('/facebookId/:facebookId', async (req, res, next) => {
-  const { facebookId } = req.params;
+router.get('/oAuthId/:oAuthId', async (req, res, next) => {
+  const { oAuthId } = req.params;
   User.findOne({
     where: {
-      facebookId,
+      oAuthId,
     }
   })
     .then(user => {
       if (user) {
         res.status(200).send(user);
       } else {
-        res.status(404).send(`user not found with facebookId ${facebookId}`)
+        res.status(404).send(`user not found with oAuthId ${oAuthId}`)
       }
     })
 });
@@ -44,12 +44,8 @@ router.post('/', async (req, res, next) => {
   console.log('req.body: ', req.body)
   const {
     name,
-    facebookId,
-    pictureUrl,
-    pictureWidth,
-    pictureHeight,
-    lastLogin,
-    email
+    oAuthId,
+    email,
   } = req.body;
 
   if (email && email.length > 255) {
@@ -57,29 +53,25 @@ router.post('/', async (req, res, next) => {
   } else {
     // if an email is present, look for a user with the same email
     // if an email is not present, look for a user with the same facebook id
-    let user;
-    if (email) {
-      user = await User.findOne({
-        where: {
-          email,
-        }
-      })
-    } else {
-      user = await User.findOne({
-        where: {
-          facebookId,
-        }
-      })
-    }
+    // let user;
+    // if (email) {
+    //   user = await User.findOne({
+    //     where: {
+    //       email,
+    //     }
+    //   })
+    // } else {
+    const user = await User.findOne({
+      where: {
+        oAuthId,
+      }
+    })
+    // }
     if (user) {
       console.log('user exists')
       try {
         const updatedUser = await user.update({
           name,
-          facebookId,
-          pictureUrl,
-          pictureWidth,
-          pictureHeight,
           lastLogin: lastLogin.toString(),
           email,
         });
@@ -95,10 +87,7 @@ router.post('/', async (req, res, next) => {
       try {
         const newUser = await User.create({
           name,
-          facebookId,
-          pictureUrl,
-          pictureWidth,
-          pictureHeight,
+          oAuthId,
           lastLogin: lastLogin.toString(),
           email,
         })

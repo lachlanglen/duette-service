@@ -17,7 +17,7 @@ const User = connection.define('user', {
     allowNull: false,
     defaultValue: false,
   },
-  facebookId: {
+  oAuthId: {
     type: Sequelize.STRING,
     allowNull: false,
     unique: true,
@@ -25,10 +25,14 @@ const User = connection.define('user', {
       notEmpty: true,
     },
   },
-  expires: {
-    type: Sequelize.STRING,
+  isApple: {
+    type: Sequelize.BOOLEAN,
     allowNull: true,
   },
+  // expires: {
+  //   type: Sequelize.STRING,
+  //   allowNull: true,
+  // },
   name: {
     type: Sequelize.STRING,
     allowNull: false,
