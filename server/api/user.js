@@ -46,6 +46,7 @@ router.post('/', async (req, res, next) => {
     name,
     oAuthId,
     email,
+    lastLogin,
   } = req.body;
 
   if (email && email.length > 255) {
