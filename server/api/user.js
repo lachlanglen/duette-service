@@ -73,10 +73,7 @@ router.post('/', async (req, res, next) => {
       console.log('user exists')
       try {
         const updatedUser = await user.update({
-          name,
           lastLogin: lastLogin.toString(),
-          email,
-          isApple,
         });
         res.status(200).send(updatedUser);
       } catch (e) {
