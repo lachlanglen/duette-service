@@ -47,6 +47,7 @@ router.post('/', async (req, res, next) => {
     oAuthId,
     email,
     lastLogin,
+    isApple,
   } = req.body;
 
   if (email && email.length > 255) {
@@ -75,6 +76,7 @@ router.post('/', async (req, res, next) => {
           name,
           lastLogin: lastLogin.toString(),
           email,
+          isApple,
         });
         res.status(200).send(updatedUser);
       } catch (e) {
@@ -91,6 +93,7 @@ router.post('/', async (req, res, next) => {
           oAuthId,
           lastLogin: lastLogin.toString(),
           email,
+          isApple,
         })
         res.status(201).send(newUser)
       } catch (e) {
