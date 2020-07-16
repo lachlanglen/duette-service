@@ -29,6 +29,10 @@ const User = connection.define('user', {
     type: Sequelize.BOOLEAN,
     allowNull: true,
   },
+  isFacebook: {
+    type: Sequelize.BOOLEAN,
+    allowNull: true,
+  },
   // expires: {
   //   type: Sequelize.STRING,
   //   allowNull: true,
