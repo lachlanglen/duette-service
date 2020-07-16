@@ -55,20 +55,20 @@ router.post('/', async (req, res, next) => {
   } else {
     // if an email is present, look for a user with the same email
     // if an email is not present, look for a user with the same facebook id
-    // let user;
-    // if (email) {
-    //   user = await User.findOne({
-    //     where: {
-    //       email,
-    //     }
-    //   })
-    // } else {
-    const user = await User.findOne({
-      where: {
-        oAuthId,
-      }
-    })
-    // }
+    let user;
+    if (email && !isApple) {
+      user = await User.findOne({
+        where: {
+          email,
+        }
+      })
+    } else {
+      user = await User.findOne({
+        where: {
+          oAuthId,
+        }
+      })
+    }
     if (user) {
       console.log('user exists')
       try {
