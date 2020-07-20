@@ -157,12 +157,14 @@ router.put('/:videoId/:userId', (req, res, next) => {
 
 router.put('/increment/:videoId', (req, res, next) => {
   const { videoId } = req.params;
+  console.log('videoId: ', videoId)
   Video.findOne({
     where: {
       id: videoId,
     }
   })
     .then(video => {
+      console.log('video line 167: ', video)
       if (video) {
         video.update({
           numUses: video.numUses + 1,
@@ -170,9 +172,16 @@ router.put('/increment/:videoId', (req, res, next) => {
           {
             returning: true,
           })
-          .then(updated => res.status(200).send(updated))
-          .catch(e => res.status(400).send(`error incrementing video record with id: ${videoId}`, e))
+          .then(updated => {
+            console.log('updated: ', updaated)
+            res.status(200).send(updated)
+          })
+          .catch(e => {
+            console.log('error line 180: ', e)
+            res.status(400).send(`error incrementing video record with id: ${videoId}`, e)
+          })
       } else {
+        console.log('video not found')
         res.status(400).send(`video with id ${videoId} not found`)
       }
     })
