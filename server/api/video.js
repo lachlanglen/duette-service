@@ -119,6 +119,7 @@ router.put('/:videoId/:userId', (req, res, next) => {
     key,
     performer,
     notes,
+    numUses,
   } = req.body;
   if (!title || !performer) {
     res.status(400).send('Title & performer fields must not be null!');
@@ -153,6 +154,29 @@ router.put('/:videoId/:userId', (req, res, next) => {
       })
   }
 });
+
+router.put('/increment/:videoId', (req, res, next) => {
+  const { videoId } = req.params;
+  Video.findOne({
+    where: {
+      id: videoId,
+    }
+  })
+    .then(video => {
+      if (video) {
+        video.update({
+          numUses: video.numUses + 1,
+        },
+          {
+            returning: true,
+          })
+          .then(updated => res.status(200).send(updated))
+          .catch(e => res.status(400).send(`error incrementing video record with id: ${videoId}`, e))
+      } else {
+        res.status(400).send(`video with id ${videoId} not found`)
+      }
+    })
+})
 
 router.delete('/:videoId/:userId', (req, res, next) => {
   const { videoId, userId } = req.params;

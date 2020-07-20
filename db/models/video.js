@@ -46,7 +46,12 @@ const Video = connection.define('video', {
     validate: {
       len: [0, 250],
     }
-  }
+  },
+  numUses: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
 })
 
 module.exports = Video;
