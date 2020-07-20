@@ -113,14 +113,12 @@ router.get('/', (req, res, next) => {
 
 router.put('/increment/:videoId', (req, res, next) => {
   const { videoId } = req.params;
-  console.log('videoId: ', videoId)
   Video.findOne({
     where: {
       id: videoId,
     }
   })
     .then(video => {
-      console.log('video line 167: ', video)
       if (video) {
         video.update({
           numUses: video.numUses + 1,
@@ -129,7 +127,7 @@ router.put('/increment/:videoId', (req, res, next) => {
             returning: true,
           })
           .then(updated => {
-            console.log('updated: ', updaated)
+            console.log('updated: ', updated)
             res.status(200).send(updated)
           })
           .catch(e => {
@@ -144,7 +142,6 @@ router.put('/increment/:videoId', (req, res, next) => {
 });
 
 router.put('/:videoId/:userId', (req, res, next) => {
-  console.log('hi line 115')
   const { videoId, userId } = req.params;
   const {
     title,
