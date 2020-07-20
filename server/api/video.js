@@ -154,7 +154,7 @@ router.put('/:videoId/:userId', (req, res, next) => {
   }
 });
 
-router.delete('/:videoId/:userId', (req, res, next) => {
+router.delete('/:videoId', (req, res, next) => {
   // const { videoId, userId } = req.params;
   const { videoId } = req.params;
   // if (!videoId || !userId) {
