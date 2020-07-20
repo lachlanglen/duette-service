@@ -112,6 +112,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.put('/:videoId/:userId', (req, res, next) => {
+  console.log('hi line 115')
   const { videoId, userId } = req.params;
   const {
     title,
