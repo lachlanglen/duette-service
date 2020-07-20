@@ -111,6 +111,38 @@ router.get('/', (req, res, next) => {
   }
 });
 
+router.put('/increment/:videoId', (req, res, next) => {
+  const { videoId } = req.params;
+  console.log('videoId: ', videoId)
+  Video.findOne({
+    where: {
+      id: videoId,
+    }
+  })
+    .then(video => {
+      console.log('video line 167: ', video)
+      if (video) {
+        video.update({
+          numUses: video.numUses + 1,
+        },
+          {
+            returning: true,
+          })
+          .then(updated => {
+            console.log('updated: ', updaated)
+            res.status(200).send(updated)
+          })
+          .catch(e => {
+            console.log('error line 180: ', e)
+            res.status(400).send(`error incrementing video record with id: ${videoId}`, e)
+          })
+      } else {
+        console.log('video not found')
+        res.status(400).send(`video with id ${videoId} not found`)
+      }
+    })
+});
+
 router.put('/:videoId/:userId', (req, res, next) => {
   console.log('hi line 115')
   const { videoId, userId } = req.params;
@@ -155,38 +187,6 @@ router.put('/:videoId/:userId', (req, res, next) => {
       })
   }
 });
-
-router.put('/increment/:videoId', (req, res, next) => {
-  const { videoId } = req.params;
-  console.log('videoId: ', videoId)
-  Video.findOne({
-    where: {
-      id: videoId,
-    }
-  })
-    .then(video => {
-      console.log('video line 167: ', video)
-      if (video) {
-        video.update({
-          numUses: video.numUses + 1,
-        },
-          {
-            returning: true,
-          })
-          .then(updated => {
-            console.log('updated: ', updaated)
-            res.status(200).send(updated)
-          })
-          .catch(e => {
-            console.log('error line 180: ', e)
-            res.status(400).send(`error incrementing video record with id: ${videoId}`, e)
-          })
-      } else {
-        console.log('video not found')
-        res.status(400).send(`video with id ${videoId} not found`)
-      }
-    })
-})
 
 router.delete('/:videoId/:userId', (req, res, next) => {
   const { videoId, userId } = req.params;
