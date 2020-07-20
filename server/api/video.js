@@ -154,11 +154,9 @@ router.put('/:videoId/:userId', (req, res, next) => {
   }
 });
 
-router.delete('/:videoId', (req, res, next) => {
-  // const { videoId, userId } = req.params;
-  const { videoId } = req.params;
-  // if (!videoId || !userId) {
-  if (!videoId) {
+router.delete('/:videoId/:userId', (req, res, next) => {
+  const { videoId, userId } = req.params;
+  if (!videoId || !userId) {
     res.status(400).send('video id or user id not valid')
   } else {
     Video.update(
@@ -168,7 +166,7 @@ router.delete('/:videoId', (req, res, next) => {
       {
         where: {
           id: videoId,
-          // userId
+          userId
         },
         returning: true,
       }
