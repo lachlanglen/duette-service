@@ -169,6 +169,7 @@ router.put('/:videoId/:userId', (req, res, next) => {
         key,
         performer,
         notes,
+        userId
       },
       {
         where: {
