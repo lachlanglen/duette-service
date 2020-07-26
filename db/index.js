@@ -1,5 +1,5 @@
 const connection = require('./connection');
-const { User, Video, Duette, SubscriptionUpdate } = require('./models/index');
+const { User, Video, Duette, SubscriptionUpdate, Flag } = require('./models/index');
 
 User.hasMany(Video);
 Video.belongsTo(User);
@@ -16,4 +16,5 @@ module.exports = {
   Video,
   Duette,
   SubscriptionUpdate,
+  Flag,
 };
