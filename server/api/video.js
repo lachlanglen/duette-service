@@ -169,12 +169,11 @@ router.put('/:videoId/:userId', (req, res, next) => {
         key,
         performer,
         notes,
-        userId
       },
       {
         where: {
           id: videoId,
-          // userId
+          userId
         },
         returning: true,
       }
