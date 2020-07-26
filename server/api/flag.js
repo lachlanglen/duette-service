@@ -17,7 +17,7 @@ router.post('/:videoId', (req, res, next) => {
     flaggedUserId,
   })
     .then(flag => {
-      // console.log('flag created! ', flag);
+      console.log('flag created! ', flag);
       mailjet
         .post('send', { version: 'v3.1' })
         .request({
@@ -35,15 +35,18 @@ router.post('/:videoId', (req, res, next) => {
               ],
               Subject: 'A video has been flagged for inappropriate content',
               HTMLPart: `<h4>Hi,</h4><div>User #${flaggingUserId} has flagged user #${flaggedUserId}'s video with ID #${videoId} for inappropriate content. Please review within 24 hours.</div><div>Thank you!</div><div>- Duette Admin</div>`,
-              CustomID: flag.id,
+              CustomID: flag.dataValues.id,
             }
           ]
         })
         .then(res => {
-          // console.log('success sending email! response: ', res.body);
+          console.log('success sending email! response: ', res.body);
           res.status(200).send(flag)
         })
-        .catch(e => res.status(400).send('error sending email: ', e))
+        .catch(e => {
+          console.log('error sending email: ', e);
+          res.status(400).send('error sending email: ', e)
+        })
     })
     .catch(e => {
       // console.log('Error creating new flag: ', e);
