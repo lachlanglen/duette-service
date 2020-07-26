@@ -141,10 +141,6 @@ router.put('/increment/:videoId', (req, res, next) => {
     })
 });
 
-router.put('/flag/:videoId/:userId', (req, res, next) => {
-
-})
-
 router.put('/:videoId/:userId', (req, res, next) => {
   const { videoId, userId } = req.params;
   const {
@@ -177,7 +173,7 @@ router.put('/:videoId/:userId', (req, res, next) => {
       {
         where: {
           id: videoId,
-          userId
+          // userId
         },
         returning: true,
       }
