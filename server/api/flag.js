@@ -35,7 +35,7 @@ router.post('/:videoId', (req, res, next) => {
               ],
               Subject: 'A video has been flagged for inappropriate content',
               HTMLPart: `<h4>Hi,</h4><div>User #${flaggingUserId} has flagged user #${flaggedUserId}'s video with ID #${videoId} for inappropriate content. Please review within 24 hours.</div><div>Thank you!</div><div>- Duette Admin</div>`,
-              CustomID: flag.dataValues.id,
+              // CustomID: flag.dataValues.id,
             }
           ]
         })
