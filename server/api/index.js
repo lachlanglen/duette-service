@@ -13,6 +13,7 @@ router.use('/duette', require('./duette'));
 router.use('/user', require('./user'));
 router.use('/appStore', require('./appStore'));
 router.use('/logger', require('./logger'));
+router.use('/flag', require('./flag'));
 
 //error handling
 router.use((req, res, next) => {
