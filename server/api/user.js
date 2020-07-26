@@ -2,6 +2,72 @@ const express = require('express')
 const router = express.Router();
 const { User } = require('../../db');
 
+// User.findOne({
+//   where: {
+//     name: 'Lachlan Glen'
+//   }
+// })
+//   .then(found => {
+//     if (found) {
+//       // console.log('fsound: ', found)
+//       User.findOne({
+//         where: {
+//           name: 'Leanne Glen'
+//         }
+//       })
+//         .then(found2 => {
+//           if (found2) {
+//             found.addBlocked(found2)
+//               .then(r => {
+//                 console.log('added blocked! ', r)
+//                 found.getBlocked()
+//                   .then(blocked => console.log("Lachlan's blocked list: ", blocked))
+//                   .catch(e => console.log("Error getting Lachlan's blocked list: ", e))
+//               })
+//               .catch(e => console.log('error adding blocked: ', e))
+//           } else {
+//             console.log('Leanne not found')
+//           }
+//         })
+//     } else {
+//       console.log('Lachlan not found')
+//     }
+//   })
+
+router.post('/block', (req, res, next) => {
+  const { blockingUser, userToBlock } = req.body;
+  User.findOne({
+    where: {
+      id: blockingUser,
+    }
+  })
+    .then(found => {
+      if (found) {
+        User.findOne({
+          where: {
+            id: userToBlock,
+          }
+        })
+          .then(toBlock => {
+            if (toBlock) {
+              found.addBlocked(toBlock)
+                .then(() => {
+                  console.log('added blocked!')
+                  res.status(200).send('successfully blocked user!')
+                })
+                .catch(e => res.status(400).send('error adding blocked: ', e))
+            } else {
+              console.log(`User to block with id ${userToBlock} not found`)
+              res.status(404).send(`User to block with id ${userToBlock} not found`)
+            }
+          })
+      } else {
+        console.log(`Blocking user with id ${blockingUser} not found`)
+        res.status(404).send(`Blocking user with id ${blockingUser} not found`)
+      }
+    })
+})
+
 router.get('/:id?', (req, res, next) => {
   const { id } = req.params;
   if (id) {
@@ -19,8 +85,8 @@ router.get('/:id?', (req, res, next) => {
       })
   } else {
     User.findAll()
-      .then(users => res.status(200).send(users))
-      .catch(e => res.status(404).send('Could not GET all users: ', e))
+      .then(users => res.send(users))
+      .catch(e => res.send('Could not GET all users: ', e))
   }
 });
 
