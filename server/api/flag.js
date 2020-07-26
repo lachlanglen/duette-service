@@ -5,6 +5,7 @@ const { Flag } = require('../../db');
 router.post('/:videoId', (req, res, next) => {
   const { videoId } = req.params;
   const { flaggingUserId, flaggedUserId } = req.body;
+  console.log('videoId: ', videoId, 'flaggingUserId: ', flaggingUserId, 'flaggedUserId: ', flaggedUserId)
   if (!flaggingUserId || !flaggedUserId) {
     return res.status(400).send('Request must include flaggingUserId and flaggedUserId.')
   }
