@@ -41,16 +41,16 @@ router.post('/:videoId', (req, res, next) => {
         })
         .then(res => {
           console.log('success sending email! response: ', res.body);
-          res.status(200).send(flag)
+          res.sendStatus(200);
         })
         .catch(e => {
           console.log('error sending email: ', e);
-          res.status(400).send('error sending email: ', e)
+          res.sendStatus(400);
         })
     })
     .catch(e => {
       // console.log('Error creating new flag: ', e);
-      res.status(400).send('Error creating new flag: ', e)
+      return res.status(400).send('Error creating new flag: ', e)
     })
 });
 

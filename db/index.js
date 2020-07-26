@@ -10,6 +10,8 @@ Duette.belongsTo(Video);
 User.hasMany(Duette);
 Duette.belongsTo(User);
 
+User.hasMany(User, { as: 'blocked' })
+
 module.exports = {
   connection,
   User,
