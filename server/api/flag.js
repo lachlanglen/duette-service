@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router();
 const { Flag } = require('../../db');
+const mailjet = require('node-mailjet')
+  .connect(process.env.MAILJET_APIKEY_PUBLIC, process.env.MAILJET_APIKEY_PRIVATE)
 
 router.post('/:videoId', (req, res, next) => {
   const { videoId } = req.params;
@@ -16,7 +18,32 @@ router.post('/:videoId', (req, res, next) => {
   })
     .then(flag => {
       // console.log('flag created! ', flag);
-      res.status(201).send(flag);
+      mailjet
+        .post('send', { version: 'v3.1' })
+        .request({
+          Messages: [
+            {
+              From: {
+                Email: 'support@duette.app',
+                Name: 'Duette Admin'
+              },
+              To: [
+                {
+                  Email: 'lachlanjglen@gmail.com',
+                  Name: 'Duette Admin'
+                }
+              ],
+              Subject: 'A video has been flagged for inappropriate content',
+              HTMLPart: `<h4>Hi,</h4><div>User #${flaggingUserId} has flagged user #${flaggedUserId}'s video with ID #${videoId} for inappropriate content. Please review within 24 hours.</div><div>Thank you!</div><div>- Duette Admin</div>`,
+              CustomID: flag.id,
+            }
+          ]
+        })
+        .then(res => {
+          // console.log('success sending email! response: ', res.body);
+          res.status(200).send(flag)
+        })
+        .catch(e => res.status(400).send('error sending email: ', e))
     })
     .catch(e => {
       // console.log('Error creating new flag: ', e);
