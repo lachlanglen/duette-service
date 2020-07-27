@@ -17,7 +17,7 @@ router.post('/:videoId', (req, res, next) => {
     flaggedUserId,
   })
     .then(flag => {
-      console.log('flag created! ', flag);
+      // console.log('flag created! ', flag);
       mailjet
         .post('send', { version: 'v3.1' })
         .request({
@@ -41,11 +41,11 @@ router.post('/:videoId', (req, res, next) => {
         })
         .then(res => {
           console.log('success sending email! response: ', res.body);
-          res.sendStatus(200);
+          res.status(200).send('success sending email!');
         })
         .catch(e => {
           console.log('error sending email: ', e);
-          res.sendStatus(400);
+          res.status(400).send('error sending email: ', e);
         })
     })
     .catch(e => {

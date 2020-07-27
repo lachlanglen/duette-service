@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { Video } = require('../../db');
+const { Video, User } = require('../../db');
 const { Op } = require('sequelize');
 
 router.post('/', (req, res, next) => {
@@ -39,6 +39,117 @@ router.post('/', (req, res, next) => {
   }
 });
 
+router.get('byId/:id', (req, res, next) => {
+  const { id } = req.params;
+  const { val } = req.query;
+  if (id) {
+    Video.findOne({
+      where: {
+        id,
+        isHidden: false,
+      }
+    })
+      .then(video => {
+        if (video) {
+          res.status(200).send(video)
+        } else {
+          res.status(404).send('video not found!')
+        }
+      })
+  }
+});
+
+router.get('/withUserId/:userId', (req, res, next) => {
+  const { val } = req.query;
+  const { userId } = req.params;
+  console.log('userId: ', userId);
+  if (!userId) {
+    res.status(400).send('video GET request must include userId in params!')
+  }
+  const blocked = [];
+  User.findOne({
+    where: {
+      id: userId,
+    }
+  })
+    .then(user => {
+      if (user) {
+        // do something
+        user.getBlocked()
+          .then(blockedUsers => blockedUsers.forEach(blockedUser => blocked.push(blockedUser.id)))
+          .then(() => {
+            console.log('blocked: ', blocked);
+            if (val) {
+              Video.findAll({
+                where: {
+                  [Op.and]: [
+                    {
+                      isHidden: false,
+                    },
+                    {
+                      userId: {
+                        [Op.notIn]: blocked,
+                      }
+                    },
+                    {
+                      [Op.or]: [
+                        { title: { [Op.iLike]: `%${val}%` } },
+                        { composer: { [Op.iLike]: `%${val}%` } },
+                        { key: { [Op.iLike]: `%${val}%` } },
+                        { performer: { [Op.iLike]: `%${val}%` } },
+                        // TODO: add Id
+                      ],
+                    }
+                  ]
+                },
+                order: [
+                  ['createdAt', 'DESC']
+                ]
+              })
+                .then(videos => {
+                  res.status(200).send(videos)
+                })
+                .catch(e => {
+                  res.status(400).send('error finding videos by search value: ', e);
+                })
+            } else {
+              Video.findAll(
+                {
+                  where: {
+                    [Op.and]: [
+                      {
+                        isHidden: false
+                      },
+                      {
+                        userId: {
+                          [Op.notIn]: blocked,
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  order: [
+                    ['createdAt', 'DESC']
+                  ]
+                }
+              )
+                .then(videos => {
+                  res.status(200).send(videos)
+                })
+                .catch(e => {
+                  res.status(404).send('Error finding all videos: ', e)
+                })
+            }
+          })
+          .catch(e => res.status(400).send(`error getting blocked users for userId ${userId}:`, e))
+      } else {
+        res.status(400).send('Video GET request must include userId in body!')
+      }
+    })
+});
+
+// remove below route eventually
 router.get('/:id', (req, res, next) => {
   const { id } = req.params;
   const { val } = req.query;
@@ -59,6 +170,7 @@ router.get('/:id', (req, res, next) => {
   }
 });
 
+// remove below route eventually
 router.get('/', (req, res, next) => {
   const { val } = req.query;
   if (val) {
