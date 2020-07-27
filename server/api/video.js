@@ -63,7 +63,7 @@ router.get('byId/:id', (req, res, next) => {
 router.get('/withUserId/:userId', (req, res, next) => {
   const { val } = req.query;
   const { userId } = req.params;
-  console.log('userId: ', userId);
+  // console.log('userId: ', userId);
   if (!userId) {
     res.status(400).send('video GET request must include userId in params!')
   }
@@ -79,7 +79,7 @@ router.get('/withUserId/:userId', (req, res, next) => {
         user.getBlocked()
           .then(blockedUsers => blockedUsers.forEach(blockedUser => blocked.push(blockedUser.id)))
           .then(() => {
-            console.log('blocked: ', blocked);
+            // console.log('blocked: ', blocked);
             if (val) {
               Video.findAll({
                 where: {

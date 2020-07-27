@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { Connection } = require('../../db');
+const { Connection } = require('../../db'); // TODO: fix this (Connection is defined as an alias)
 
 router.get('/', (req, res, next) => {
   Connection.findAll()
