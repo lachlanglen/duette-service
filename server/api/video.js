@@ -40,6 +40,7 @@ router.post('/', (req, res, next) => {
 });
 
 router.get('byId/:id', (req, res, next) => {
+  console.log('in GET byId')
   const { id } = req.params;
   const { val } = req.query;
   if (id) {
@@ -149,7 +150,7 @@ router.get('/withUserId/:userId', (req, res, next) => {
     })
 });
 
-// remove below route eventually
+// remove below route eventually (to be deprecated)
 router.get('/:id', (req, res, next) => {
   const { id } = req.params;
   const { val } = req.query;
@@ -170,7 +171,7 @@ router.get('/:id', (req, res, next) => {
   }
 });
 
-// remove below route eventually
+// remove below route eventually (to be deprecated)
 router.get('/', (req, res, next) => {
   const { val } = req.query;
   if (val) {
