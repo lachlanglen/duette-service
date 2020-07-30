@@ -11,7 +11,9 @@ router.post('/', (req, res, next) => {
     key,
     performer,
     notes,
-    userId
+    userId,
+    isPrivate,
+    userReference,
   } = req.body;
 
   if (
@@ -30,7 +32,9 @@ router.post('/', (req, res, next) => {
       key,
       performer,
       notes,
-      userId
+      userId,
+      isPrivate,
+      userReference,
     })
       .then(created => res.status(201).send(created))
       .catch(e => {
