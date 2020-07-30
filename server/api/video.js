@@ -88,7 +88,7 @@ router.get('/generateRandomId', (req, res, next) => {
 });
 
 router.get('/withUserId/:userId', (req, res, next) => {
-  const { val } = req.query;
+  let { val } = req.query;
   const { userId } = req.params;
   // console.log('userId: ', userId);
   if (!userId) {
@@ -102,12 +102,14 @@ router.get('/withUserId/:userId', (req, res, next) => {
   })
     .then(user => {
       if (user) {
-        // do something
         user.getBlocked()
           .then(blockedUsers => blockedUsers.forEach(blockedUser => blocked.push(blockedUser.id)))
           .then(() => {
             // console.log('blocked: ', blocked);
+            const numberVal = Number(val);
+            console.log('numberVal: ', numberVal)
             if (val) {
+              console.log('line 114')
               Video.findAll({
                 where: {
                   [Op.and]: [
@@ -120,13 +122,18 @@ router.get('/withUserId/:userId', (req, res, next) => {
                       }
                     },
                     {
-                      [Op.or]: [
+                      [Op.or]: !numberVal ? [
                         { title: { [Op.iLike]: `%${val}%` } },
                         { composer: { [Op.iLike]: `%${val}%` } },
                         { key: { [Op.iLike]: `%${val}%` } },
                         { performer: { [Op.iLike]: `%${val}%` } },
-                        // TODO: add Id
-                      ],
+                      ] : [
+                          { title: { [Op.iLike]: `%${val}%` } },
+                          { composer: { [Op.iLike]: `%${val}%` } },
+                          { key: { [Op.iLike]: `%${val}%` } },
+                          { performer: { [Op.iLike]: `%${val}%` } },
+                          { userReference: { [Op.eq]: numberVal } },
+                        ],
                     }
                   ]
                 },
@@ -138,6 +145,7 @@ router.get('/withUserId/:userId', (req, res, next) => {
                   res.status(200).send(videos)
                 })
                 .catch(e => {
+                  console.log('error: ', e)
                   res.status(400).send('error finding videos by search value: ', e);
                 })
             } else {
