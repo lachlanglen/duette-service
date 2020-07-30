@@ -52,6 +52,16 @@ const Video = connection.define('video', {
     allowNull: false,
     defaultValue: 0,
   },
+  isPrivate: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  userReference: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    unique: true,
+  }
 })
 
 module.exports = Video;

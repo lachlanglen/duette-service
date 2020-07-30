@@ -60,6 +60,29 @@ router.get('byId/:id', (req, res, next) => {
   }
 });
 
+router.get('/generateRandomId', (req, res, next) => {
+  let randomId;
+  const generateUniqueId = async () => {
+    randomId = Math.floor(100000 + Math.random() * 900000);
+    try {
+      const exists = await Video.findOne({
+        where: {
+          userReference: randomId,
+        }
+      });
+      if (exists) {
+        generateUniqueId();
+      }
+      else {
+        res.status(200).send({ randomId });
+      }
+    } catch (e) {
+      res.status(400).send('error generating randomId: ', e)
+    }
+  };
+  generateUniqueId();
+});
+
 router.get('/withUserId/:userId', (req, res, next) => {
   const { val } = req.query;
   const { userId } = req.params;
