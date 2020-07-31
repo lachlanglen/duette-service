@@ -144,8 +144,12 @@ router.get('/withUserId/:userId', (req, res, next) => {
                     // filter out videos where isPrivate is true and current userId !== vid.userId
                     // const filtered = videos.filter(vid => vid.isPrivate && vid.userId === userId)
                     const filterFunc = el => {
-                      if (el.isPrivate && el.userId !== userId) return true;
-                      else return false;
+                      if (el.isPrivate && el.userId !== userId) {
+                        return true;
+                      } else {
+                        console.log('video: ', el.title)
+                        return false;
+                      }
                     };
                     const filtered = videos.filter(vid => !filterFunc(vid));
                     res.status(200).send(filtered)
