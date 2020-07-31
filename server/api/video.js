@@ -341,6 +341,7 @@ router.put('/:videoId/:userId', (req, res, next) => {
     performer,
     notes,
     numUses,
+    isPrivate,
   } = req.body;
   if (!title || !performer) {
     res.status(400).send('Title & performer fields must not be null!');
@@ -360,6 +361,7 @@ router.put('/:videoId/:userId', (req, res, next) => {
         key,
         performer,
         notes,
+        isPrivate,
       },
       {
         where: {
