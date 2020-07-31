@@ -106,48 +106,91 @@ router.get('/withUserId/:userId', (req, res, next) => {
           .then(blockedUsers => blockedUsers.forEach(blockedUser => blocked.push(blockedUser.id)))
           .then(() => {
             // console.log('blocked: ', blocked);
-            const numberVal = Number(val);
-            console.log('numberVal: ', numberVal)
             if (val) {
-              console.log('line 114')
-              Video.findAll({
-                where: {
-                  [Op.and]: [
-                    {
-                      isHidden: false,
-                    },
-                    {
-                      userId: {
-                        [Op.notIn]: blocked,
+              const numberVal = Number(val);
+              if (!numberVal) {
+                // user is searching by title etc.
+                Video.findAll({
+                  where: {
+                    [Op.and]: [
+                      {
+                        isHidden: false,
+                      },
+                      // {
+                      //   // TODO: change this - user has to be able to search for their own Base Tracks by title etc, even if they're private.
+                      //   // IF userId passed to route === video's userId, ignore isPrivate field
+                      //   isPrivate: false,
+                      // },
+                      {
+                        userId: {
+                          [Op.notIn]: blocked,
+                        }
+                      },
+                      {
+                        [Op.or]: [
+                          { title: { [Op.iLike]: `%${val}%` } },
+                          { composer: { [Op.iLike]: `%${val}%` } },
+                          { key: { [Op.iLike]: `%${val}%` } },
+                          { performer: { [Op.iLike]: `%${val}%` } },
+                        ],
                       }
-                    },
-                    {
-                      [Op.or]: !numberVal ? [
-                        { title: { [Op.iLike]: `%${val}%` } },
-                        { composer: { [Op.iLike]: `%${val}%` } },
-                        { key: { [Op.iLike]: `%${val}%` } },
-                        { performer: { [Op.iLike]: `%${val}%` } },
-                      ] : [
+                    ]
+                  },
+                  order: [
+                    ['createdAt', 'DESC']
+                  ]
+                })
+                  .then(videos => {
+                    // filter out videos where isPrivate is true and current userId !== vid.userId
+                    // const filtered = videos.filter(vid => vid.isPrivate && vid.userId === userId)
+                    const filterFunc = el => {
+                      if (el.isPrivate && el.userId !== userId) return true;
+                      else return false;
+                    };
+                    const filtered = videos.filter(vid => !filterFunc(vid));
+                    res.status(200).send(filtered)
+                  })
+                  .catch(e => {
+                    console.log('error: ', e)
+                    res.status(400).send('error finding videos by search value: ', e);
+                  })
+              } else {
+                // user is searching by ID
+                Video.findAll({
+                  where: {
+                    [Op.and]: [
+                      {
+                        isHidden: false,
+                      },
+                      // {
+                      //   userId: {
+                      //     [Op.notIn]: blocked,
+                      //   }
+                      // },
+                      {
+                        // userReference: { [Op.eq]: numberVal }
+                        [Op.or]: [
                           { title: { [Op.iLike]: `%${val}%` } },
                           { composer: { [Op.iLike]: `%${val}%` } },
                           { key: { [Op.iLike]: `%${val}%` } },
                           { performer: { [Op.iLike]: `%${val}%` } },
                           { userReference: { [Op.eq]: numberVal } },
                         ],
-                    }
+                      }
+                    ]
+                  },
+                  order: [
+                    ['createdAt', 'DESC']
                   ]
-                },
-                order: [
-                  ['createdAt', 'DESC']
-                ]
-              })
-                .then(videos => {
-                  res.status(200).send(videos)
                 })
-                .catch(e => {
-                  console.log('error: ', e)
-                  res.status(400).send('error finding videos by search value: ', e);
-                })
+                  .then(videos => {
+                    res.status(200).send(videos)
+                  })
+                  .catch(e => {
+                    console.log('error: ', e)
+                    res.status(400).send('error finding videos by ID: ', e);
+                  })
+              }
             } else {
               Video.findAll(
                 {
