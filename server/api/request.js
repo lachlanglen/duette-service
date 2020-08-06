@@ -111,8 +111,8 @@ router.put('/markAsFulfilled/:requestId', (req, res, next) => {
                                       Name: name,
                                     }
                                   ],
-                                  Subject: 'Your Base Track request has been fulfilled!',
-                                  HTMLPart: `<h4>Hi ${name},</h4><div>Your Base Track request was just fulfilled!</div><h4>Head over to the app to find this new track and record a Duette along with it!</h4><div>Thanks for using Duette!</div><div>- Team Duette</div>`,
+                                  Subject: 'Your base track request has been fulfilled!',
+                                  HTMLPart: `<h4>Hi ${name},</h4><div>Your Base Track request was just fulfilled!</div><h4>Head over to the app to find this new base track and record a Duette along with it!</h4><div>Thanks for using Duette!</div><div>- Team Duette</div>`,
                                   // CustomID: flag.dataValues.id,
                                 }
                               ]
