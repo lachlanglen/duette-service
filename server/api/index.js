@@ -15,6 +15,7 @@ router.use('/appStore', require('./appStore'));
 router.use('/logger', require('./logger'));
 router.use('/flag', require('./flag'));
 router.use('/connection', require('./connection'));
+router.use('/request', require('./request'));
 
 //error handling
 router.use((req, res, next) => {

@@ -53,6 +53,10 @@ const User = connection.define('user', {
     type: Sequelize.BOOLEAN,
     allowNull: false,
     defaultValue: true,
+  },
+  expoPushToken: {
+    type: Sequelize.STRING,
+    allowNull: true,
   }
 })
 

@@ -318,15 +318,15 @@ router.put('/increment/:videoId', (req, res, next) => {
             returning: true,
           })
           .then(updated => {
-            console.log('updated: ', updated)
+            // console.log('updated: ', updated)
             res.status(200).send(updated)
           })
           .catch(e => {
-            console.log('error line 180: ', e)
+            // console.log('error line 180: ', e)
             res.status(400).send(`error incrementing video record with id: ${videoId}`, e)
           })
       } else {
-        console.log('video not found')
+        // console.log('video not found')
         res.status(400).send(`video with id ${videoId} not found`)
       }
     })
