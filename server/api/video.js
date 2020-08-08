@@ -52,7 +52,12 @@ router.get('byId/:id', (req, res, next) => {
       where: {
         id,
         isHidden: false,
-      }
+      },
+      include: [
+        {
+          model: User,
+        }
+      ],
     })
       .then(video => {
         if (video) {
@@ -237,7 +242,12 @@ router.get('/:id', (req, res, next) => {
       where: {
         id,
         isHidden: false,
-      }
+      },
+      include: [
+        {
+          model: User,
+        }
+      ],
     })
       .then(video => {
         if (video) {
