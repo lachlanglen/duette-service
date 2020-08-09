@@ -146,12 +146,12 @@ router.put('/markAsFulfilled/:requestId', (req, res, next) => {
     })
 });
 
-router.delete('/', (req, res, next) => {
-  Request.destroy({
-    where: {}
-  })
-    .then(() => res.status(200).send('destroyed!'))
-    .catch(e => res.status(400).send('error destroying all requests: ', e))
-})
+// router.delete('/', (req, res, next) => {
+//   Request.destroy({
+//     where: {}
+//   })
+//     .then(() => res.status(200).send('destroyed!'))
+//     .catch(e => res.status(400).send('error destroying all requests: ', e))
+// })
 
 module.exports = router;  
