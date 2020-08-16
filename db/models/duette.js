@@ -7,6 +7,15 @@ const Duette = connection.define('duette', {
     type: Sequelize.UUID,
     defaultValue: Sequelize.UUIDV4,
   },
+  shouldShare: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  baseTrackUserId: {
+    type: Sequelize.UUID,
+    allowNull: true,
+  }
 })
 
 module.exports = Duette;
