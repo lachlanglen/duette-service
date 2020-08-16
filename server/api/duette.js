@@ -4,8 +4,8 @@ const { Op } = require("sequelize");
 const { Duette, Video } = require('../../db');
 
 router.post('/', (req, res, next) => {
-  const { id, userId, videoId, shouldShare } = req.body;
-  Duette.create({ id, userId, videoId, shouldShare })
+  const { id, userId, videoId, shouldShare, baseTrackUserId } = req.body;
+  Duette.create({ id, userId, videoId, shouldShare, baseTrackUserId })
     .then(duette => res.status(201).send(duette))
     .catch(e => {
       res.status(400).send(e);
