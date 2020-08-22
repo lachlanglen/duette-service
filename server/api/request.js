@@ -5,7 +5,7 @@ const axios = require('axios');
 const mailjet = require('node-mailjet')
   .connect(process.env.MAILJET_APIKEY_PUBLIC, process.env.MAILJET_APIKEY_PRIVATE);
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
   const {
     title,
     composer,
@@ -14,6 +14,8 @@ router.post('/', (req, res, next) => {
     userId,
     notifyUser,
   } = req.body;
+  const userRecord = (await axios.get(`https://duette.herokuapp.com/api/user/${userId}`)).data;
+  const { name } = userRecord;
   if (!title || !composer || !key || !userId || !notifyUser) {
     return res.status(400).send('Request must include title, composer, key and userId.')
   }
@@ -42,7 +44,7 @@ router.post('/', (req, res, next) => {
                 }
               ],
               Subject: 'A user has requested a Base Track!',
-              HTMLPart: `<h4>Hi,</h4><div>User #${userId} has requested the following Base Track: Title - ${title}; composer - ${composer}; key - ${key}. ${notes && `They added the following notes: ${notes}`}</div><div>Thank you!</div><div>- Duette Requests</div>`,
+              HTMLPart: `<div>Hi,</div><div>${name} (User #${userId}) has requested the following Base Track:</div><div>Title: ${title}</div><div>Composer: ${composer}</div><div>Key: ${key}.</div>${notes && `<div>They added the following notes: ${notes}</div>`}<div>Thank you!</div><div>- Duette Requests</div>`,
               // CustomID: flag.dataValues.id,
             }
           ]
