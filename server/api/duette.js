@@ -109,4 +109,20 @@ router.put('/:duetteId', (req, res, next) => {
     })
 });
 
+router.delete('/:duetteId/:userId', (req, res, next) => {
+  const { duetteId, userId } = req.params;
+  if (!duetteId || !userId) {
+    res.status(400).send('duette id or user id not valid')
+  } else {
+    Duette.destroy({
+      where: {
+        id: duetteId,
+        userId,
+      }
+    })
+      .then(() => res.status(200).send('Duette deleted!'))
+      .catch(e => res.status(404).send('error deleting duette: ', e))
+  }
+});
+
 module.exports = router;
