@@ -101,7 +101,7 @@ router.put('/:duetteId', (req, res, next) => {
           ...duette,
           ...req.body,
         })
-          .then(updated => res.staatus(200).send('successfully updated: ', updated))
+          .then(updated => res.status(200).send('successfully updated: ', updated))
           .catch(e => res.status(400).send('error updating duette: ', e))
       } else {
         res.status(404).send('Duette not found to update')
