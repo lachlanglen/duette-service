@@ -90,7 +90,11 @@ router.get('/:id?', (req, res, next) => {
         }
       })
   } else {
-    User.findAll()
+    User.findAll({
+      order: [
+        ['updatedAt', 'DESC']
+      ]
+    })
       .then(users => res.send(users))
       .catch(e => res.send('Could not GET all users: ', e))
   }
