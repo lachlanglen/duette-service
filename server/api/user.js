@@ -68,6 +68,12 @@ router.post('/block', (req, res, next) => {
     })
 })
 
+router.get('/howMany', (req, res, next) => {
+  User.findAll()
+    .then(users => res.status(200).send(users.length))
+    .catch(e => res.status(404).send('could not find total number of users: ', e))
+});
+
 router.get('/:id?', (req, res, next) => {
   const { id } = req.params;
   if (id) {
