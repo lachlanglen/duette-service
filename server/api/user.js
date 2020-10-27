@@ -71,11 +71,29 @@ router.post('/block', (req, res, next) => {
 router.get('/howMany', (req, res, next) => {
   User.findAll()
     .then(users => {
-      console.log('users: ', users)
+      console.log('users:', users)
       res.status(200).send(users.length)
     })
     .catch(e => res.status(404).send('could not find total number of users: ', e))
 });
+
+router.get('/byEmail/:email', (req, res, next) => {
+  const { email } = req.query;
+  User.findOne({
+    where: {
+      email
+    }
+  })
+    .then(user => {
+      if (!user) {
+        console.log('user does not exist')
+        res.status(200).send('user does not exist')
+      } else {
+        console.log('user exists')
+        res.status(202).send('user exists')
+      }
+    })
+})
 
 router.get('/:id?', (req, res, next) => {
   const { id } = req.params;

@@ -10,6 +10,8 @@ if (process.env.NODE_ENV === 'production') {
   dbString = localDB
 }
 
+console.log('dbString: ', dbString)
+
 const connection = new Sequelize(dbString, { logging: false })
 
 module.exports = connection;
