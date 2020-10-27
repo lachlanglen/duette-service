@@ -78,7 +78,7 @@ router.get('/howMany', (req, res, next) => {
 });
 
 router.get('/byEmail/:email', (req, res, next) => {
-  const { email } = req.query;
+  const { email } = req.params;
   User.findOne({
     where: {
       email
