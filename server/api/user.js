@@ -116,7 +116,10 @@ router.get('/:id?', (req, res, next) => {
         ['updatedAt', 'DESC']
       ]
     })
-      .then(users => res.send(users))
+      .then(users => {
+        console.log('users.length: ', users.length);
+        res.send(users);
+      })
       .catch(e => res.send('Could not GET all users: ', e))
   }
 });
